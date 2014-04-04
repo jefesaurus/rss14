@@ -1012,35 +1012,11 @@ public class VisionGUI extends JPanel implements NodeMain {
 
 		}
 
-		AffineTransform transformWas = g2d.getTransform();
-
-		synchronized(worldToView) {
-			g2d.transform(worldToView);
-
-			paintInWorldUnderGridHook(g2d);
-
-			if (gridEnabled)
-				paintGrid(g2d);
-
-			paintInWorldOverGridUnderPosesHook(g2d);
-
-			if (currentPoseEnabled)
-				paintCurrentPose(g2d);
-
-			if (historicalPosesEnabled)
-				paintPoseHistory(g2d);
-
-			paintInWorldOverPosesHook(g2d);
-		}
-
-		g2d.setTransform(transformWas);
-
-		paintInViewUnderVisionImageHook(g2d);
+		
 
 		if (visionImageEnabled)
 			paintVisionImage(g2d);
 
-		paintInViewOverVisionImageHook(g2d);
 
 		lastFrameTime = System.currentTimeMillis() - startTime;
 

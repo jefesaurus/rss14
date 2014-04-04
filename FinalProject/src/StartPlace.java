@@ -19,7 +19,7 @@ import org.ros.node.topic.Subscriber;
 public class StartPlace implements NodeMain, Runnable {
 
 	public StartPlace() {
-		GUI gui = new GUI();
+		//GUI gui = new GUI();
 	}
 
 	@Override
