@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/rss-2014/group1/!svn/ver/20/odometry
+END
+.project
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/rss-2014/group1/!svn/ver/17/odometry/.project
+END
+dependencies.xml
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/rss-2014/group1/!svn/ver/20/odometry/dependencies.xml
+END
+manifest.xml
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/rss-2014/group1/!svn/ver/17/odometry/manifest.xml
+END
+mainpage.dox
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/rss-2014/group1/!svn/ver/17/odometry/mainpage.dox
+END
+CMakeLists.txt
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/rss-2014/group1/!svn/ver/17/odometry/CMakeLists.txt
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/rss-2014/group1/!svn/ver/17/odometry/Makefile
+END
+build.xml
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/rss-2014/group1/!svn/ver/17/odometry/build.xml
+END

@@ -1,0 +1,8 @@
+<launch>
+  <include file="./config.launch" />
+
+  <node name="odo" pkg="rosjava_bootstrap" type="run.py" args="odometry odometry.Odometry" machine="netbook" /> 
+  <node name="lis" pkg="rosjava_bootstrap" type="run.py" args="uorc_listener Listener" machine="netbook" /> 
+  <node name="grp" pkg="rosjava_bootstrap" type="run.py" args="FinalProject StartPlace" machine="workstation" output="screen"/>
+
+</launch>

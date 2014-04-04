@@ -1,0 +1,77 @@
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/rss-2014/group1/!svn/ver/16/MotorControl/src/MotorControl
+END
+RobotBase.java
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/rss-2014/group1/!svn/ver/10/MotorControl/src/MotorControl/RobotBase.java
+END
+WheelVelocityControllerI.java
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/rss-2014/group1/!svn/ver/16/MotorControl/src/MotorControl/WheelVelocityControllerI.java
+END
+GraphPanel.java
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/rss-2014/group1/!svn/ver/10/MotorControl/src/MotorControl/GraphPanel.java
+END
+MotorControl.java
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/rss-2014/group1/!svn/ver/14/MotorControl/src/MotorControl/MotorControl.java
+END
+RobotVelocityControllerBalanced.java
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/rss-2014/group1/!svn/ver/16/MotorControl/src/MotorControl/RobotVelocityControllerBalanced.java
+END
+VelocityController.java
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/rss-2014/group1/!svn/ver/10/MotorControl/src/MotorControl/VelocityController.java
+END
+WheelVelocityControllerFF.java
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/rss-2014/group1/!svn/ver/16/MotorControl/src/MotorControl/WheelVelocityControllerFF.java
+END
+MotorControlGUI.java
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/rss-2014/group1/!svn/ver/10/MotorControl/src/MotorControl/MotorControlGUI.java
+END
+RobotGraph.java
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/rss-2014/group1/!svn/ver/10/MotorControl/src/MotorControl/RobotGraph.java
+END
+WheelVelocityController.java
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/rss-2014/group1/!svn/ver/12/MotorControl/src/MotorControl/WheelVelocityController.java
+END
+RobotVelocityController.java
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/rss-2014/group1/!svn/ver/10/MotorControl/src/MotorControl/RobotVelocityController.java
+END
+WheelVelocityControllerPWM.java
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/rss-2014/group1/!svn/ver/12/MotorControl/src/MotorControl/WheelVelocityControllerPWM.java
+END

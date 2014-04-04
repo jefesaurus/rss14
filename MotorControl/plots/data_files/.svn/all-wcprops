@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/rss-2014/group1/!svn/ver/15/MotorControl/plots/data_files
+END
+ffvel_loaded_data.txt
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/rss-2014/group1/!svn/ver/13/MotorControl/plots/data_files/ffvel_loaded_data.txt
+END
+I_controller_data.txt
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/rss-2014/group1/!svn/ver/15/MotorControl/plots/data_files/I_controller_data.txt
+END
+direct_pwm_data.txt
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/rss-2014/group1/!svn/ver/13/MotorControl/plots/data_files/direct_pwm_data.txt
+END
+ffvel_unloaded_data.txt
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/rss-2014/group1/!svn/ver/13/MotorControl/plots/data_files/ffvel_unloaded_data.txt
+END
+ffvel_loaded_plot.ps
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/rss-2014/group1/!svn/ver/13/MotorControl/plots/data_files/ffvel_loaded_plot.ps
+END
+I_controller_plot.ps
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/rss-2014/group1/!svn/ver/15/MotorControl/plots/data_files/I_controller_plot.ps
+END
+direct_pwm_plot.ps
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/rss-2014/group1/!svn/ver/13/MotorControl/plots/data_files/direct_pwm_plot.ps
+END
+ffvel_unloaded_plot.ps
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/rss-2014/group1/!svn/ver/13/MotorControl/plots/data_files/ffvel_unloaded_plot.ps
+END

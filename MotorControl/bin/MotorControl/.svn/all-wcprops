@@ -1,0 +1,197 @@
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/rss-2014/group1/!svn/ver/14/MotorControl/bin/MotorControl
+END
+RobotGraph$PaintablePanel.class
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/rss-2014/group1/!svn/ver/12/MotorControl/bin/MotorControl/RobotGraph$PaintablePanel.class
+END
+MotorControlGUI$DataLogListener.class
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/rss-2014/group1/!svn/ver/12/MotorControl/bin/MotorControl/MotorControlGUI$DataLogListener.class
+END
+RobotBase.class
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/rss-2014/group1/!svn/ver/12/MotorControl/bin/MotorControl/RobotBase.class
+END
+GraphPanel.class
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/rss-2014/group1/!svn/ver/12/MotorControl/bin/MotorControl/GraphPanel.class
+END
+WheelVelocityController.class
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/rss-2014/group1/!svn/ver/12/MotorControl/bin/MotorControl/WheelVelocityController.class
+END
+MotorControlGUI$1.class
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/rss-2014/group1/!svn/ver/12/MotorControl/bin/MotorControl/MotorControlGUI$1.class
+END
+MotorControlGUI$2.class
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/rss-2014/group1/!svn/ver/12/MotorControl/bin/MotorControl/MotorControlGUI$2.class
+END
+MotorControlGUI$WheelPanel$DesiredSliderListener.class
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/rss-2014/group1/!svn/ver/12/MotorControl/bin/MotorControl/MotorControlGUI$WheelPanel$DesiredSliderListener.class
+END
+MotorControlGUI$3.class
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/rss-2014/group1/!svn/ver/12/MotorControl/bin/MotorControl/MotorControlGUI$3.class
+END
+MotorControlGUI$WheelPanel$WheelPanelListener.class
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/rss-2014/group1/!svn/ver/12/MotorControl/bin/MotorControl/MotorControlGUI$WheelPanel$WheelPanelListener.class
+END
+MotorControlGUI$4.class
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/rss-2014/group1/!svn/ver/12/MotorControl/bin/MotorControl/MotorControlGUI$4.class
+END
+MotorControlGUI$5.class
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/rss-2014/group1/!svn/ver/12/MotorControl/bin/MotorControl/MotorControlGUI$5.class
+END
+WheelVelocityControllerI.class
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/rss-2014/group1/!svn/ver/14/MotorControl/bin/MotorControl/WheelVelocityControllerI.class
+END
+RobotGraph$MyMouseListener.class
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/rss-2014/group1/!svn/ver/12/MotorControl/bin/MotorControl/RobotGraph$MyMouseListener.class
+END
+WheelVelocityControllerFF.class
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/rss-2014/group1/!svn/ver/13/MotorControl/bin/MotorControl/WheelVelocityControllerFF.class
+END
+RobotGraph.class
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/rss-2014/group1/!svn/ver/12/MotorControl/bin/MotorControl/RobotGraph.class
+END
+WheelVelocityControllerPWM.class
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/rss-2014/group1/!svn/ver/12/MotorControl/bin/MotorControl/WheelVelocityControllerPWM.class
+END
+MotorControlGUI$WheelPanel$GraphListener.class
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/rss-2014/group1/!svn/ver/12/MotorControl/bin/MotorControl/MotorControlGUI$WheelPanel$GraphListener.class
+END
+MotorControlGUI$WheelPanel$InputFunctionActionListener.class
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/rss-2014/group1/!svn/ver/12/MotorControl/bin/MotorControl/MotorControlGUI$WheelPanel$InputFunctionActionListener.class
+END
+MotorControlGUI$WheelPanel.class
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/rss-2014/group1/!svn/ver/12/MotorControl/bin/MotorControl/MotorControlGUI$WheelPanel.class
+END
+MotorControlGUI$SystemButtonListener.class
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/rss-2014/group1/!svn/ver/12/MotorControl/bin/MotorControl/MotorControlGUI$SystemButtonListener.class
+END
+RobotVelocityControllerBalanced.class
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/rss-2014/group1/!svn/ver/14/MotorControl/bin/MotorControl/RobotVelocityControllerBalanced.class
+END
+MotorControlGUI$WheelPanel$GainSliderListener.class
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/rss-2014/group1/!svn/ver/12/MotorControl/bin/MotorControl/MotorControlGUI$WheelPanel$GainSliderListener.class
+END
+RobotGraph$1.class
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/rss-2014/group1/!svn/ver/12/MotorControl/bin/MotorControl/RobotGraph$1.class
+END
+MotorControl.class
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/rss-2014/group1/!svn/ver/14/MotorControl/bin/MotorControl/MotorControl.class
+END
+VelocityController.class
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/rss-2014/group1/!svn/ver/12/MotorControl/bin/MotorControl/VelocityController.class
+END
+MotorControlGUI$WheelPanel$1.class
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/rss-2014/group1/!svn/ver/12/MotorControl/bin/MotorControl/MotorControlGUI$WheelPanel$1.class
+END
+MotorControlGUI$WheelPanel$2.class
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/rss-2014/group1/!svn/ver/12/MotorControl/bin/MotorControl/MotorControlGUI$WheelPanel$2.class
+END
+MotorControlGUI.class
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/rss-2014/group1/!svn/ver/12/MotorControl/bin/MotorControl/MotorControlGUI.class
+END
+MotorControlGUI$WheelPanel$3.class
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/rss-2014/group1/!svn/ver/12/MotorControl/bin/MotorControl/MotorControlGUI$WheelPanel$3.class
+END
+RobotBase$ControlLoopThread.class
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/rss-2014/group1/!svn/ver/12/MotorControl/bin/MotorControl/RobotBase$ControlLoopThread.class
+END
+RobotVelocityController.class
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/rss-2014/group1/!svn/ver/12/MotorControl/bin/MotorControl/RobotVelocityController.class
+END
