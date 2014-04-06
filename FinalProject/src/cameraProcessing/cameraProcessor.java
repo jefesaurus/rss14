@@ -20,7 +20,7 @@ public class cameraProcessor implements NodeMain, Runnable {
 
 	public Subscriber<org.ros.message.sensor_msgs.Image> vidSub;
 	
-	private BlobTracking blobTrack;
+	private ConnCompTwo cct;
 	private Image src;
 	private VisionGUI gui;
 	
@@ -30,6 +30,7 @@ public class cameraProcessor implements NodeMain, Runnable {
 	
 	public cameraProcessor() {
 		gui = new VisionGUI();
+		
 	}
 	
 	@Override
@@ -42,10 +43,10 @@ public class cameraProcessor implements NodeMain, Runnable {
 				e.printStackTrace();
 				continue;
 			}
-			
 			Image dest = new Image(src);
 			
 			// process here
+			cct.visualize(src, dest);
 			
 			gui.setVisionImage(dest.toArray(), width, height);
 		}
@@ -54,8 +55,8 @@ public class cameraProcessor implements NodeMain, Runnable {
 
 	@Override
 	public void onStart(Node node) {
-		blobTrack = new BlobTracking(width, height);
-		final boolean reverseRGB = node.newParameterTree().getBoolean("reverse_rgb", false);
+		cct = new ConnCompTwo();
+		final boolean reverseRGB = node.newParameterTree().getBoolean("reverse_rgb", true);
 
 		vidSub = node.newSubscriber("/rss/video", "sensor_msgs/Image");
 		vidSub
