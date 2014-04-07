@@ -55,6 +55,7 @@ public class cameraProcessor implements NodeMain, Runnable {
 
 	@Override
 	public void onStart(Node node) {
+		System.out.println("Starting camera processor");
 		cct = new ConnCompTwo();
 		final boolean reverseRGB = node.newParameterTree().getBoolean("reverse_rgb", true);
 
