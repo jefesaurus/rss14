@@ -1,6 +1,6 @@
 package navigation;
 
-public class Point { // TODO use Point2D.Double instead?
+public class Point {
 	public final double x, y;
 
 	public Point(double x, double y) {

@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/rss-2014/group1/!svn/ver/54/lab5_msgs/src/lab5_msgs/msg
+END
+_GUIEraseMsg.py
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/rss-2014/group1/!svn/ver/54/lab5_msgs/src/lab5_msgs/msg/_GUIEraseMsg.py
+END
+_GUISegmentMsg.py
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/rss-2014/group1/!svn/ver/54/lab5_msgs/src/lab5_msgs/msg/_GUISegmentMsg.py
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/rss-2014/group1/!svn/ver/54/lab5_msgs/src/lab5_msgs/msg/__init__.py
+END
+_GUILineMsg.py
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/rss-2014/group1/!svn/ver/54/lab5_msgs/src/lab5_msgs/msg/_GUILineMsg.py
+END
+_ColorMsg.py
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/rss-2014/group1/!svn/ver/54/lab5_msgs/src/lab5_msgs/msg/_ColorMsg.py
+END
+_GUIPointMsg.py
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/rss-2014/group1/!svn/ver/54/lab5_msgs/src/lab5_msgs/msg/_GUIPointMsg.py
+END

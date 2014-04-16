@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/rss-2014/group1/!svn/ver/54/lab6_msgs
+END
+manifest.xml
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/rss-2014/group1/!svn/ver/52/lab6_msgs/manifest.xml
+END
+mainpage.dox
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/rss-2014/group1/!svn/ver/52/lab6_msgs/mainpage.dox
+END
+CMakeLists.txt
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/rss-2014/group1/!svn/ver/52/lab6_msgs/CMakeLists.txt
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/rss-2014/group1/!svn/ver/52/lab6_msgs/Makefile
+END

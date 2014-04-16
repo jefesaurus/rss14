@@ -1,8 +1,8 @@
 <launch>
-  <include file="$(find lab4)/launch/config.launch" />
+  <include file="$(find FinalProject)/launch/config.launch" />
 
   <node name="odo" pkg="rosjava_bootstrap" type="run.py" args="odometry odometry.Odometry" machine="netbook" /> 
   <node name="lis" pkg="rosjava_bootstrap" type="run.py" args="uorc_listener Listener" machine="netbook" /> 
-  <node name="grp" pkg="rosjava_bootstrap" type="run.py" args="FinalProject NavigationTest" machine="workstation" output="screen"/>
-
+  <node name="nav" pkg="rosjava_bootstrap" type="run.py" args="FinalProject navigation.NavigationTest" machine="workstation" output="screen"/>
+  <param name="mapFileName" value="/home/rss-student/rss14/FinalProject/maps/global-nav-maze-2011-basic.map" /> 
 </launch>

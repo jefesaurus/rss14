@@ -1,0 +1,5 @@
+<launch>
+  <include file="$(find lab6)/launch/config.launch" />
+  <node name="gui" pkg="rosjava_bootstrap" type="run.py" args="lab6 GlobalNavigation.MapGUI" machine="workstation" output="screen" />
+  <node name="globnav" pkg="rosjava_bootstrap" type="run.py" args="lab6 GlobalNavigation.GlobalNavigation" machine="workstation" output="screen" />
+</launch>

@@ -19,8 +19,39 @@ public class BoundingBox {
 		return min.x < point.x && max.x > point.x && min.y < point.y
 				&& max.y > point.y;
 	}
+	
+	public boolean contains(BoundingBox other) {
+		return (min.x <= other.min.x && max.x >= other.max.x
+				&& min.y <= other.min.y && max.y >= other.max.y);
+	}
+	
+	public boolean contains(Polygon polygon) {
+		if (!contains(polygon.boundingBox)) {
+			return false;
+		}
+		
+		for (Point point : polygon.points) {
+			if (!contains(point)) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	public boolean contains(Shape shape) {
+		if (!contains(shape.boundingBox)) {
+			return false;
+		}
+		
+		for (Polygon polygon : shape.polygons) {
+			if (!contains(polygon)) {
+				return false;
+			}
+		}
+		return true;
+	}
 
-	public static BoundingBox computeBoundingBox(List<Point> points) {
+	public static BoundingBox pointsToBoundingBox(List<Point> points) {
 		if (points.size() == 0) {
 			throw new RuntimeException();
 		}
@@ -35,6 +66,28 @@ public class BoundingBox {
 			minY = Math.min(minY, point.y);
 			maxX = Math.max(maxX, point.x);
 			maxY = Math.max(maxY, point.y);
+		}
+		return new BoundingBox(new Point(minX, minY), new Point(maxX, maxY));
+	}
+	
+	public static BoundingBox polygonsToBoundingBox(List<Polygon> polygons) {
+		if (polygons.size() == 0) {
+			throw new RuntimeException();
+		}
+
+		double minX, minY, maxX, maxY;
+		BoundingBox box = polygons.get(0).boundingBox;
+		minX = box.min.x;
+		maxX = box.max.x;
+		minY = box.min.y;
+		maxY = box.max.y;
+
+		for (int i = 1; i < polygons.size(); i++) {
+			box = polygons.get(i).boundingBox;
+			minX = Math.min(minX, box.min.x);
+			minY = Math.min(minY, box.min.y);
+			maxX = Math.max(maxX, box.max.x);
+			maxY = Math.max(maxY, box.max.y);
 		}
 		return new BoundingBox(new Point(minX, minY), new Point(maxX, maxY));
 	}

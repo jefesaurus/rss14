@@ -1,0 +1,95 @@
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/rss-2014/group1/!svn/ver/31/lab5/target/classes/LocalNavigation
+END
+SegmentMessageListener.class
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/rss-2014/group1/!svn/ver/31/lab5/target/classes/LocalNavigation/SegmentMessageListener.class
+END
+SonarGUI$Segment.class
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/rss-2014/group1/!svn/ver/31/lab5/target/classes/LocalNavigation/SonarGUI$Segment.class
+END
+WallSegment.class
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/rss-2014/group1/!svn/ver/31/lab5/target/classes/LocalNavigation/WallSegment.class
+END
+SonarGUI.class
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/rss-2014/group1/!svn/ver/31/lab5/target/classes/LocalNavigation/SonarGUI.class
+END
+LocalNavigation$1.class
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/rss-2014/group1/!svn/ver/31/lab5/target/classes/LocalNavigation/LocalNavigation$1.class
+END
+LocalNavigation$2.class
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/rss-2014/group1/!svn/ver/31/lab5/target/classes/LocalNavigation/LocalNavigation$2.class
+END
+LocalNavigation$3.class
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/rss-2014/group1/!svn/ver/31/lab5/target/classes/LocalNavigation/LocalNavigation$3.class
+END
+LocalNavigation$4.class
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/rss-2014/group1/!svn/ver/31/lab5/target/classes/LocalNavigation/LocalNavigation$4.class
+END
+LineMessageListener.class
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/rss-2014/group1/!svn/ver/31/lab5/target/classes/LocalNavigation/LineMessageListener.class
+END
+SonarGUI$Line.class
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/rss-2014/group1/!svn/ver/31/lab5/target/classes/LocalNavigation/SonarGUI$Line.class
+END
+PointMessageListener.class
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/rss-2014/group1/!svn/ver/31/lab5/target/classes/LocalNavigation/PointMessageListener.class
+END
+Pose.class
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/rss-2014/group1/!svn/ver/31/lab5/target/classes/LocalNavigation/Pose.class
+END
+SonarGUI$GUIPoint.class
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/rss-2014/group1/!svn/ver/31/lab5/target/classes/LocalNavigation/SonarGUI$GUIPoint.class
+END
+LocalNavigation.class
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/rss-2014/group1/!svn/ver/31/lab5/target/classes/LocalNavigation/LocalNavigation.class
+END
+EraseMessageListener.class
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/rss-2014/group1/!svn/ver/31/lab5/target/classes/LocalNavigation/EraseMessageListener.class
+END

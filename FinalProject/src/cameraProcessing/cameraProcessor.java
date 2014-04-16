@@ -20,7 +20,7 @@ public class cameraProcessor implements NodeMain, Runnable {
 
 	public Subscriber<org.ros.message.sensor_msgs.Image> vidSub;
 	
-	private ConnCompTwo cct;
+	private ConnComp2 cct;
 	private Image src;
 	private VisionGUI gui;
 	
@@ -47,6 +47,7 @@ public class cameraProcessor implements NodeMain, Runnable {
 			
 			// process here
 			cct.visualize(src, dest);
+//			cct.calibrateHelp(src, dest);
 			
 			gui.setVisionImage(dest.toArray(), width, height);
 		}
@@ -56,7 +57,7 @@ public class cameraProcessor implements NodeMain, Runnable {
 	@Override
 	public void onStart(Node node) {
 		System.out.println("Starting camera processor");
-		cct = new ConnCompTwo();
+		cct = new ConnComp2();
 		final boolean reverseRGB = node.newParameterTree().getBoolean("reverse_rgb", true);
 
 		vidSub = node.newSubscriber("/rss/video", "sensor_msgs/Image");
