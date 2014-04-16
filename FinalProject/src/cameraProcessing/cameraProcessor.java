@@ -1,5 +1,6 @@
 package cameraProcessing;
 
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import org.ros.message.MessageListener;
@@ -46,8 +47,9 @@ public class cameraProcessor implements NodeMain, Runnable {
 			Image dest = new Image(src);
 			
 			// process here
-			cct.visualize(src, dest);
+			List<BlockInfo> blockInfos = cct.visualize(src, dest);
 //			cct.calibrateHelp(src, dest);
+//			cct.debugHelp(src, dest);
 			
 			gui.setVisionImage(dest.toArray(), width, height);
 		}

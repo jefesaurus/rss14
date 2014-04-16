@@ -7,18 +7,6 @@ import java.util.List;
 
 public class ConnComp2 {
 	
-	public class BlockInfo {
-		public Point centroid;
-		public float size;
-		public String color;
-		
-		public BlockInfo(Point centroid, float size, String color) {
-			this.centroid = centroid;
-			this.size = size;
-			this.color = color;
-		}
-	}
-	
 	private class HSBRanges {
 		public int name;
 		public float hueMin;
@@ -69,79 +57,6 @@ public class ConnComp2 {
 	}
 	
 	/**
-	 * Judge whether two pixels are similar to each other or not based on passed in parameters
-	 * If either pixel value is invalid (outside the bound of the image), return false
-	 * @param pix1
-	 * @param pix2
-	 * @return
-	 */
-	private boolean pixelsSimilar(Image src, Point pix1, Point pix2) {
-		int red1 = (src.getPixelRed(pix1.x, pix1.y) >= 0)?src.getPixelRed(pix1.x, pix1.y):256+src.getPixelRed(pix1.x, pix1.y);
-		int green1 = (src.getPixelGreen(pix1.x, pix1.y) >= 0)?src.getPixelGreen(pix1.x, pix1.y):256+src.getPixelGreen(pix1.x, pix1.y);
-		int blue1 = (src.getPixelBlue(pix1.x, pix1.y) >= 0)?src.getPixelBlue(pix1.x, pix1.y):256+src.getPixelBlue(pix1.x, pix1.y);
-		float[] pixelArray1 = Color.RGBtoHSB(red1, green1, blue1, null);
-		float hue1 = pixelArray1[0];
-		float sat1 = pixelArray1[1];
-		float bright1 = pixelArray1[2];
-		
-		int red2 = (src.getPixelRed(pix2.x, pix2.y) >= 0)?src.getPixelRed(pix2.x, pix2.y):256+src.getPixelRed(pix2.x, pix2.y);
-		int green2 = (src.getPixelGreen(pix2.x, pix2.y) >= 0)?src.getPixelGreen(pix2.x, pix2.y):256+src.getPixelGreen(pix2.x, pix2.y);
-		int blue2 = (src.getPixelBlue(pix2.x, pix2.y) >= 0)?src.getPixelBlue(pix2.x, pix2.y):256+src.getPixelBlue(pix2.x, pix2.y);
-		float[] pixelArray2 = Color.RGBtoHSB(red2, green2, blue2, null);
-		float hue2 = pixelArray2[0];
-		float sat2 = pixelArray2[1];
-		float bright2 = pixelArray2[2];
-		
-		// If either pixel is not a block pixel, return false
-		if (!(isBlockPixel(src, pix1) && isBlockPixel(src, pix2)))
-			return false;
-		// If hue value close to original pixel, considered valid
-		float hueDiff = Math.abs(hue1 - hue2);
-		hueDiff = (hueDiff > 1)?hueDiff - 1 : hueDiff;
-		if (hueDiff < hueSimilarityThresh)
-			return true;
-		// Otherwise return false
-		return false;
-	}
-	
-	/**
-	 * Measure of whether or not a pixel is considered to be part of a block
-	 * @param src
-	 * @param pix
-	 * @return
-	 */
-	private boolean isBlockPixel(Image src, Point pix) {
-		int red = (src.getPixelRed(pix.x, pix.y) >= 0)?src.getPixelRed(pix.x, pix.y):256+src.getPixelRed(pix.x, pix.y);
-		int green = (src.getPixelGreen(pix.x, pix.y) >= 0)?src.getPixelGreen(pix.x, pix.y):256+src.getPixelGreen(pix.x, pix.y);
-		int blue = (src.getPixelBlue(pix.x, pix.y) >= 0)?src.getPixelBlue(pix.x, pix.y):256+src.getPixelBlue(pix.x, pix.y);
-		float[] pixelArray = Color.RGBtoHSB(red, green, blue, null);
-		float hue = pixelArray[0];
-		float sat = pixelArray[1];
-		float bright = pixelArray[2];
-		return (bright > blockBrightThresh && sat > blockSatThresh);
-	}
-	
-	/**
-	 * 
-	 * @param pix
-	 * @return Return a subset of the 4 neighboring pixels with similar pixels
-	 */
-	private List<Point> similarNeighbors(Image src, Point pix) {
-		int x = pix.x;
-		int y = pix.y;
-		Point[] checkList4 = {new Point(x+1,y), new Point(x-1,y), new Point(x,y+1), new Point(x, y-1)};
-		Point[] checkList8 = {new Point(x+1,y), new Point(x-1,y), new Point(x,y+1), new Point(x, y-1),
-				new Point (x+1,y+1), new Point(x-1,y+1), new Point(x+1,y-1), new Point(x-1,y-1)};
-		List<Point> answer = new ArrayList<Point>();
-		for (Point neigh : checkList4) {
-			if (pixelsSimilar(src, pix, neigh)) {
-				answer.add(neigh);
-			}
-		}
-		return answer;
-	}
-	
-	/**
 	 * 
 	 * @param pix
 	 * @return Return a subset of the 4 neighboring pixels with the same color labeled
@@ -162,50 +77,6 @@ public class ConnComp2 {
 			}
 		}
 		return answer;
-	}
-	
-	/**
-	 * Uses two pass algorithm from wikipedia page "Connected component labeling". Groups things that have similar
-	 * neighboring pixels.
-	 * @param src
-	 * @return
-	 */
-	public List<ArrayList<Point>> findSimilarPointGroups(Image src) {
-		UF labels = new UF(src.getWidth()*src.getHeight());
-		// First pass, label everything
-		for (int x = 0; x<src.getWidth(); x++) {
-			for (int y = 0; y<src.getHeight(); y++) {
-				Point pix = new Point(x,y);
-				if (!isBlockPixel(src, pix)) {
-					continue;
-				}
-				
-				// look at neighbors with similar colors. If it has no neighbors, ignore it as an anomaly.
-				List<Point> neighbors = similarNeighbors(src, pix);
-				if (neighbors.isEmpty())
-					continue;
-				
-				// otherwise blindly union them all
-				for (Point neigh : neighbors) {
-					labels.union(pix.y*src.getHeight()+pix.x, neigh.y*src.getHeight()+neigh.x);
-				}
-			}
-		}
-		// second pass, extract groups with size greater than 1
-		List<ArrayList<Point>> groups = new ArrayList<ArrayList<Point>>();
-		for (int i = 0; i<src.getWidth()*src.getHeight(); i++) {
-			groups.add(new ArrayList<Point>());
-		}
-		System.out.println("size: " + groups.size());
-		
-		for (int x = 0; x<src.getWidth(); x++) {
-			for (int y = 0; y<src.getHeight(); y++) {
-				Point pix = new Point(x,y);
-				int component = labels.find(pix.y*src.getHeight()+pix.x);
-				groups.get(component).add(pix);
-			}
-		}
-		return groups;
 	}
 	
 	/**
@@ -247,7 +118,7 @@ public class ConnComp2 {
 				
 				// otherwise blindly union them all
 				for (Point neigh : neighbors) {
-					labels.union(pix.y*src.getHeight()+pix.x, neigh.y*src.getHeight()+neigh.x);
+					labels.union(pix.x*src.getHeight()+pix.y, neigh.x*src.getHeight()+neigh.y);
 				}
 			}
 		}
@@ -257,11 +128,11 @@ public class ConnComp2 {
 			groups.add(new ArrayList<Point>());
 		}
 		System.out.println("size: " + groups.size());
-		
+		System.out.println(labels.find(5*src.getHeight()+5));
 		for (int x = 0; x<src.getWidth(); x++) {
 			for (int y = 0; y<src.getHeight(); y++) {
 				Point pix = new Point(x,y);
-				int component = labels.find(pix.y*src.getHeight()+pix.x);
+				int component = labels.find(pix.x*src.getHeight()+pix.y);
 				groups.get(component).add(pix);
 			}
 		}
@@ -287,6 +158,10 @@ public class ConnComp2 {
 	public List<BlockInfo> makeBlockInfos(Image src, List<ArrayList<Point>> groups) {
 		List<BlockInfo> answer = new ArrayList<BlockInfo>();
 		for (ArrayList<Point> g : groups) {
+			if (g.size() <1) {
+				answer.add(new BlockInfo(new Point(0,0), 1, "invalid"));
+				continue;
+			}
 			int allX = 0;
 			int allY = 0;
 			int minx = 10000;
@@ -313,7 +188,6 @@ public class ConnComp2 {
 				}
 			}
 			color = colors[g.get(0).x][g.get(0).y];
-			System.out.println(color);
 			String colorName = (color >=0)?RangeMapping[color]:"background";
 			answer.add(new BlockInfo(new Point(avgX, avgY), size, colorName));
 		}
@@ -325,7 +199,7 @@ public class ConnComp2 {
 	 * @param src the source RGB
 	 * @param dest the destination RGB
 	 */
-	public void visualize(Image src, Image dest) {
+	public List<BlockInfo> visualize(Image src, Image dest) {
 		Color[] groupColorings = {Color.black, Color.blue, Color.pink, Color.magenta, Color.yellow, Color.green};
 		List<ArrayList<Point>> groups = filterGroupsBySize(findColorPointGroups(src), minPixelsPerGroup);
 		List<BlockInfo> blockInfos = makeBlockInfos(src, groups);
@@ -346,6 +220,17 @@ public class ConnComp2 {
 				if(y >= 0 && y < dest.getHeight() && centroid.x >= 0 && centroid.x < dest.getWidth())				
 					dest.setPixel(centroid.x, y, (byte)0, (byte)0, (byte)0);	
 		}
+		return blockInfos;
+	}
+	
+	/**
+	 * Returns the same thing as visualize without the visualization.
+	 * @param src
+	 * @return
+	 */
+	public List<BlockInfo> getBlockInfosForFrame(Image src) {
+		List<ArrayList<Point>> groups = filterGroupsBySize(findColorPointGroups(src), minPixelsPerGroup);
+		return makeBlockInfos(src, groups);
 	}
 	
 	/**
@@ -383,6 +268,18 @@ public class ConnComp2 {
 		for (int y = 2*src.getHeight()/5; y<3*src.getHeight()/5; y++) {
 			dest.setPixel(2*src.getWidth()/5, y, (byte)0, (byte)0, (byte)0);
 			dest.setPixel(3*src.getWidth()/5, y, (byte)0, (byte)0, (byte)0);
+		}
+	}
+	
+	/**
+	 * Function used to help debug certain things
+	 * @param src
+	 * @param dest
+	 */
+	public void debugHelp(Image src, Image dest) {
+		for (int x = 0; x<src.getWidth(); x++) {
+			byte grey = (byte)(256*x/src.getWidth());
+			dest.setPixel(x, src.getHeight()/2, grey, grey, grey);
 		}
 	}
 }
