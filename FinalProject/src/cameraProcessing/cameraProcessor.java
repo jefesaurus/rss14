@@ -65,6 +65,15 @@ public class cameraProcessor implements NodeMain, Runnable {
 			e.printStackTrace();
 			return;
 		}
+		//reduce image by factor
+		int factor = 4;
+		Image newSrc = new Image(src.getWidth()/factor, src.getHeight()/factor);
+		for (int x = 0; x<src.getWidth()/factor; x++) {
+			for (int y = 0; y<src.getHeight()/factor; y++) {
+				newSrc.setPixel(x, y, src.getPixel(x*factor, y*factor));
+			}
+		}
+		src = newSrc;
 		Image dest = new Image(src);
 		
 		// process here
@@ -80,15 +89,15 @@ public class cameraProcessor implements NodeMain, Runnable {
 //		cct.debugHelp(src, dest);
 		
 		if (guiOn) {
-			gui.setVisionImage(dest.toArray(), width, height);
+			gui.setVisionImage(dest.toArray(), width/factor, height/factor);
 		}
 	}
 	
 	
 	public double RANGE_GAIN = .005;
     public double BEARING_GAIN = .005;
-    public double desiredRange = 441; // desired centroid.y in pixels
-    public double desiredBearing = 391; //desired centroid.x in pixels
+    public double desiredRange = 441/4; // desired centroid.y in pixels
+    public double desiredBearing = 391/4; //desired centroid.x in pixels
 	/**
 	 * Should be called in the run command if you want the robot to servo
 	 * to the closest object.
