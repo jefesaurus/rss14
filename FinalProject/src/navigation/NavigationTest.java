@@ -27,10 +27,9 @@ public class NavigationTest implements NodeMain {
 
 	@Override
 	public void onStart(Node node) {
-		//ParameterTree paramTree = node.newParameterTree();
-		//String mapFileName = paramTree.getString(node
-		//		.resolveName("~/mapFileName"));
-		String mapFileName = "/home/rss-student/rss14/FinalProject/maps/global-nav-maze-2011-basic.map";
+		ParameterTree paramTree = node.newParameterTree();
+		String mapFileName = paramTree.getString(node
+				.resolveName("~/mapFileName"));
 		try {
 			world = new World(mapFileName);
 		} catch (Exception e) {
@@ -40,8 +39,9 @@ public class NavigationTest implements NodeMain {
 		planner = new MotionPlanner(world);
 		nav = new WaypointNavigator(node, gui);
 		
-		Configuration start = new Configuration(0, 0, 0);
-		Configuration goal = new Configuration(2, 3.85, 0);
+		Configuration start = world.getStart().configuration(0);
+		Configuration goal = world.getGoal().configuration(3*Math.PI/2);
+		//Configuration goal = new Configuration(2, 3.85, 0);
 		//Configuration goal = new Configuration(2, 2.5, 0);
 
 		System.out.println("Start collision?: " + world.robotCollision(start));
@@ -49,6 +49,7 @@ public class NavigationTest implements NodeMain {
 		
 		gui.draw(world);
 		gui.draw(world.getRobot(start), true, Color.BLUE);
+		gui.draw(world.getViewCone(start), false, Color.BLUE);
 		gui.draw(world.getRobot(goal), true, Color.RED);
 		
 		List<Configuration> path = planner.findPath(start, goal);
@@ -61,15 +62,10 @@ public class NavigationTest implements NodeMain {
 			System.out.println("Could not find path in " + planner.iterations + " iterations");
 		}
 		
-		/*
 		//gui.draw(world, planner.tree1.root, Color.RED);
 		//gui.draw(world, planner.tree2.root, Color.BLUE);
 		gui.draw(planner.tree1.root, Color.RED);
 		gui.draw(planner.tree2.root, Color.BLUE);
-		
-		//gui.draw(world, start.interpolatePathForward(new Configuration(1, .2, 0)));
-		//gui.draw(world, goal.interpolatePathBackward(new Configuration(1, 2.3, 0)));
-		*/
 	}
 	
 	@Override

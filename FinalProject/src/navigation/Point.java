@@ -12,6 +12,10 @@ public class Point {
 		return Math.sqrt((other.x - x) * (other.x - x) + (other.y - y)
 				* (other.y - y));
 	}
+	
+	public Configuration configuration(double theta) {
+		return new Configuration(x, y, theta);
+	}
 
 	public String toString() {
 		return "Point(" + x + ", " + y + ")";

@@ -1,6 +1,5 @@
 package navigation;
 
-import java.awt.geom.Point2D;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -52,6 +51,17 @@ public class Constants {
 		return new Shape(polygons).translate(-ORIGIN_X, -ORIGIN_Y).rotate(-Math.PI/2, new Point(0., 0.));
 	}
 	
+	public static final double VIEW_CONE_WIDTH = 1.;
+	public static final double VIEW_CONE_HEIGHT = 1.;
+	
+	public static Polygon createViewCone() {
+		List<Point> points = new LinkedList<Point>();
+		points.add(new Point(0., 0.)); // Origin
+		points.add(new Point(VIEW_CONE_WIDTH/2, VIEW_CONE_HEIGHT)); // Front Right
+		points.add(new Point(-VIEW_CONE_WIDTH/2, VIEW_CONE_HEIGHT)); // Front Left
+		return new Polygon(points).translate(0, ORIGIN_Y/2).rotate(-Math.PI/2, new Point(0., 0.));
+	}
+	
 	// RRT
 	public static final int RRT_ATTEMPTS = 3;
 	public static final int RRT_ITERATIONS = 500;
@@ -59,4 +69,7 @@ public class Constants {
 	public static final double TRANSLATION_STEP_DISTANCE = .2;
 	public static final double ROTATION_STEP_DISTANCE = (Math.PI/6);
 	public static final double ROBOT_RADIUS = Math.sqrt(PLATFORM_WIDTH*PLATFORM_WIDTH/4 + PLATFORM_DEPTH*PLATFORM_DEPTH/4);	
+	
+	public static final double gridResolution = .1;
+
 }

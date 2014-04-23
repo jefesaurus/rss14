@@ -1,5 +1,6 @@
 package cameraProcessing;
 
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import org.ros.message.MessageListener;
@@ -17,15 +18,15 @@ import org.ros.node.topic.Subscriber;
  */
 public class VisualServo implements NodeMain, Runnable {
 
-	private static final int width = 160*2;
+	private static final int width = 160*4;
 
-	private static final int height = 120*2;
+	private static final int height = 120*4;
 
 
 	/**
-	 * <p>The blob tracker.</p>
+	 * <p>The Connected Components thing.</p>
 	 **/
-	private BlobTracking blobTrack = null;
+	private ConnComp cct = null;
 
 
 	private VisionGUI gui;
@@ -48,7 +49,8 @@ public class VisualServo implements NodeMain, Runnable {
 
 		gui = new VisionGUI();
 	}
-			Image src = null;
+	
+	Image src = null;
 
 	protected void setInitialParams() {
 
@@ -65,11 +67,11 @@ public class VisualServo implements NodeMain, Runnable {
 		visionImage.offer(rawImage);
 	}
 
-        public double RANGE_GAIN = .03;
-        public double BEARING_GAIN = .01;
+    public double RANGE_GAIN = .005;
+    public double BEARING_GAIN = .005;
 
-        public double desiredRange = 60.0;
-        public double desiredBearing = 0.0;
+    public double desiredRange = 441; // desired centroid.y in pixels
+    public double desiredBearing = 391; //desired centroid.x in pixels
 
 	@Override
 	public void run() {
@@ -86,32 +88,32 @@ public class VisualServo implements NodeMain, Runnable {
 
 			Image dest = new Image(src);
 			//blobTrack.apply(src, dest);
-			blobTrack.blobPresent(src, dest);
+			List<BlockInfo> blockInfos = cct.visualize(src, dest);
 
 			// update newly formed vision message
 			gui.setVisionImage(dest.toArray(), width, height);
 
 
 			// publish velocity messages to move the robot towards the target
-                        MotionMsg msg = new MotionMsg();
-                        double tv;
-                        double rv;
+            MotionMsg msg = new MotionMsg();
+            double tv = 0.0;
+            double rv = 0.0;
 
-                        if (blobTrack.targetDetected) {
-
-                                // Very basic proportional controller
-                                double rangeError = blobTrack.targetRange - desiredRange;
-                                double bearingError = blobTrack.targetBearing - desiredBearing;
-                                tv = rangeError*RANGE_GAIN;
-                                rv = bearingError*BEARING_GAIN;
-                        } else {
-                                tv = 0.0;
-                                rv = 0.0;
-                        }
+            if (!blockInfos.isEmpty()) {
+            	BlockInfo b = blockInfos.get(0);
+                // Very basic proportional controller
+            	System.out.println("size : " + b.size + " | cx : " + b.centroid.x + " | cy : " + b.centroid.y);
+	            double rangeError = -(b.centroid.y - desiredRange); // negative because y pixels increase downward
+	            double bearingError = b.centroid.x - desiredBearing;
+	            tv = rangeError*RANGE_GAIN;
+	            rv = bearingError*BEARING_GAIN;
+            }
+            
+            tv = 0.0; rv = 0.0;
 
 			msg.translationalVelocity = tv;
 			msg.rotationalVelocity = rv;
-                        System.out.println("TV: " + tv + ", RV: " + rv);
+            System.out.println("TV: " + tv + ", RV: " + rv);
 			motionPub.publish(msg);
 		}
 	}
@@ -125,7 +127,7 @@ public class VisualServo implements NodeMain, Runnable {
 	 */
 	@Override
 	public void onStart(Node node) {
-		blobTrack = new BlobTracking(width, height);
+		cct = new ConnComp();
 
 		motionPub = node.newPublisher("command/Motors", "rss_msgs/MotionMsg");
 
@@ -140,7 +142,7 @@ public class VisualServo implements NodeMain, Runnable {
 		// End Student Code
 
 
-		final boolean reverseRGB = node.newParameterTree().getBoolean("reverse_rgb", false);
+		final boolean reverseRGB = node.newParameterTree().getBoolean("reverse_rgb", true);
 
 		vidSub = node.newSubscriber("/rss/video", "sensor_msgs/Image");
 		vidSub

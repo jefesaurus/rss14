@@ -1,5 +1,6 @@
 package navigation;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class BoundingBox {
@@ -49,6 +50,15 @@ public class BoundingBox {
 			}
 		}
 		return true;
+	}
+	
+	public Polygon getPolygon() {
+		List<Point> points = new LinkedList<Point>();
+		points.add(min);
+		points.add(new Point(max.x, min.y));
+		points.add(max);
+		points.add(new Point(min.x, max.y));
+		return new Polygon(points);
 	}
 
 	public static BoundingBox pointsToBoundingBox(List<Point> points) {

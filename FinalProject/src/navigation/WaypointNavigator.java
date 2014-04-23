@@ -36,12 +36,13 @@ public class WaypointNavigator implements Runnable {
 			@Override
 			public synchronized void onNewMessage(
 					org.ros.message.rss_msgs.OdometryMsg message) {
+				System.out.println("stuff");
 				if (firstUpdate) {
-					firstUpdate = false;
 					gui.resetWorldToView(message.x, message.y);
 				}
 				gui.setRobotPose(message.x, message.y, message.theta);
 				configuration = new Configuration(message.x, message.y, message.theta);
+				System.out.println(configuration);
 			}
 		});
 		this.motionPub = node.newPublisher("command/Motors", "rss_msgs/MotionMsg");
@@ -85,10 +86,10 @@ public class WaypointNavigator implements Runnable {
 			}
 			System.out.println("New Waypoint");
 			while (true) {
-				double angle_error = Util.angleDistance(configuration.theta, waypoint.theta);
+				double angle_error = Util.angleDistance(configuration.theta, Util.cleanAngle(waypoint.theta - Math.PI/2));
 				double translate_error = Util.vectorLength(waypoint.x - configuration.x, waypoint.y - configuration.y);
 
-				tv = 0.1;
+				tv = 0.01;
 				rv = 0.;
 				
 				/*if (angle_error > ROTATION_FUZZ) {
@@ -107,7 +108,7 @@ public class WaypointNavigator implements Runnable {
 				MotionMsg msg = new MotionMsg();
 				msg.translationalVelocity = tv;
 				msg.rotationalVelocity = rv;
-                System.out.println("TV: " + tv + ", RV: " + rv);
+                //System.out.println("TV: " + tv + ", RV: " + rv);
 				motionPub.publish(msg);
 			}
 		}
