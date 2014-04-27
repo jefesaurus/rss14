@@ -57,7 +57,7 @@ public class Grid {
 	}
 	
 	public BoundingBox getBox(int x, int y) {
-		return new BoundingBox(new Point(box.min.x + x*Constants.gridResolution,box.min.y + y*Constants.gridResolution),
+		return new BoundingBox(new Point(box.min.x + x*Constants.gridResolution, box.min.y + y*Constants.gridResolution),
 				new Point(Math.min(box.max.x, box.min.x + (x+1)*Constants.gridResolution), Math.min(box.max.y, box.min.y + (y+1)*Constants.gridResolution)));	
 	}
 	

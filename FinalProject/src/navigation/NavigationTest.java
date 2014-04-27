@@ -56,7 +56,7 @@ public class NavigationTest implements NodeMain {
 		if (path != null) {
 			System.out.println("Found path of length " + path.size() + " in " + planner.iterations + " iterations");
 			//gui.draw(path);
-			gui.draw(world, path);
+			//gui.draw(world, path);
 			nav.setPath(path);
 		} else {
 			System.out.println("Could not find path in " + planner.iterations + " iterations");

@@ -30,19 +30,34 @@ public class WaypointNavigator implements Runnable {
 		setup();
 	}
 	
+	/*odoSub = node.newSubscriber("/rss/odometry", "rss_msgs/OdometryMsg");
+	odoSub
+	.addMessageListener(new MessageListener<org.ros.message.rss_msgs.OdometryMsg>() {
+		@Override
+		public void onNewMessage(
+				org.ros.message.rss_msgs.OdometryMsg message) {
+			if (firstUpdate) {
+				firstUpdate = false;
+				gui.resetWorldToView(message.x, message.y);
+			}
+			gui.setRobotPose(message.x, message.y, message.theta);
+		}
+	});*/
+	
+	
 	private void setup() {
 		this.odoSub = node.newSubscriber("/rss/odometry", "rss_msgs/OdometryMsg");
 		odoSub.addMessageListener(new MessageListener<org.ros.message.rss_msgs.OdometryMsg>() {
 			@Override
 			public synchronized void onNewMessage(
 					org.ros.message.rss_msgs.OdometryMsg message) {
-				System.out.println("stuff");
-				if (firstUpdate) {
-					gui.resetWorldToView(message.x, message.y);
-				}
-				gui.setRobotPose(message.x, message.y, message.theta);
-				configuration = new Configuration(message.x, message.y, message.theta);
+				//if (firstUpdate) {
+				//	gui.resetWorldToView(message.x, message.y);
+				//}
+				//gui.setRobotPose(message.x, message.y, message.theta);
+				//configuration = new Configuration(message.x, message.y, message.theta);
 				System.out.println(configuration);
+				System.out.println("SOMOEWIFJPOWEIFJPOIEWFO");
 			}
 		});
 		this.motionPub = node.newPublisher("command/Motors", "rss_msgs/MotionMsg");
@@ -89,26 +104,29 @@ public class WaypointNavigator implements Runnable {
 				double angle_error = Util.angleDistance(configuration.theta, Util.cleanAngle(waypoint.theta - Math.PI/2));
 				double translate_error = Util.vectorLength(waypoint.x - configuration.x, waypoint.y - configuration.y);
 
-				tv = 0.01;
+				tv = 0.2;
 				rv = 0.;
 				
-				/*if (angle_error > ROTATION_FUZZ) {
+				if (angle_error > ROTATION_FUZZ) {
 					tv = 0.0;
 					rv = k_spin*(angle_error);
 				} else if (translate_error > TRANSLATION_FUZZ) {
 					tv = Math.min(translate_error * k_translate, MAX_V);
 					tv = Math.max(tv, MIN_V);
-					rv = k_follow*(angle_error);
+					//rv = k_follow*(angle_error);
 				} else {
 					tv = 0.1;
 					rv = 0.;
 					break;
-				}*/
+				}
+				
+				tv = 0.1;
+				rv = 0.;
 
 				MotionMsg msg = new MotionMsg();
 				msg.translationalVelocity = tv;
 				msg.rotationalVelocity = rv;
-                //System.out.println("TV: " + tv + ", RV: " + rv);
+				//System.out.println(tv + ", " + rv);
 				motionPub.publish(msg);
 			}
 		}

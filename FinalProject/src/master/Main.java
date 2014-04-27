@@ -4,17 +4,26 @@ import org.ros.namespace.GraphName;
 import org.ros.node.Node;
 import org.ros.node.NodeMain;
 
+import cameraProcessing.BlockInfo;
+import cameraProcessing.CameraProcessor;
+
 public class Main implements NodeMain, Runnable {
 
+	private CameraProcessor camProc;
+	private DrivingMaster driveMaster;
+	
 	public Main() {
 		
 	}
 	
 	@Override
 	public void run() {
-		// make decisions about which modules should be activated based on information they have
 		while (true) {
-			
+			// make decisions about which modules should be activated based on information they have
+			BlockInfo b = camProc.largestBlob();
+			if (b.size > 100) {
+				// do something
+			}
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
@@ -38,9 +47,19 @@ public class Main implements NodeMain, Runnable {
 	}
 
 	@Override
-	public void onStart(Node arg0) {
+	public void onStart(Node node) {
 		// TODO Auto-generated method stub
+		// set up camera processing
+		camProc = new CameraProcessor();
+		camProc.onStart(node);
+		camProc.setProcessing(true);
+		camProc.takeOverDriving(false);
+		// set up driving module
+		driveMaster = new DrivingMaster();
+		driveMaster.onStart(node);
 		
+		Thread runThis = new Thread(this);
+		runThis.start();
 	}
 
 	@Override

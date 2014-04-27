@@ -174,6 +174,7 @@ public class VisualServo implements NodeMain, Runnable {
 					firstUpdate = false;
 					gui.resetWorldToView(message.x, message.y);
 				}
+				System.out.println("Anything!");
 				gui.setRobotPose(message.x, message.y, message.theta);
 			}
 		});
