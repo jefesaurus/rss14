@@ -22,6 +22,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap; 
 import java.util.Map; 
 import java.util.Iterator;
+import java.awt.Point;
 
 public class KinectTest implements NodeMain, Runnable {
 	public Subscriber<org.ros.message.rss_msgs.OdometryMsg> odoSub;
@@ -35,9 +36,12 @@ public class KinectTest implements NodeMain, Runnable {
 		System.out.println("Constructed GUI");
 
 		gui = new KinectGUI();
-    kinectPose = new Pose3D(new Point3D(0., 0., 0.25), 0., Math.PI/2., 0.);
+	  gui.setRobotPose(0., 0., 0.);
+    kinectPose = new Pose3D(new Point3D(0., 0., 0.3), Math.PI/2., -Math.PI/2., 0.);
+    //System.out.println(kinectPose.toFrame(new Point3D(1,0,0)))
+    //System.out.println(kinectPose.toFrame(new Point3D(1,0,0)))
 
-    occupancy = new HashMap<Tuple<Float, Float>, Integer>();
+    occupancy = new HashMap<Point2D.Float, Integer>();
 	}
 
 	@Override
@@ -98,15 +102,15 @@ public class KinectTest implements NodeMain, Runnable {
   */
   int START_COL = 0;
   int END_COL = 640;
-  int START_ROW = 360;
-  int END_ROW = 480;
+  int START_ROW = 190;
+  int END_ROW = 290;
 
   public void unpackPointCloudData(int width, int height, int pointStep, int rowStep, byte[] data) {
     int n = 1;
+    int total = 1;
     float x_avg = 0.0f;
     float y_avg = 0.0f;
     float z_avg = 0.0f;
-    int num_below = 0;
     float ryavg = 0.0f;
     ArrayList<Point3D> obstaclePoints = new ArrayList<Point3D>();
 
@@ -121,50 +125,54 @@ public class KinectTest implements NodeMain, Runnable {
         float z = Float.intBitsToFloat((data[z_i+3] & 0xff) << 24 | (data[z_i+2] & 0xff) << 16 | (data[z_i+1] & 0xff) << 8 | (data[z_i] & 0xff)); 
         if (!Float.isNaN(x) && !Float.isNaN(y) && !Float.isNaN(z)) {
           Point3D realPoint = kinectPose.fromFrame(new Point3D(x, y, z));
+          //Point3D realPoint = new Point3D(x, z, -y + .29);
           if (realPoint.z > 0) {
             obstaclePoints.add(realPoint); 
+          } else {
+            n++;
           }
+          total ++;
           x_avg += realPoint.x;
           y_avg += realPoint.y;
           z_avg += realPoint.z;
-
           /*
           ryavg += y;
           x_avg += x;
           y_avg += y;
           z_avg += z;
           */
-          n++;
         }
       }
     }
-    //Point3D p = new Point3D(x_avg/n, y_avg/n, z_avg/n);
-    //System.out.println(num_below + " avg point: " + p);
+    Point3D p = new Point3D(x_avg/total, y_avg/total, z_avg/total);
+    System.out.println("Avg point: " + p + " percent filtered: " + n/(double)total);
     updateGUI(obstaclePoints);
   }
 
-  HashMap<Tuple<Float, Float>, Integer> occupancy;
+  HashMap<Point2D.Float, Integer> occupancy;
 
-  float OCCUPANCY_RESOLUTION = .1f;
-  int OCCUPANCY_THRESHOLD = 10;
+  float OCCUPANCY_RESOLUTION = .05f;
+  int OCCUPANCY_THRESHOLD = 5;
   public void updateGUI(ArrayList<Point3D> obstaclePoints) {
+    int npoints = 0;
     for (Point3D point : obstaclePoints) {
       float x = ((int)(point.x/OCCUPANCY_RESOLUTION))*OCCUPANCY_RESOLUTION;
       float y = ((int)(point.y/OCCUPANCY_RESOLUTION))*OCCUPANCY_RESOLUTION;
-      Tuple<Float, Float> cell = new Tuple<Float, Float>(x, y);
+      Point2D.Float cell = new Point2D.Float(x, y);
       Integer count = occupancy.get(cell);
+      npoints ++;
       if (count == null) {
-        occupancy.put(cell, 0);
+        occupancy.put(cell, 1);
       } else {
-        occupancy.put(cell, count++);
+        occupancy.put(cell, ++count);
       }
     }
     gui.erasePoints();
-    System.out.println("NUMS SQUARES: " + occupancy.entrySet().size());
-    for (Map.Entry<Tuple<Float, Float>, Integer> cell : occupancy.entrySet()) {
+    //System.out.println("NUMS SQUARES: " + occupancy.entrySet().size() + " NUM POINTS: " + npoints);
+    for (Map.Entry<Point2D.Float, Integer> cell : occupancy.entrySet()) {
       if (cell.getValue() > OCCUPANCY_THRESHOLD) {
-        Tuple<Float, Float> point = cell.getKey();
-        System.out.println("DRAWING POINT: " + point.x + ", " + point.y);
+        Point2D.Float point = cell.getKey();
+        //System.out.println("DRAWING POINT: " + point.x + ", " + point.y);
         gui.addPoint(point.x, point.y, 1);
       }
     }
@@ -187,16 +195,3 @@ public class KinectTest implements NodeMain, Runnable {
 		return new GraphName("rss/kinect");
 	}
 }
-
-class Tuple<X, Y> { 
-  public final X x; 
-  public final Y y; 
-  public Tuple(X x, Y y) { 
-    this.x = x; 
-    this.y = y; 
-  } 
-
-  @Override
-  public int hashCode() {
-  }
-} 
