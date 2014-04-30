@@ -4,16 +4,18 @@ import org.ros.namespace.GraphName;
 import org.ros.node.Node;
 import org.ros.node.NodeMain;
 
-import cameraProcessing.BlockInfo;
-import cameraProcessing.CameraProcessor;
+import collectBlocks.BlockInfo;
+import collectBlocks.BlockCollector;
+
 
 public class Main implements NodeMain, Runnable {
 
-	private CameraProcessor camProc;
+	private BlockCollector camProc;
 	private DrivingMaster driveMaster;
 	
 	public Main() {
-		
+		driveMaster = new DrivingMaster();
+		camProc = new BlockCollector(driveMaster);
 	}
 	
 	@Override
@@ -49,14 +51,13 @@ public class Main implements NodeMain, Runnable {
 	@Override
 	public void onStart(Node node) {
 		// TODO Auto-generated method stub
-		// set up camera processing
-		camProc = new CameraProcessor();
-		camProc.onStart(node);
-		camProc.setProcessing(true);
-		camProc.takeOverDriving(false);
 		// set up driving module
 		driveMaster = new DrivingMaster();
 		driveMaster.onStart(node);
+		// set up camera processing
+		camProc.onStart(node);
+		camProc.setProcessing(true);
+		camProc.takeOverDriving(false);
 		
 		Thread runThis = new Thread(this);
 		runThis.start();

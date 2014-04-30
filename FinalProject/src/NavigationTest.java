@@ -47,22 +47,24 @@ public class NavigationTest implements NodeMain {
 		Point2D.Double end = map.robotGoal;
 		gui.addPoint(start.x, start.y, 1, Color.GREEN);
 		gui.addPoint(end.x, end.y, 1, Color.BLUE);
-		//List<Integer> path = g.computeShortestPath(start, end);
-		//if (path == null) {
-		//	System.out.println("Couldn't find a path");
-		//	return;
-		//}
-		//List<Point2D.Double> pointPath = g.cookPath(path);
-		//nav = new WaypointNavigator(node, pointPath, gui);
-		//System.out.println(path.size());
-		//g.drawMap(gui);
-		//g.drawGraph(gui);
-		//g.drawPath(gui, path);
+    /*
+		List<Integer> path = g.computeShortestPath(start, end);
+		if (path == null) {
+			System.out.println("Couldn't find a path");
+		return;
+		}
+		List<Point2D.Double> pointPath = g.cookPath(path);
+		nav = new WaypointNavigator(node, pointPath, gui);
+		System.out.println(path.size());
+		g.drawMap(gui);
+		g.drawGraph(gui);
+		g.drawPath(gui, path);
 
-		//g.drawCSpace(gui, path, 0);
+		g.drawCSpace(gui, path, 0);
 		
-		//Thread runningStuff = new Thread(nav);
-		//runningStuff.start();
+		Thread runningStuff = new Thread(nav);
+		runningStuff.start();
+    */
 	}
 	
 	@Override
