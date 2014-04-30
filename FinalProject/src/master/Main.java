@@ -22,10 +22,23 @@ public class Main implements NodeMain, Runnable {
 	public void run() {
 		while (true) {
 			// make decisions about which modules should be activated based on information they have
-			BlockInfo b = camProc.largestBlob();
-			if (b.size > 100) {
-				// do something
+			// if less than 30 seconds left
+			boolean runningOutOfTime = false;
+			if (runningOutOfTime) {
+				// prioritize shelter building
+			} else {
+				// go around and collect blocks
+				BlockInfo b = camProc.largestBlob();
+				// block of big enough size
+				if (b.size > 100) {
+					// do block collection
+				} else {
+					// do navigation
+				}
 			}
+			
+			
+			// only run this every second. It's not necessary to always be making these decisions
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
