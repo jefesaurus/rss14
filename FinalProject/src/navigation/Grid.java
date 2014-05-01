@@ -9,7 +9,7 @@ public class Grid {
 	public final int width;
 	public final int height;
 
-	public Grid(BoundingBox box) {
+	public Grid(BoundingBox box) { //TODO cache the boxes
 		this.box = box;
 		this.width = (int)Math.ceil((box.max.x - box.min.x)/Constants.gridResolution);
 		this.height = (int)Math.ceil((box.max.y - box.min.y)/Constants.gridResolution);

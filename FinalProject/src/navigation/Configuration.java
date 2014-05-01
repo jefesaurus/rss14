@@ -11,6 +11,12 @@ public class Configuration {
 		this.y = y;
 		this.theta = Util.cleanAngle(theta);
 	}
+	
+	public Configuration compose(Configuration other) {
+		double length = Util.vectorLength(x - other.x, y - other.y);
+		double angle = Util.vectorAngle(x - other.x, y - other.y) - other.theta;
+		return new Configuration(length*Math.cos(angle), length*Math.sin(angle), theta - other.theta);	
+	}
 
 	private List<Configuration> interpolateTranslate(double x1, double y1,
 			double x2, double y2, double angle) {

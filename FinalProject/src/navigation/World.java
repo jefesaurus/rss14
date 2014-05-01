@@ -183,7 +183,7 @@ public class World {
 						fiducials.add(new Fiducial(position, topRadius, topColor));
 					}
 				} else if (line.length() >= 20 && line.substring(0, 20).equals("construction_objects")) {
-					int numBlocks = readInt(br);
+					int numBlocks = readInt(br); //TODO blocks may have additional syntax
 					for (int i = 0; i < numBlocks; i++) {
 						nextLine(br);
 						blocks.add(readPoint(br));
@@ -265,6 +265,17 @@ public class World {
 			}
 		}
 		return !region.contains(placedRobot);
+	}
+	
+	public Configuration sampleConfigurationForPoint(Point p) {
+		int attempts = 30;
+		for (int i = 0; i < attempts; i++) {
+			Configuration config = p.configuration(2 * Math.PI * Math.random());
+			if (!robotCollision(config)) {
+				return config;
+			}
+		}
+		return null;
 	}
 
 	@Override

@@ -18,6 +18,14 @@ public class Util {
 	public static double angleDistance(double one, double two) {
 		return Math.min(Math.abs(one - two), 2 * Math.PI - Math.abs(one - two));
 	}
+	
+	public static double angleDistanceSign(double one, double two) {
+		if (Math.abs(one - two) < 2 * Math.PI - Math.abs(one - two)) {
+			return Math.signum(two - one);
+		} else {
+			return Math.signum(one - two);
+		}
+	}
 
 	public static double cleanAngle(double angle) {
 		while (angle < 0) {
@@ -58,5 +66,14 @@ public class Util {
 			points2D.add(new Point2D.Double(p.x, p.y));
 		}
 		return points2D;
+	}
+	
+	public static void pause(long milliseconds) {
+		try {
+			Thread.sleep(milliseconds);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

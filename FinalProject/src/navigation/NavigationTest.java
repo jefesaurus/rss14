@@ -2,6 +2,7 @@ package navigation;
 
 import gui.*;
 import java.awt.Color;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.ros.message.lab6_msgs.GUIRectMsg;
@@ -13,20 +14,18 @@ import org.ros.node.topic.Subscriber;
 
 public class NavigationTest implements NodeMain {
 
-	public World world;
-	public MotionPlanner planner;
-	public Subscriber<org.ros.message.rss_msgs.OdometryMsg> odoSub;
 	public Node node;
-
+	public World world;
 	private NavigationGUI gui;
-	private WaypointNavigator nav;
+	private Navigator navigator;
 
 	public NavigationTest() {		
-		gui = new NavigationGUI();
 	}
 
 	@Override
 	public void onStart(Node node) {
+		long startTime = System.currentTimeMillis();
+
 		ParameterTree paramTree = node.newParameterTree();
 		String mapFileName = paramTree.getString(node
 				.resolveName("~/mapFileName"));
@@ -36,36 +35,42 @@ public class NavigationTest implements NodeMain {
 			e.printStackTrace();
 		}
 		this.node = node;
-		planner = new MotionPlanner(world);
-		nav = new WaypointNavigator(node, gui);
-		
+		gui = new NavigationGUI(world);
 		Configuration start = world.getStart().configuration(0);
 		Configuration goal = world.getGoal().configuration(3*Math.PI/2);
-		//Configuration goal = new Configuration(2, 3.85, 0);
-		//Configuration goal = new Configuration(2, 2.5, 0);
-
-		System.out.println("Start collision?: " + world.robotCollision(start));
-		System.out.println("Goal collision?: " + world.robotCollision(goal));
 		
-		gui.draw(world);
+		gui.clear();
+		gui.draw();
 		gui.draw(world.getRobot(start), true, Color.BLUE);
 		gui.draw(world.getViewCone(start), false, Color.BLUE);
 		gui.draw(world.getRobot(goal), true, Color.RED);
+		gui.draw(world.getOccupancyGrid(), Color.RED);
+		gui.draw(world.getVisibilityGrid(), Color.GREEN);
 		
-		List<Configuration> path = planner.findPath(start, goal);
-		if (path != null) {
-			System.out.println("Found path of length " + path.size() + " in " + planner.iterations + " iterations");
-			//gui.draw(path);
-			//gui.draw(world, path);
-			nav.setPath(path);
-		} else {
-			System.out.println("Could not find path in " + planner.iterations + " iterations");
+		navigator = new Navigator(node, gui, world);
+		
+		long collectionTime = 120*1000;
+		List<Point> collected = new LinkedList<Point>();
+		for (Point block : world.getBlocks()) { //TODO sort by distance of RRT paths
+			Configuration config = world.sampleConfigurationForPoint(block);
+			if (config == null) {
+				continue;
+			}
+			navigator.setGoal(config); //TODO need to back up or it could get traped. Prioritize moving forward but back up in case forward is not possible
+			
+			while (navigator.getGoal() != null && (System.currentTimeMillis() - startTime) < collectionTime) {
+				Util.pause(100);
+			}
+			if (navigator.getGoal() == null ) {
+				collected.add(block); //TODO adds failed RRT paths too
+			} 
+			if ((System.currentTimeMillis() - startTime) >= collectionTime) {
+				break;
+			} 
 		}
-		
-		//gui.draw(world, planner.tree1.root, Color.RED);
-		//gui.draw(world, planner.tree2.root, Color.BLUE);
-		gui.draw(planner.tree1.root, Color.RED);
-		gui.draw(planner.tree2.root, Color.BLUE);
+		//Done collecting, return to goal
+		navigator.setGoal(goal); //TODO Global clock 
+		System.out.println("Collected " + collected.size() + " blocks");
 	}
 	
 	@Override

@@ -6,7 +6,7 @@ import java.util.List;
 public class Constants {
 	
 	// Robot Parameters
-	public static final double ERROR_THRESHOLD = .02;
+	public static final double ERROR_THRESHOLD = .05; //TODO grow obstacles instead or replan under different levels of error
 	public static final double FULL_WIDTH = .46;
 	public static final double PLATFORM_WIDTH = .38;
 	public static final double WHEEL_WIDTH = (FULL_WIDTH - PLATFORM_WIDTH)/2.;
@@ -66,11 +66,22 @@ public class Constants {
 	// RRT
 	public static final int RRT_ATTEMPTS = 3;
 	public static final int RRT_ITERATIONS = 500;
-	public static final int RRT_SMOOTHING = 100;
-	public static final double TRANSLATION_STEP_DISTANCE = .2;
+	public static final int RRT_SMOOTHING = 200;
+	public static final double TRANSLATION_STEP_DISTANCE = .1; //Previously .2
 	public static final double ROTATION_STEP_DISTANCE = (Math.PI/6);
-	public static final double ROBOT_RADIUS = Math.sqrt(PLATFORM_WIDTH*PLATFORM_WIDTH/4 + PLATFORM_DEPTH*PLATFORM_DEPTH/4);	
+	public static final double ROBOT_RADIUS = Math.sqrt(FULL_WIDTH*FULL_WIDTH/4 + PLATFORM_DEPTH*PLATFORM_DEPTH/4);	//TOOD make more accurate/include error
 	
-	public static final double gridResolution = .1;
-
+	// Grids
+	public static final double gridResolution = .02;
+	
+	// Motor Controllers
+	public static final double TRANSLATION_THRESHOLD = .05; 	//TODO - play with velocities more using interpolation
+	public static final double K_TRANSLATE = 2.0;
+	public static final double MAX_TV = 1.5;
+	public static final double MIN_TV = .25;
+	
+	public static final double ROTATION_THRESHOLD = .2;
+	public static final double K_ROTATE = .5;
+	public static final double MAX_RV = 1.0;
+	public static final double MIN_RV = 0.2;
 }

@@ -42,7 +42,7 @@ public class MotionPlanner {
 		return path;
 	}
 
-	private List<Configuration> bidirectionalRRT(Configuration start, Configuration end) { //TODO MAKE SURE DRIVE IS CORRECT (ie it can move forward or backward for both trees)
+	private List<Configuration> bidirectionalRRT(Configuration start, Configuration end) {
 		tree1 = new RRT(start, true);
 		tree2 = new RRT(end, false);
 		
@@ -75,10 +75,20 @@ public class MotionPlanner {
 				}
 			}
 
+			//TODO why don't these two work?
 			//if (lastNode1.config == lastNode2.config) {
 			//if (tree1.distance(lastNode1.config, lastNode2.config) < .001) {
-			if (Math.abs(lastNode1.config.x - lastNode2.config.x) + Math.abs(lastNode1.config.y - lastNode2.config.y) + Math.abs(lastNode1.config.theta - lastNode2.config.theta) < .001) { //TODO
-				//System.out.println(lastNode1.config.theta + ", " + lastNode2.config.theta);
+			if (Math.abs(lastNode1.config.x - lastNode2.config.x) + Math.abs(lastNode1.config.y - lastNode2.config.y) + Math.abs(lastNode1.config.theta - lastNode2.config.theta) < .001) {
+				if (!tree1.forward) {
+					RRT temp = tree1;
+					tree1 = tree2;
+					tree2 = temp;
+					
+					TreeNode t = lastNode1;
+					lastNode1 = lastNode2;
+					lastNode2 = t;
+				}
+				
 				List<Configuration> path = new LinkedList<Configuration>();
 				for (Configuration config : pathToRoot(lastNode1)) {
 					path.add(0, config);
@@ -146,14 +156,9 @@ public class MotionPlanner {
 		for (int i = 0; i < Constants.RRT_ATTEMPTS; i++) {
 			List<Configuration> path = bidirectionalRRT(start, end);
 			if (path != null) {
-				//return path;
-				return smoothPath(path);
-				//return extractPath(smoothPath(path));
+				return extractPath(smoothPath(path));
 			}
 		}
 		return null;
 	}
-
-	// TODO - process path for navigation
-
 }
