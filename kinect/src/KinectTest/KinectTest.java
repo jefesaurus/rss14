@@ -37,9 +37,7 @@ public class KinectTest implements NodeMain, Runnable {
 
 		gui = new KinectGUI();
 	  gui.setRobotPose(0., 0., 0.);
-    kinectPose = new Pose3D(new Point3D(0., 0., 0.3), Math.PI/2., -Math.PI/2., 0.);
-    //System.out.println(kinectPose.toFrame(new Point3D(1,0,0)))
-    //System.out.println(kinectPose.toFrame(new Point3D(1,0,0)))
+    kinectPose = new Pose3D(new Point3D(0.0, 0.3, 0.0), Math.PI/2., -Math.PI/2. - Math.PI/90., 0.);
 
     occupancy = new HashMap<Point2D.Float, Integer>();
 	}
@@ -47,8 +45,8 @@ public class KinectTest implements NodeMain, Runnable {
 	@Override
 	public void run() {
 		System.out.println("Starting RUN!");
-		while (true) {
-		}
+		//while (true) {
+		//}
 	}
 	
 	@Override
@@ -100,10 +98,16 @@ public class KinectTest implements NodeMain, Runnable {
   int START_ROW = 480/3;
   int END_ROW = 2*480/3;
   */
-  int START_COL = 0;
-  int END_COL = 640;
-  int START_ROW = 190;
-  int END_ROW = 290;
+  int START_COL = 210;
+  int END_COL = 430;
+  int START_ROW = 200;
+  int END_ROW = 480;
+  /*
+  int START_COL = 220;
+  int END_COL = 420;
+  int START_ROW = 180;
+  int END_ROW = 300;
+  */
 
   public void unpackPointCloudData(int width, int height, int pointStep, int rowStep, byte[] data) {
     int n = 1;
@@ -113,6 +117,9 @@ public class KinectTest implements NodeMain, Runnable {
     float z_avg = 0.0f;
     float ryavg = 0.0f;
     ArrayList<Point3D> obstaclePoints = new ArrayList<Point3D>();
+    float red = 0.0f;
+    float blue = 0.0f;
+    float green = 0.0f;
 
     for (int row = START_ROW; row < END_ROW; row ++) {
       for (int col = START_COL; col < END_COL; col ++) {
@@ -120,12 +127,20 @@ public class KinectTest implements NodeMain, Runnable {
         int x_i = offset+X_OFFSET;
         int y_i = offset+Y_OFFSET;
         int z_i = offset+Z_OFFSET;
+        int r_i = offset+R_OFFSET;
+        int g_i = offset+G_OFFSET;
+        int b_i = offset+B_OFFSET;
         float x = Float.intBitsToFloat((data[x_i+3] & 0xff) << 24 | (data[x_i+2] & 0xff) << 16 | (data[x_i+1] & 0xff) << 8 | (data[x_i] & 0xff)); 
         float y = Float.intBitsToFloat((data[y_i+3] & 0xff) << 24 | (data[y_i+2] & 0xff) << 16 | (data[y_i+1] & 0xff) << 8 | (data[y_i] & 0xff)); 
         float z = Float.intBitsToFloat((data[z_i+3] & 0xff) << 24 | (data[z_i+2] & 0xff) << 16 | (data[z_i+1] & 0xff) << 8 | (data[z_i] & 0xff)); 
+        //int r = (data[r_i] & 0xff); 
+        //int g = (data[g_i] & 0xff); 
+        //int b = (data[b_i] & 0xff); 
+
+
+
         if (!Float.isNaN(x) && !Float.isNaN(y) && !Float.isNaN(z)) {
           Point3D realPoint = kinectPose.fromFrame(new Point3D(x, y, z));
-          //Point3D realPoint = new Point3D(x, z, -y + .29);
           if (realPoint.z > 0) {
             obstaclePoints.add(realPoint); 
           } else {
@@ -135,24 +150,24 @@ public class KinectTest implements NodeMain, Runnable {
           x_avg += realPoint.x;
           y_avg += realPoint.y;
           z_avg += realPoint.z;
-          /*
-          ryavg += y;
-          x_avg += x;
-          y_avg += y;
-          z_avg += z;
-          */
+
+          //red += r;
+          //blue += b;
+          //green += g;
         }
       }
     }
-    Point3D p = new Point3D(x_avg/total, y_avg/total, z_avg/total);
-    System.out.println("Avg point: " + p + " percent filtered: " + n/(double)total);
+
+    //Point3D p = new Point3D(x_avg/total, y_avg/total, z_avg/total);
+    //System.out.println("Avg point: " + p + " percent filtered: " + n/(double)total);
+    //System.out.println("R: " + red/total + " G: " + green/total + " B: " + blue/total);
     updateGUI(obstaclePoints);
   }
 
   HashMap<Point2D.Float, Integer> occupancy;
 
-  float OCCUPANCY_RESOLUTION = .05f;
-  int OCCUPANCY_THRESHOLD = 5;
+  float OCCUPANCY_RESOLUTION = .02f;
+  int OCCUPANCY_THRESHOLD = 3;
   public void updateGUI(ArrayList<Point3D> obstaclePoints) {
     int npoints = 0;
     for (Point3D point : obstaclePoints) {

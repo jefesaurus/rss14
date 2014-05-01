@@ -17,6 +17,7 @@ public class Pose3D {
     double sa = Math.sin(yaw);
     double cb = Math.cos(pitch);
     double sb = Math.sin(pitch);
+
     this.tMat = new double[][] {{ca*cb, ca*sb*sy-sa*cy, ca*sb*cy+sa*sy, point.x},
                                 {sa*cb, sa*sb*sy+ca*cy, sa*sb*cy-ca*sy, point.y},
                                 {-sb,   cb*sy,          cb*cy,          point.z}};
@@ -28,11 +29,6 @@ public class Pose3D {
     this.invTMat[0][3] = -(invTMat[0][0]*point.x + invTMat[0][1]*point.y + invTMat[0][2]*point.z);
     this.invTMat[1][3]  = -(invTMat[1][0]*point.x + invTMat[1][1]*point.y + invTMat[1][2]*point.z); 
     this.invTMat[2][3]  = -(invTMat[2][0]*point.x + invTMat[2][1]*point.y + invTMat[2][2]*point.z);
-    /*
-    System.out.println(invTMat[0][3]);
-    System.out.println(invTMat[1][3]);
-    System.out.println(invTMat[2][3]);
-    */
 	}
 
   public Point3D toFrame(Point3D pIn) {
