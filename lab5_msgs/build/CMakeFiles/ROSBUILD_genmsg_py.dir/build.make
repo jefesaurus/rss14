@@ -41,26 +41,27 @@ CMAKE_BINARY_DIR = /home/rss-student/RSS-I-group/lab5_msgs/build
 
 CMakeFiles/ROSBUILD_genmsg_py: ../src/lab5_msgs/msg/__init__.py
 
-../src/lab5_msgs/msg/__init__.py: ../src/lab5_msgs/msg/_ColorMsg.py
-../src/lab5_msgs/msg/__init__.py: ../src/lab5_msgs/msg/_GUILineMsg.py
 ../src/lab5_msgs/msg/__init__.py: ../src/lab5_msgs/msg/_GUIPointMsg.py
-../src/lab5_msgs/msg/__init__.py: ../src/lab5_msgs/msg/_GUISegmentMsg.py
+../src/lab5_msgs/msg/__init__.py: ../src/lab5_msgs/msg/_GUILineMsg.py
 ../src/lab5_msgs/msg/__init__.py: ../src/lab5_msgs/msg/_GUIEraseMsg.py
+../src/lab5_msgs/msg/__init__.py: ../src/lab5_msgs/msg/_ColorMsg.py
+../src/lab5_msgs/msg/__init__.py: ../src/lab5_msgs/msg/_GUISegmentMsg.py
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/rss-student/RSS-I-group/lab5_msgs/build/CMakeFiles $(CMAKE_PROGRESS_1)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating ../src/lab5_msgs/msg/__init__.py"
-	/opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py --initpy /home/rss-student/RSS-I-group/lab5_msgs/msg/ColorMsg.msg /home/rss-student/RSS-I-group/lab5_msgs/msg/GUILineMsg.msg /home/rss-student/RSS-I-group/lab5_msgs/msg/GUIPointMsg.msg /home/rss-student/RSS-I-group/lab5_msgs/msg/GUISegmentMsg.msg /home/rss-student/RSS-I-group/lab5_msgs/msg/GUIEraseMsg.msg
+	/opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py --initpy /home/rss-student/RSS-I-group/lab5_msgs/msg/GUIPointMsg.msg /home/rss-student/RSS-I-group/lab5_msgs/msg/GUILineMsg.msg /home/rss-student/RSS-I-group/lab5_msgs/msg/GUIEraseMsg.msg /home/rss-student/RSS-I-group/lab5_msgs/msg/ColorMsg.msg /home/rss-student/RSS-I-group/lab5_msgs/msg/GUISegmentMsg.msg
 
-../src/lab5_msgs/msg/_ColorMsg.py: ../msg/ColorMsg.msg
-../src/lab5_msgs/msg/_ColorMsg.py: /opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py
-../src/lab5_msgs/msg/_ColorMsg.py: /opt/ros/electric/ros/core/roslib/scripts/gendeps
-../src/lab5_msgs/msg/_ColorMsg.py: ../manifest.xml
-../src/lab5_msgs/msg/_ColorMsg.py: /opt/ros/electric/ros/tools/rospack/manifest.xml
-../src/lab5_msgs/msg/_ColorMsg.py: /opt/ros/electric/ros/core/roslib/manifest.xml
-../src/lab5_msgs/msg/_ColorMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/manifest.xml
-../src/lab5_msgs/msg/_ColorMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/msg_gen/generated
+../src/lab5_msgs/msg/_GUIPointMsg.py: ../msg/GUIPointMsg.msg
+../src/lab5_msgs/msg/_GUIPointMsg.py: /opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py
+../src/lab5_msgs/msg/_GUIPointMsg.py: /opt/ros/electric/ros/core/roslib/scripts/gendeps
+../src/lab5_msgs/msg/_GUIPointMsg.py: ../msg/ColorMsg.msg
+../src/lab5_msgs/msg/_GUIPointMsg.py: ../manifest.xml
+../src/lab5_msgs/msg/_GUIPointMsg.py: /opt/ros/electric/ros/tools/rospack/manifest.xml
+../src/lab5_msgs/msg/_GUIPointMsg.py: /opt/ros/electric/ros/core/roslib/manifest.xml
+../src/lab5_msgs/msg/_GUIPointMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/manifest.xml
+../src/lab5_msgs/msg/_GUIPointMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/msg_gen/generated
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/rss-student/RSS-I-group/lab5_msgs/build/CMakeFiles $(CMAKE_PROGRESS_2)
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating ../src/lab5_msgs/msg/_ColorMsg.py"
-	/opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py --noinitpy /home/rss-student/RSS-I-group/lab5_msgs/msg/ColorMsg.msg
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating ../src/lab5_msgs/msg/_GUIPointMsg.py"
+	/opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py --noinitpy /home/rss-student/RSS-I-group/lab5_msgs/msg/GUIPointMsg.msg
 
 ../src/lab5_msgs/msg/_GUILineMsg.py: ../msg/GUILineMsg.msg
 ../src/lab5_msgs/msg/_GUILineMsg.py: /opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py
@@ -75,18 +76,30 @@ CMakeFiles/ROSBUILD_genmsg_py: ../src/lab5_msgs/msg/__init__.py
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating ../src/lab5_msgs/msg/_GUILineMsg.py"
 	/opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py --noinitpy /home/rss-student/RSS-I-group/lab5_msgs/msg/GUILineMsg.msg
 
-../src/lab5_msgs/msg/_GUIPointMsg.py: ../msg/GUIPointMsg.msg
-../src/lab5_msgs/msg/_GUIPointMsg.py: /opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py
-../src/lab5_msgs/msg/_GUIPointMsg.py: /opt/ros/electric/ros/core/roslib/scripts/gendeps
-../src/lab5_msgs/msg/_GUIPointMsg.py: ../msg/ColorMsg.msg
-../src/lab5_msgs/msg/_GUIPointMsg.py: ../manifest.xml
-../src/lab5_msgs/msg/_GUIPointMsg.py: /opt/ros/electric/ros/tools/rospack/manifest.xml
-../src/lab5_msgs/msg/_GUIPointMsg.py: /opt/ros/electric/ros/core/roslib/manifest.xml
-../src/lab5_msgs/msg/_GUIPointMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/manifest.xml
-../src/lab5_msgs/msg/_GUIPointMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/msg_gen/generated
+../src/lab5_msgs/msg/_GUIEraseMsg.py: ../msg/GUIEraseMsg.msg
+../src/lab5_msgs/msg/_GUIEraseMsg.py: /opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py
+../src/lab5_msgs/msg/_GUIEraseMsg.py: /opt/ros/electric/ros/core/roslib/scripts/gendeps
+../src/lab5_msgs/msg/_GUIEraseMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/msg/String.msg
+../src/lab5_msgs/msg/_GUIEraseMsg.py: ../manifest.xml
+../src/lab5_msgs/msg/_GUIEraseMsg.py: /opt/ros/electric/ros/tools/rospack/manifest.xml
+../src/lab5_msgs/msg/_GUIEraseMsg.py: /opt/ros/electric/ros/core/roslib/manifest.xml
+../src/lab5_msgs/msg/_GUIEraseMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/manifest.xml
+../src/lab5_msgs/msg/_GUIEraseMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/msg_gen/generated
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/rss-student/RSS-I-group/lab5_msgs/build/CMakeFiles $(CMAKE_PROGRESS_4)
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating ../src/lab5_msgs/msg/_GUIPointMsg.py"
-	/opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py --noinitpy /home/rss-student/RSS-I-group/lab5_msgs/msg/GUIPointMsg.msg
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating ../src/lab5_msgs/msg/_GUIEraseMsg.py"
+	/opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py --noinitpy /home/rss-student/RSS-I-group/lab5_msgs/msg/GUIEraseMsg.msg
+
+../src/lab5_msgs/msg/_ColorMsg.py: ../msg/ColorMsg.msg
+../src/lab5_msgs/msg/_ColorMsg.py: /opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py
+../src/lab5_msgs/msg/_ColorMsg.py: /opt/ros/electric/ros/core/roslib/scripts/gendeps
+../src/lab5_msgs/msg/_ColorMsg.py: ../manifest.xml
+../src/lab5_msgs/msg/_ColorMsg.py: /opt/ros/electric/ros/tools/rospack/manifest.xml
+../src/lab5_msgs/msg/_ColorMsg.py: /opt/ros/electric/ros/core/roslib/manifest.xml
+../src/lab5_msgs/msg/_ColorMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/manifest.xml
+../src/lab5_msgs/msg/_ColorMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/msg_gen/generated
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/rss-student/RSS-I-group/lab5_msgs/build/CMakeFiles $(CMAKE_PROGRESS_5)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating ../src/lab5_msgs/msg/_ColorMsg.py"
+	/opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py --noinitpy /home/rss-student/RSS-I-group/lab5_msgs/msg/ColorMsg.msg
 
 ../src/lab5_msgs/msg/_GUISegmentMsg.py: ../msg/GUISegmentMsg.msg
 ../src/lab5_msgs/msg/_GUISegmentMsg.py: /opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py
@@ -97,30 +110,17 @@ CMakeFiles/ROSBUILD_genmsg_py: ../src/lab5_msgs/msg/__init__.py
 ../src/lab5_msgs/msg/_GUISegmentMsg.py: /opt/ros/electric/ros/core/roslib/manifest.xml
 ../src/lab5_msgs/msg/_GUISegmentMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/manifest.xml
 ../src/lab5_msgs/msg/_GUISegmentMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/msg_gen/generated
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/rss-student/RSS-I-group/lab5_msgs/build/CMakeFiles $(CMAKE_PROGRESS_5)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/rss-student/RSS-I-group/lab5_msgs/build/CMakeFiles $(CMAKE_PROGRESS_6)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating ../src/lab5_msgs/msg/_GUISegmentMsg.py"
 	/opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py --noinitpy /home/rss-student/RSS-I-group/lab5_msgs/msg/GUISegmentMsg.msg
 
-../src/lab5_msgs/msg/_GUIEraseMsg.py: ../msg/GUIEraseMsg.msg
-../src/lab5_msgs/msg/_GUIEraseMsg.py: /opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py
-../src/lab5_msgs/msg/_GUIEraseMsg.py: /opt/ros/electric/ros/core/roslib/scripts/gendeps
-../src/lab5_msgs/msg/_GUIEraseMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/msg/String.msg
-../src/lab5_msgs/msg/_GUIEraseMsg.py: ../manifest.xml
-../src/lab5_msgs/msg/_GUIEraseMsg.py: /opt/ros/electric/ros/tools/rospack/manifest.xml
-../src/lab5_msgs/msg/_GUIEraseMsg.py: /opt/ros/electric/ros/core/roslib/manifest.xml
-../src/lab5_msgs/msg/_GUIEraseMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/manifest.xml
-../src/lab5_msgs/msg/_GUIEraseMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/msg_gen/generated
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/rss-student/RSS-I-group/lab5_msgs/build/CMakeFiles $(CMAKE_PROGRESS_6)
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating ../src/lab5_msgs/msg/_GUIEraseMsg.py"
-	/opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py --noinitpy /home/rss-student/RSS-I-group/lab5_msgs/msg/GUIEraseMsg.msg
-
 ROSBUILD_genmsg_py: CMakeFiles/ROSBUILD_genmsg_py
 ROSBUILD_genmsg_py: ../src/lab5_msgs/msg/__init__.py
-ROSBUILD_genmsg_py: ../src/lab5_msgs/msg/_ColorMsg.py
-ROSBUILD_genmsg_py: ../src/lab5_msgs/msg/_GUILineMsg.py
 ROSBUILD_genmsg_py: ../src/lab5_msgs/msg/_GUIPointMsg.py
-ROSBUILD_genmsg_py: ../src/lab5_msgs/msg/_GUISegmentMsg.py
+ROSBUILD_genmsg_py: ../src/lab5_msgs/msg/_GUILineMsg.py
 ROSBUILD_genmsg_py: ../src/lab5_msgs/msg/_GUIEraseMsg.py
+ROSBUILD_genmsg_py: ../src/lab5_msgs/msg/_ColorMsg.py
+ROSBUILD_genmsg_py: ../src/lab5_msgs/msg/_GUISegmentMsg.py
 ROSBUILD_genmsg_py: CMakeFiles/ROSBUILD_genmsg_py.dir/build.make
 .PHONY : ROSBUILD_genmsg_py
 

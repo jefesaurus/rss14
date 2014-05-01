@@ -41,43 +41,31 @@ CMAKE_BINARY_DIR = /home/rss-student/RSS-I-group/rss_msgs/build
 
 CMakeFiles/ROSBUILD_genmsg_py: ../src/rss_msgs/msg/__init__.py
 
-../src/rss_msgs/msg/__init__.py: ../src/rss_msgs/msg/_EncoderMsg.py
-../src/rss_msgs/msg/__init__.py: ../src/rss_msgs/msg/_SonarMsg.py
-../src/rss_msgs/msg/__init__.py: ../src/rss_msgs/msg/_BreakBeamMsg.py
-../src/rss_msgs/msg/__init__.py: ../src/rss_msgs/msg/_MotionMsg.py
-../src/rss_msgs/msg/__init__.py: ../src/rss_msgs/msg/_BumpMsg.py
-../src/rss_msgs/msg/__init__.py: ../src/rss_msgs/msg/_DigitalStatusMsg.py
-../src/rss_msgs/msg/__init__.py: ../src/rss_msgs/msg/_ArmMsg.py
 ../src/rss_msgs/msg/__init__.py: ../src/rss_msgs/msg/_ResetMsg.py
-../src/rss_msgs/msg/__init__.py: ../src/rss_msgs/msg/_AnalogStatusMsg.py
+../src/rss_msgs/msg/__init__.py: ../src/rss_msgs/msg/_BreakBeamMsg.py
+../src/rss_msgs/msg/__init__.py: ../src/rss_msgs/msg/_BumpMsg.py
 ../src/rss_msgs/msg/__init__.py: ../src/rss_msgs/msg/_OdometryMsg.py
+../src/rss_msgs/msg/__init__.py: ../src/rss_msgs/msg/_AnalogStatusMsg.py
+../src/rss_msgs/msg/__init__.py: ../src/rss_msgs/msg/_EncoderMsg.py
+../src/rss_msgs/msg/__init__.py: ../src/rss_msgs/msg/_ArmMsg.py
+../src/rss_msgs/msg/__init__.py: ../src/rss_msgs/msg/_MotionMsg.py
+../src/rss_msgs/msg/__init__.py: ../src/rss_msgs/msg/_SonarMsg.py
+../src/rss_msgs/msg/__init__.py: ../src/rss_msgs/msg/_DigitalStatusMsg.py
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/rss-student/RSS-I-group/rss_msgs/build/CMakeFiles $(CMAKE_PROGRESS_1)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating ../src/rss_msgs/msg/__init__.py"
-	/opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py --initpy /home/rss-student/RSS-I-group/rss_msgs/msg/EncoderMsg.msg /home/rss-student/RSS-I-group/rss_msgs/msg/SonarMsg.msg /home/rss-student/RSS-I-group/rss_msgs/msg/BreakBeamMsg.msg /home/rss-student/RSS-I-group/rss_msgs/msg/MotionMsg.msg /home/rss-student/RSS-I-group/rss_msgs/msg/BumpMsg.msg /home/rss-student/RSS-I-group/rss_msgs/msg/DigitalStatusMsg.msg /home/rss-student/RSS-I-group/rss_msgs/msg/ArmMsg.msg /home/rss-student/RSS-I-group/rss_msgs/msg/ResetMsg.msg /home/rss-student/RSS-I-group/rss_msgs/msg/AnalogStatusMsg.msg /home/rss-student/RSS-I-group/rss_msgs/msg/OdometryMsg.msg
+	/opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py --initpy /home/rss-student/RSS-I-group/rss_msgs/msg/ResetMsg.msg /home/rss-student/RSS-I-group/rss_msgs/msg/BreakBeamMsg.msg /home/rss-student/RSS-I-group/rss_msgs/msg/BumpMsg.msg /home/rss-student/RSS-I-group/rss_msgs/msg/OdometryMsg.msg /home/rss-student/RSS-I-group/rss_msgs/msg/AnalogStatusMsg.msg /home/rss-student/RSS-I-group/rss_msgs/msg/EncoderMsg.msg /home/rss-student/RSS-I-group/rss_msgs/msg/ArmMsg.msg /home/rss-student/RSS-I-group/rss_msgs/msg/MotionMsg.msg /home/rss-student/RSS-I-group/rss_msgs/msg/SonarMsg.msg /home/rss-student/RSS-I-group/rss_msgs/msg/DigitalStatusMsg.msg
 
-../src/rss_msgs/msg/_EncoderMsg.py: ../msg/EncoderMsg.msg
-../src/rss_msgs/msg/_EncoderMsg.py: /opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py
-../src/rss_msgs/msg/_EncoderMsg.py: /opt/ros/electric/ros/core/roslib/scripts/gendeps
-../src/rss_msgs/msg/_EncoderMsg.py: ../manifest.xml
-../src/rss_msgs/msg/_EncoderMsg.py: /opt/ros/electric/ros/tools/rospack/manifest.xml
-../src/rss_msgs/msg/_EncoderMsg.py: /opt/ros/electric/ros/core/roslib/manifest.xml
-../src/rss_msgs/msg/_EncoderMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/manifest.xml
-../src/rss_msgs/msg/_EncoderMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/msg_gen/generated
+../src/rss_msgs/msg/_ResetMsg.py: ../msg/ResetMsg.msg
+../src/rss_msgs/msg/_ResetMsg.py: /opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py
+../src/rss_msgs/msg/_ResetMsg.py: /opt/ros/electric/ros/core/roslib/scripts/gendeps
+../src/rss_msgs/msg/_ResetMsg.py: ../manifest.xml
+../src/rss_msgs/msg/_ResetMsg.py: /opt/ros/electric/ros/tools/rospack/manifest.xml
+../src/rss_msgs/msg/_ResetMsg.py: /opt/ros/electric/ros/core/roslib/manifest.xml
+../src/rss_msgs/msg/_ResetMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/manifest.xml
+../src/rss_msgs/msg/_ResetMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/msg_gen/generated
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/rss-student/RSS-I-group/rss_msgs/build/CMakeFiles $(CMAKE_PROGRESS_2)
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating ../src/rss_msgs/msg/_EncoderMsg.py"
-	/opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py --noinitpy /home/rss-student/RSS-I-group/rss_msgs/msg/EncoderMsg.msg
-
-../src/rss_msgs/msg/_SonarMsg.py: ../msg/SonarMsg.msg
-../src/rss_msgs/msg/_SonarMsg.py: /opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py
-../src/rss_msgs/msg/_SonarMsg.py: /opt/ros/electric/ros/core/roslib/scripts/gendeps
-../src/rss_msgs/msg/_SonarMsg.py: ../manifest.xml
-../src/rss_msgs/msg/_SonarMsg.py: /opt/ros/electric/ros/tools/rospack/manifest.xml
-../src/rss_msgs/msg/_SonarMsg.py: /opt/ros/electric/ros/core/roslib/manifest.xml
-../src/rss_msgs/msg/_SonarMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/manifest.xml
-../src/rss_msgs/msg/_SonarMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/msg_gen/generated
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/rss-student/RSS-I-group/rss_msgs/build/CMakeFiles $(CMAKE_PROGRESS_3)
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating ../src/rss_msgs/msg/_SonarMsg.py"
-	/opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py --noinitpy /home/rss-student/RSS-I-group/rss_msgs/msg/SonarMsg.msg
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating ../src/rss_msgs/msg/_ResetMsg.py"
+	/opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py --noinitpy /home/rss-student/RSS-I-group/rss_msgs/msg/ResetMsg.msg
 
 ../src/rss_msgs/msg/_BreakBeamMsg.py: ../msg/BreakBeamMsg.msg
 ../src/rss_msgs/msg/_BreakBeamMsg.py: /opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py
@@ -87,21 +75,9 @@ CMakeFiles/ROSBUILD_genmsg_py: ../src/rss_msgs/msg/__init__.py
 ../src/rss_msgs/msg/_BreakBeamMsg.py: /opt/ros/electric/ros/core/roslib/manifest.xml
 ../src/rss_msgs/msg/_BreakBeamMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/manifest.xml
 ../src/rss_msgs/msg/_BreakBeamMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/msg_gen/generated
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/rss-student/RSS-I-group/rss_msgs/build/CMakeFiles $(CMAKE_PROGRESS_4)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/rss-student/RSS-I-group/rss_msgs/build/CMakeFiles $(CMAKE_PROGRESS_3)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating ../src/rss_msgs/msg/_BreakBeamMsg.py"
 	/opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py --noinitpy /home/rss-student/RSS-I-group/rss_msgs/msg/BreakBeamMsg.msg
-
-../src/rss_msgs/msg/_MotionMsg.py: ../msg/MotionMsg.msg
-../src/rss_msgs/msg/_MotionMsg.py: /opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py
-../src/rss_msgs/msg/_MotionMsg.py: /opt/ros/electric/ros/core/roslib/scripts/gendeps
-../src/rss_msgs/msg/_MotionMsg.py: ../manifest.xml
-../src/rss_msgs/msg/_MotionMsg.py: /opt/ros/electric/ros/tools/rospack/manifest.xml
-../src/rss_msgs/msg/_MotionMsg.py: /opt/ros/electric/ros/core/roslib/manifest.xml
-../src/rss_msgs/msg/_MotionMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/manifest.xml
-../src/rss_msgs/msg/_MotionMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/msg_gen/generated
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/rss-student/RSS-I-group/rss_msgs/build/CMakeFiles $(CMAKE_PROGRESS_5)
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating ../src/rss_msgs/msg/_MotionMsg.py"
-	/opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py --noinitpy /home/rss-student/RSS-I-group/rss_msgs/msg/MotionMsg.msg
 
 ../src/rss_msgs/msg/_BumpMsg.py: ../msg/BumpMsg.msg
 ../src/rss_msgs/msg/_BumpMsg.py: /opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py
@@ -111,21 +87,45 @@ CMakeFiles/ROSBUILD_genmsg_py: ../src/rss_msgs/msg/__init__.py
 ../src/rss_msgs/msg/_BumpMsg.py: /opt/ros/electric/ros/core/roslib/manifest.xml
 ../src/rss_msgs/msg/_BumpMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/manifest.xml
 ../src/rss_msgs/msg/_BumpMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/msg_gen/generated
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/rss-student/RSS-I-group/rss_msgs/build/CMakeFiles $(CMAKE_PROGRESS_6)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/rss-student/RSS-I-group/rss_msgs/build/CMakeFiles $(CMAKE_PROGRESS_4)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating ../src/rss_msgs/msg/_BumpMsg.py"
 	/opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py --noinitpy /home/rss-student/RSS-I-group/rss_msgs/msg/BumpMsg.msg
 
-../src/rss_msgs/msg/_DigitalStatusMsg.py: ../msg/DigitalStatusMsg.msg
-../src/rss_msgs/msg/_DigitalStatusMsg.py: /opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py
-../src/rss_msgs/msg/_DigitalStatusMsg.py: /opt/ros/electric/ros/core/roslib/scripts/gendeps
-../src/rss_msgs/msg/_DigitalStatusMsg.py: ../manifest.xml
-../src/rss_msgs/msg/_DigitalStatusMsg.py: /opt/ros/electric/ros/tools/rospack/manifest.xml
-../src/rss_msgs/msg/_DigitalStatusMsg.py: /opt/ros/electric/ros/core/roslib/manifest.xml
-../src/rss_msgs/msg/_DigitalStatusMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/manifest.xml
-../src/rss_msgs/msg/_DigitalStatusMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/msg_gen/generated
+../src/rss_msgs/msg/_OdometryMsg.py: ../msg/OdometryMsg.msg
+../src/rss_msgs/msg/_OdometryMsg.py: /opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py
+../src/rss_msgs/msg/_OdometryMsg.py: /opt/ros/electric/ros/core/roslib/scripts/gendeps
+../src/rss_msgs/msg/_OdometryMsg.py: ../manifest.xml
+../src/rss_msgs/msg/_OdometryMsg.py: /opt/ros/electric/ros/tools/rospack/manifest.xml
+../src/rss_msgs/msg/_OdometryMsg.py: /opt/ros/electric/ros/core/roslib/manifest.xml
+../src/rss_msgs/msg/_OdometryMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/manifest.xml
+../src/rss_msgs/msg/_OdometryMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/msg_gen/generated
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/rss-student/RSS-I-group/rss_msgs/build/CMakeFiles $(CMAKE_PROGRESS_5)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating ../src/rss_msgs/msg/_OdometryMsg.py"
+	/opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py --noinitpy /home/rss-student/RSS-I-group/rss_msgs/msg/OdometryMsg.msg
+
+../src/rss_msgs/msg/_AnalogStatusMsg.py: ../msg/AnalogStatusMsg.msg
+../src/rss_msgs/msg/_AnalogStatusMsg.py: /opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py
+../src/rss_msgs/msg/_AnalogStatusMsg.py: /opt/ros/electric/ros/core/roslib/scripts/gendeps
+../src/rss_msgs/msg/_AnalogStatusMsg.py: ../manifest.xml
+../src/rss_msgs/msg/_AnalogStatusMsg.py: /opt/ros/electric/ros/tools/rospack/manifest.xml
+../src/rss_msgs/msg/_AnalogStatusMsg.py: /opt/ros/electric/ros/core/roslib/manifest.xml
+../src/rss_msgs/msg/_AnalogStatusMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/manifest.xml
+../src/rss_msgs/msg/_AnalogStatusMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/msg_gen/generated
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/rss-student/RSS-I-group/rss_msgs/build/CMakeFiles $(CMAKE_PROGRESS_6)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating ../src/rss_msgs/msg/_AnalogStatusMsg.py"
+	/opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py --noinitpy /home/rss-student/RSS-I-group/rss_msgs/msg/AnalogStatusMsg.msg
+
+../src/rss_msgs/msg/_EncoderMsg.py: ../msg/EncoderMsg.msg
+../src/rss_msgs/msg/_EncoderMsg.py: /opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py
+../src/rss_msgs/msg/_EncoderMsg.py: /opt/ros/electric/ros/core/roslib/scripts/gendeps
+../src/rss_msgs/msg/_EncoderMsg.py: ../manifest.xml
+../src/rss_msgs/msg/_EncoderMsg.py: /opt/ros/electric/ros/tools/rospack/manifest.xml
+../src/rss_msgs/msg/_EncoderMsg.py: /opt/ros/electric/ros/core/roslib/manifest.xml
+../src/rss_msgs/msg/_EncoderMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/manifest.xml
+../src/rss_msgs/msg/_EncoderMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/msg_gen/generated
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/rss-student/RSS-I-group/rss_msgs/build/CMakeFiles $(CMAKE_PROGRESS_7)
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating ../src/rss_msgs/msg/_DigitalStatusMsg.py"
-	/opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py --noinitpy /home/rss-student/RSS-I-group/rss_msgs/msg/DigitalStatusMsg.msg
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating ../src/rss_msgs/msg/_EncoderMsg.py"
+	/opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py --noinitpy /home/rss-student/RSS-I-group/rss_msgs/msg/EncoderMsg.msg
 
 ../src/rss_msgs/msg/_ArmMsg.py: ../msg/ArmMsg.msg
 ../src/rss_msgs/msg/_ArmMsg.py: /opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py
@@ -139,54 +139,54 @@ CMakeFiles/ROSBUILD_genmsg_py: ../src/rss_msgs/msg/__init__.py
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating ../src/rss_msgs/msg/_ArmMsg.py"
 	/opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py --noinitpy /home/rss-student/RSS-I-group/rss_msgs/msg/ArmMsg.msg
 
-../src/rss_msgs/msg/_ResetMsg.py: ../msg/ResetMsg.msg
-../src/rss_msgs/msg/_ResetMsg.py: /opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py
-../src/rss_msgs/msg/_ResetMsg.py: /opt/ros/electric/ros/core/roslib/scripts/gendeps
-../src/rss_msgs/msg/_ResetMsg.py: ../manifest.xml
-../src/rss_msgs/msg/_ResetMsg.py: /opt/ros/electric/ros/tools/rospack/manifest.xml
-../src/rss_msgs/msg/_ResetMsg.py: /opt/ros/electric/ros/core/roslib/manifest.xml
-../src/rss_msgs/msg/_ResetMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/manifest.xml
-../src/rss_msgs/msg/_ResetMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/msg_gen/generated
+../src/rss_msgs/msg/_MotionMsg.py: ../msg/MotionMsg.msg
+../src/rss_msgs/msg/_MotionMsg.py: /opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py
+../src/rss_msgs/msg/_MotionMsg.py: /opt/ros/electric/ros/core/roslib/scripts/gendeps
+../src/rss_msgs/msg/_MotionMsg.py: ../manifest.xml
+../src/rss_msgs/msg/_MotionMsg.py: /opt/ros/electric/ros/tools/rospack/manifest.xml
+../src/rss_msgs/msg/_MotionMsg.py: /opt/ros/electric/ros/core/roslib/manifest.xml
+../src/rss_msgs/msg/_MotionMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/manifest.xml
+../src/rss_msgs/msg/_MotionMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/msg_gen/generated
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/rss-student/RSS-I-group/rss_msgs/build/CMakeFiles $(CMAKE_PROGRESS_9)
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating ../src/rss_msgs/msg/_ResetMsg.py"
-	/opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py --noinitpy /home/rss-student/RSS-I-group/rss_msgs/msg/ResetMsg.msg
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating ../src/rss_msgs/msg/_MotionMsg.py"
+	/opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py --noinitpy /home/rss-student/RSS-I-group/rss_msgs/msg/MotionMsg.msg
 
-../src/rss_msgs/msg/_AnalogStatusMsg.py: ../msg/AnalogStatusMsg.msg
-../src/rss_msgs/msg/_AnalogStatusMsg.py: /opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py
-../src/rss_msgs/msg/_AnalogStatusMsg.py: /opt/ros/electric/ros/core/roslib/scripts/gendeps
-../src/rss_msgs/msg/_AnalogStatusMsg.py: ../manifest.xml
-../src/rss_msgs/msg/_AnalogStatusMsg.py: /opt/ros/electric/ros/tools/rospack/manifest.xml
-../src/rss_msgs/msg/_AnalogStatusMsg.py: /opt/ros/electric/ros/core/roslib/manifest.xml
-../src/rss_msgs/msg/_AnalogStatusMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/manifest.xml
-../src/rss_msgs/msg/_AnalogStatusMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/msg_gen/generated
+../src/rss_msgs/msg/_SonarMsg.py: ../msg/SonarMsg.msg
+../src/rss_msgs/msg/_SonarMsg.py: /opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py
+../src/rss_msgs/msg/_SonarMsg.py: /opt/ros/electric/ros/core/roslib/scripts/gendeps
+../src/rss_msgs/msg/_SonarMsg.py: ../manifest.xml
+../src/rss_msgs/msg/_SonarMsg.py: /opt/ros/electric/ros/tools/rospack/manifest.xml
+../src/rss_msgs/msg/_SonarMsg.py: /opt/ros/electric/ros/core/roslib/manifest.xml
+../src/rss_msgs/msg/_SonarMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/manifest.xml
+../src/rss_msgs/msg/_SonarMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/msg_gen/generated
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/rss-student/RSS-I-group/rss_msgs/build/CMakeFiles $(CMAKE_PROGRESS_10)
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating ../src/rss_msgs/msg/_AnalogStatusMsg.py"
-	/opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py --noinitpy /home/rss-student/RSS-I-group/rss_msgs/msg/AnalogStatusMsg.msg
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating ../src/rss_msgs/msg/_SonarMsg.py"
+	/opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py --noinitpy /home/rss-student/RSS-I-group/rss_msgs/msg/SonarMsg.msg
 
-../src/rss_msgs/msg/_OdometryMsg.py: ../msg/OdometryMsg.msg
-../src/rss_msgs/msg/_OdometryMsg.py: /opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py
-../src/rss_msgs/msg/_OdometryMsg.py: /opt/ros/electric/ros/core/roslib/scripts/gendeps
-../src/rss_msgs/msg/_OdometryMsg.py: ../manifest.xml
-../src/rss_msgs/msg/_OdometryMsg.py: /opt/ros/electric/ros/tools/rospack/manifest.xml
-../src/rss_msgs/msg/_OdometryMsg.py: /opt/ros/electric/ros/core/roslib/manifest.xml
-../src/rss_msgs/msg/_OdometryMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/manifest.xml
-../src/rss_msgs/msg/_OdometryMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/msg_gen/generated
+../src/rss_msgs/msg/_DigitalStatusMsg.py: ../msg/DigitalStatusMsg.msg
+../src/rss_msgs/msg/_DigitalStatusMsg.py: /opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py
+../src/rss_msgs/msg/_DigitalStatusMsg.py: /opt/ros/electric/ros/core/roslib/scripts/gendeps
+../src/rss_msgs/msg/_DigitalStatusMsg.py: ../manifest.xml
+../src/rss_msgs/msg/_DigitalStatusMsg.py: /opt/ros/electric/ros/tools/rospack/manifest.xml
+../src/rss_msgs/msg/_DigitalStatusMsg.py: /opt/ros/electric/ros/core/roslib/manifest.xml
+../src/rss_msgs/msg/_DigitalStatusMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/manifest.xml
+../src/rss_msgs/msg/_DigitalStatusMsg.py: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/msg_gen/generated
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/rss-student/RSS-I-group/rss_msgs/build/CMakeFiles $(CMAKE_PROGRESS_11)
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating ../src/rss_msgs/msg/_OdometryMsg.py"
-	/opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py --noinitpy /home/rss-student/RSS-I-group/rss_msgs/msg/OdometryMsg.msg
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating ../src/rss_msgs/msg/_DigitalStatusMsg.py"
+	/opt/ros/electric/stacks/ros_comm/clients/rospy/scripts/genmsg_py.py --noinitpy /home/rss-student/RSS-I-group/rss_msgs/msg/DigitalStatusMsg.msg
 
 ROSBUILD_genmsg_py: CMakeFiles/ROSBUILD_genmsg_py
 ROSBUILD_genmsg_py: ../src/rss_msgs/msg/__init__.py
-ROSBUILD_genmsg_py: ../src/rss_msgs/msg/_EncoderMsg.py
-ROSBUILD_genmsg_py: ../src/rss_msgs/msg/_SonarMsg.py
-ROSBUILD_genmsg_py: ../src/rss_msgs/msg/_BreakBeamMsg.py
-ROSBUILD_genmsg_py: ../src/rss_msgs/msg/_MotionMsg.py
-ROSBUILD_genmsg_py: ../src/rss_msgs/msg/_BumpMsg.py
-ROSBUILD_genmsg_py: ../src/rss_msgs/msg/_DigitalStatusMsg.py
-ROSBUILD_genmsg_py: ../src/rss_msgs/msg/_ArmMsg.py
 ROSBUILD_genmsg_py: ../src/rss_msgs/msg/_ResetMsg.py
-ROSBUILD_genmsg_py: ../src/rss_msgs/msg/_AnalogStatusMsg.py
+ROSBUILD_genmsg_py: ../src/rss_msgs/msg/_BreakBeamMsg.py
+ROSBUILD_genmsg_py: ../src/rss_msgs/msg/_BumpMsg.py
 ROSBUILD_genmsg_py: ../src/rss_msgs/msg/_OdometryMsg.py
+ROSBUILD_genmsg_py: ../src/rss_msgs/msg/_AnalogStatusMsg.py
+ROSBUILD_genmsg_py: ../src/rss_msgs/msg/_EncoderMsg.py
+ROSBUILD_genmsg_py: ../src/rss_msgs/msg/_ArmMsg.py
+ROSBUILD_genmsg_py: ../src/rss_msgs/msg/_MotionMsg.py
+ROSBUILD_genmsg_py: ../src/rss_msgs/msg/_SonarMsg.py
+ROSBUILD_genmsg_py: ../src/rss_msgs/msg/_DigitalStatusMsg.py
 ROSBUILD_genmsg_py: CMakeFiles/ROSBUILD_genmsg_py.dir/build.make
 .PHONY : ROSBUILD_genmsg_py
 

@@ -30,9 +30,9 @@ public class WaypointNavigator implements Runnable {
 		setup();
 	}
 	
-	/*odoSub = node.newSubscriber("/rss/odometry", "rss_msgs/OdometryMsg");
-	odoSub
-	.addMessageListener(new MessageListener<org.ros.message.rss_msgs.OdometryMsg>() {
+  /*
+	odoSub = node.newSubscriber("/rss/odometry", "rss_msgs/OdometryMsg");
+	odoSub.addMessageListener(new MessageListener<org.ros.message.rss_msgs.OdometryMsg>() {
 		@Override
 		public void onNewMessage(
 				org.ros.message.rss_msgs.OdometryMsg message) {
@@ -40,9 +40,11 @@ public class WaypointNavigator implements Runnable {
 				firstUpdate = false;
 				gui.resetWorldToView(message.x, message.y);
 			}
+      System.out.println("HEre")
 			gui.setRobotPose(message.x, message.y, message.theta);
 		}
-	});*/
+	});
+  */
 	
 	
 	private void setup() {
@@ -51,13 +53,13 @@ public class WaypointNavigator implements Runnable {
 			@Override
 			public synchronized void onNewMessage(
 					org.ros.message.rss_msgs.OdometryMsg message) {
-				//if (firstUpdate) {
-				//	gui.resetWorldToView(message.x, message.y);
-				//}
-				//gui.setRobotPose(message.x, message.y, message.theta);
-				//configuration = new Configuration(message.x, message.y, message.theta);
-				System.out.println(configuration);
-				System.out.println("SOMOEWIFJPOWEIFJPOIEWFO");
+				if (firstUpdate) {
+				  firstUpdate = false;
+					gui.resetWorldToView(message.x, message.y);
+				}
+				gui.setRobotPose(message.x, message.y, message.theta);
+				configuration = new Configuration(message.x, message.y, message.theta);
+				//System.out.println(configuration);
 			}
 		});
 		this.motionPub = node.newPublisher("command/Motors", "rss_msgs/MotionMsg");

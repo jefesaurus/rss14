@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/rss-2014/group1/!svn/ver/94/lab4/src/VisualServo
+END
+GaussianBlur.java
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/rss-2014/group1/!svn/ver/17/lab4/src/VisualServo/GaussianBlur.java
+END
+BlobTracking.java
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/rss-2014/group1/!svn/ver/94/lab4/src/VisualServo/BlobTracking.java
+END
+Image.java
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/rss-2014/group1/!svn/ver/22/lab4/src/VisualServo/Image.java
+END
+VisualServo.java
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/rss-2014/group1/!svn/ver/23/lab4/src/VisualServo/VisualServo.java
+END
+ConnectedComponents.java
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/rss-2014/group1/!svn/ver/17/lab4/src/VisualServo/ConnectedComponents.java
+END
+VisionGUI.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/rss-2014/group1/!svn/ver/17/lab4/src/VisualServo/VisionGUI.java
+END
+Histogram.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/rss-2014/group1/!svn/ver/22/lab4/src/VisualServo/Histogram.java
+END
+HistogramTest.java
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/rss-2014/group1/!svn/ver/17/lab4/src/VisualServo/HistogramTest.java
+END

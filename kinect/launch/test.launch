@@ -1,0 +1,4 @@
+<launch>
+  <include file="$(find lab4)/launch/config.launch" />
+	<node name="nav" pkg="rosjava_bootstrap" type="run.py" args="kinect KinectTest.KinectTest" machine="netbook" output="screen"/>
+</launch>
