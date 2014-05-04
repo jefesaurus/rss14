@@ -15,7 +15,7 @@ import org.ros.node.topic.Publisher;
 import org.ros.node.topic.Subscriber;
 
 
-//import cameraProcessing.BlobTracking;
+import cameraProcessing.BlobTracking;
 
 public class Grasping implements NodeMain, Runnable {
 	
@@ -36,7 +36,7 @@ public class Grasping implements NodeMain, Runnable {
 	private ServoController wristServo;
 	private ServoController gripperServo;
 	
-	//private BlobTracking blobTrack = null; //KN
+	private BlobTracking blobTrack = null; //KN
 	
 	private final double lengthS = .245;
 	private final double lengthW = .19;
@@ -71,105 +71,105 @@ public class Grasping implements NodeMain, Runnable {
 	public void run() { 
 		System.out.println("Initial Position");
 
-		//graspAndTransport();
+//		graspAndTransport();
 		//searchAndRetrieve();
 	}
 	
-	public void searchAndRetrieve(){
-		//visualServoing();
-		graspAndTransport();
-	}
-	
-	public void graspAndTransport() {
-		/*String state = "start";
-		int counter = 0;
-		while(true) {
-			System.out.println("stating machine");
-			if (state.equals("start")) {
-				state = "waitingForObject";
-			} else if (state.equals("waitingForObject")) {
-				nav.activelyNavigate = false;
-				graspConfiguration();
-				// object in breakbeam
-				if (beamAvg.average > .8) {
-					state = "grasping";
-				}
-			} else if (state.equals("grasping")) {
-				nav.activelyNavigate = false;
-				closeGripper();
-				state = "lifting";
-				counter = 0;
-			} else if (state.equals("lifting")) {
-				nav.activelyNavigate = false;
-				carryConfiguration();
-				// wait 3 cycles before changing state
-				if (counter > 3) {
-					state = "transporting";
-					nav.setGoal(new Pose(0.5,0.5,Math.PI/2.));
-					counter = 0;
-				} else {
-					if (beamAvg.average < .8) {
-						state = "waitingForObject";
-					} else {
-						counter++;
-					}
-				}
-			} else if (state.equals("transporting")) {
-				nav.activelyNavigate = true;
-				Pose pose = nav.getPose();
-				Pose goal = nav.getGoal();
-				double angle_error = PoseNavigator.angleError(Math.atan2(goal.y - pose.y, goal.x - pose.x), pose.theta, Math.PI*2);
-				System.out.println(String.format("robotx: %.2f roboty: %.2f robott: %.2f", pose.x, pose.y, pose.theta));
-				System.out.println(String.format("goalx: %.2f goaly: %.2f goalt: %.2f", goal.x, goal.y, goal.theta));
-				System.out.println(String.format("angleError: %.2f", angle_error));
-				if (nav.reachedGoal()) {
-					state = "depositing";
-					counter = 0;
-				}
-			} else if (state.equals("depositing")) {
-				nav.activelyNavigate = false;
-				nav.setGoal(nav.getPose()); // so that it really thinks it reached the goal.
-				depositConfiguration();
-				if (counter > 3) {
-					state = "backingUp";
-					counter = 0;
-				} else {
-					counter++;
-				}
-			} else if (state.equals("lettingGo")) {
-				openGripper();
-				if (counter > 3) {
-					state = "backingUp";
-					counter = 0;
-				} else {
-					counter++;
-				}
-			} else if (state.equals("backingUp")) {
-				nav.activelyNavigate = false;
-				nav.setVelocities(-.3, 0);
-				openGripper();
-				Pose pose = nav.getPose();
-				if (counter > 3) {
-					state = "goBack";
-					nav.setGoal(new Pose(0,0,0));
-					counter = 0;
-				} else {
-					counter++;
-				}
-			} else if (state.equals("goBack")) {
-				nav.activelyNavigate = true;
-				nav.setGoal(new Pose(0,0,0));
-			} else {
-				System.out.println("Unknown state reached");
-			}
-			System.out.println("State is" + state);
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}*/
-	}
+//	public void searchAndRetrieve(){
+//		visualServoing();
+//		graspAndTransport();
+//	}
+//	
+//	public void graspAndTransport() {
+//		String state = "start";
+//		int counter = 0;
+//		while(true) {
+//			System.out.println("stating machine");
+//			if (state.equals("start")) {
+//				state = "waitingForObject";
+//			} else if (state.equals("waitingForObject")) {
+//				nav.activelyNavigate = false;
+//				graspConfiguration();
+//				// object in breakbeam
+//				if (beamAvg.average > .8) {
+//					state = "grasping";
+//				}
+//			} else if (state.equals("grasping")) {
+//				nav.activelyNavigate = false;
+//				closeGripper();
+//				state = "lifting";
+//				counter = 0;
+//			} else if (state.equals("lifting")) {
+//				nav.activelyNavigate = false;
+//				carryConfiguration();
+//				// wait 3 cycles before changing state
+//				if (counter > 3) {
+//					state = "transporting";
+//					nav.setGoal(new Pose(0.5,0.5,Math.PI/2.));
+//					counter = 0;
+//				} else {
+//					if (beamAvg.average < .8) {
+//						state = "waitingForObject";
+//					} else {
+//						counter++;
+//					}
+//				}
+//			} else if (state.equals("transporting")) {
+//				nav.activelyNavigate = true;
+//				Pose pose = nav.getPose();
+//				Pose goal = nav.getGoal();
+//				double angle_error = PoseNavigator.angleError(Math.atan2(goal.y - pose.y, goal.x - pose.x), pose.theta, Math.PI*2);
+//				System.out.println(String.format("robotx: %.2f roboty: %.2f robott: %.2f", pose.x, pose.y, pose.theta));
+//				System.out.println(String.format("goalx: %.2f goaly: %.2f goalt: %.2f", goal.x, goal.y, goal.theta));
+//				System.out.println(String.format("angleError: %.2f", angle_error));
+//				if (nav.reachedGoal()) {
+//					state = "depositing";
+//					counter = 0;
+//				}
+//			} else if (state.equals("depositing")) {
+//				nav.activelyNavigate = false;
+//				nav.setGoal(nav.getPose()); // so that it really thinks it reached the goal.
+//				depositConfiguration();
+//				if (counter > 3) {
+//					state = "backingUp";
+//					counter = 0;
+//				} else {
+//					counter++;
+//				}
+//			} else if (state.equals("lettingGo")) {
+//				openGripper();
+//				if (counter > 3) {
+//					state = "backingUp";
+//					counter = 0;
+//				} else {
+//					counter++;
+//				}
+//			} else if (state.equals("backingUp")) {
+//				nav.activelyNavigate = false;
+//				nav.setVelocities(-.3, 0);
+//				openGripper();
+//				Pose pose = nav.getPose();
+//				if (counter > 3) {
+//					state = "goBack";
+//					nav.setGoal(new Pose(0,0,0));
+//					counter = 0;
+//				} else {
+//					counter++;
+//				}
+//			} else if (state.equals("goBack")) {
+//				nav.activelyNavigate = true;
+//				nav.setGoal(new Pose(0,0,0));
+//			} else {
+//				System.out.println("Unknown state reached");
+//			}
+//			System.out.println("State is" + state);
+//			try {
+//				Thread.sleep(1000);
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//	}
 	
 	public void moveToConfiguration(double x, double y) {
 		double[] angles = inverseKinematics(x, y);
