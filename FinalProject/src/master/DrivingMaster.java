@@ -18,6 +18,8 @@ public class DrivingMaster implements NodeMain, Runnable {
 	private Pose robotPose;
 	private Pose goalPose;
 	
+	public boolean active;
+	
 	private double tv, rv;
 	public double ROTATION_FUZZ = .1;
 	public double TRANSLATION_FUZZ = .12;
@@ -34,6 +36,7 @@ public class DrivingMaster implements NodeMain, Runnable {
 		robotPose = new Pose(0,0,0);
 		goalPose = new Pose(0,0,0);
 		tv = rv = 0.;
+		active = false;
 	}
 	
 	/**
@@ -102,6 +105,8 @@ public class DrivingMaster implements NodeMain, Runnable {
 	@Override
 	public void run() { // !!!!! Working on a controller in WaypointNavigator that I'll later move here - Caelan
 		while (true) {
+			if (!active)
+				continue;
 			double tv, rv;
 			if (goalOriented) {
 				// try to get to goal

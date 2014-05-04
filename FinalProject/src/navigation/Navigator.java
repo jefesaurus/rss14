@@ -87,8 +87,10 @@ public class Navigator implements Runnable {
 			if (!replan()){ //Could not find path. Do not set it as the goal
 				System.out.println("Unreachable Goal: " + goal + "\n");
 				goal = null; //TODO instead just maintain past goal?
+				draw();
 			} else {
 				System.out.println("New Goal: " + goal + "\n");
+				draw();
 			}
 		}
 	}
@@ -117,22 +119,36 @@ public class Navigator implements Runnable {
 			if (newPath != null) { //TODO RRT fails to find path failure modes
 				System.out.println("Found path of length " + newPath.size() + " from " + start + " to " + goal);
 				setPath(newPath, drive);
-				gui.clear();
+				/*gui.clear();
 				gui.draw();
 				gui.draw(newPath, grow, Color.BLUE);
 				gui.draw(planner.tree1.root, Color.BLUE);
 				gui.draw(planner.tree2.root, Color.RED);
+				gui.draw(world.getRobot(goal), false, Color.RED);*/
+				draw();
+
 				return true;
 			} 
 		}
 		
 		System.out.println("Could not find path from " + start + " to " + goal);
 		setPath(new LinkedList<Configuration>(), null);
-		gui.clear();
+		/*gui.clear();
 		gui.draw();
 		gui.draw(planner.tree1.root, Color.BLUE);
-		gui.draw(planner.tree2.root, Color.RED);
+		gui.draw(planner.tree2.root, Color.RED);*/
+		draw();
+
 		return false;
+	}
+	
+	public void draw() {
+		gui.clear();
+		gui.draw();
+		if (goal != null) {
+			gui.draw(world.getRobot(goal), false, Color.RED);
+		}	
+		gui.draw(path, 0., Color.BLUE);
 	}
 	
 	public synchronized void setPath(List<Configuration> newPath, DriveSystem drive) { //TODO Replan more frequently
@@ -157,16 +173,22 @@ public class Navigator implements Runnable {
 	}
 	
 	public synchronized void freeze() {
-		frozen = true;
-		System.out.println("Navigation frozen\n");
-		Util.pause(10); //TODO remove and fix concurrency bug
-		motionPub.publish(createMotionMsg(0., 0.));
+		if (!frozen) {
+			frozen = true;
+			System.out.println("Navigation frozen\n");
+			Util.pause(10); //TODO remove and fix concurrency bug
+			setPath(new LinkedList<Configuration>(), null);
+			motionPub.publish(createMotionMsg(0., 0.));
+			draw();
+		}
 	}
 	
 	public synchronized void resume() {
-		replan();
-		System.out.println("Navigation resumed\n");
-		frozen = false;
+		if (frozen) {
+			replan();
+			System.out.println("Navigation resumed\n");
+			frozen = false;
+		}
 	}
 	
 	//TODO - remove unused launch components

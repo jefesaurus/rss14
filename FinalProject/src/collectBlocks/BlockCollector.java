@@ -63,6 +63,7 @@ public class BlockCollector implements NodeMain, Runnable {
 	
 	public void takeOverDriving (boolean toggle) {
 		this.collectBool = toggle;
+		this.driveMaster.active = toggle;
 	}
 	
 	public boolean isProcessing() {

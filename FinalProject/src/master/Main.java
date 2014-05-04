@@ -1,10 +1,19 @@
 package master;
 
+import gui.NavigationGUI;
+
+import java.awt.Color;
+
 import kinect.KinectData;
+
+import navigation.Configuration;
+import navigation.Navigator;
+import navigation.World;
 
 import org.ros.namespace.GraphName;
 import org.ros.node.Node;
 import org.ros.node.NodeMain;
+import org.ros.node.parameter.ParameterTree;
 
 import collectBlocks.BlockInfo;
 import collectBlocks.BlockCollector;
@@ -15,6 +24,10 @@ public class Main implements NodeMain, Runnable {
 	private BlockCollector camProc;
 	private DrivingMaster driveMaster;
 	private KinectData kinecter;
+	public Node node;
+	public World world;
+	private NavigationGUI gui;
+	private Navigator navigator;
 	
 	public Main() {
 		int divideScale = 4;
@@ -35,10 +48,14 @@ public class Main implements NodeMain, Runnable {
 				// go around and collect blocks
 				BlockInfo b = camProc.largestBlob();
 				// block of big enough size
-				if (b.size > 100) {
+				if (b.size > 50) {
 					// do block collection
+					navigator.freeze();
+					camProc.takeOverDriving(true);
 				} else {
 					// do navigation
+					navigator.resume();
+					camProc.takeOverDriving(false);
 				}
 			}
 			
@@ -68,6 +85,30 @@ public class Main implements NodeMain, Runnable {
 
 	@Override
 	public void onStart(Node node) {
+		// create navigator
+		ParameterTree paramTree = node.newParameterTree();
+		String mapFileName = paramTree.getString(node
+				.resolveName("~/mapFileName"));
+		try {
+			world = new World(mapFileName);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		this.node = node;
+		gui = new NavigationGUI(world);
+		Configuration start = world.getStart().configuration(0);
+		Configuration goal = world.getGoal().configuration(3*Math.PI/2);
+
+		gui.clear();
+		gui.draw();
+		gui.draw(world.getRobot(start), true, Color.BLUE);
+		gui.draw(world.getRobot(goal), true, Color.RED);
+		gui.draw(world.getViewCone(start), false, Color.BLUE);
+		gui.draw(world.getOccupancyGrid(), Color.RED);
+		gui.draw(world.getVisibilityGrid(), Color.GREEN);
+		
+		navigator = new Navigator(node, gui, world);
+		
 		// TODO Auto-generated method stub
 		// set up driving module
 		driveMaster.onStart(node);
@@ -77,6 +118,8 @@ public class Main implements NodeMain, Runnable {
 		camProc.onStart(node);
 		camProc.setProcessing(true);
 		camProc.takeOverDriving(true);
+		
+		navigator.setGoal(goal);
 		
 		Thread runThis = new Thread(this);
 		runThis.start();
