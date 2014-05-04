@@ -1,5 +1,7 @@
 package master;
 
+import kinect.KinectData;
+
 import org.ros.namespace.GraphName;
 import org.ros.node.Node;
 import org.ros.node.NodeMain;
@@ -12,10 +14,13 @@ public class Main implements NodeMain, Runnable {
 
 	private BlockCollector camProc;
 	private DrivingMaster driveMaster;
+	private KinectData kinecter;
 	
 	public Main() {
+		int divideScale = 4;
 		driveMaster = new DrivingMaster();
-		camProc = new BlockCollector(driveMaster);
+		kinecter = new KinectData(divideScale);
+		camProc = new BlockCollector(driveMaster, kinecter, divideScale);
 	}
 	
 	@Override
@@ -65,12 +70,13 @@ public class Main implements NodeMain, Runnable {
 	public void onStart(Node node) {
 		// TODO Auto-generated method stub
 		// set up driving module
-		driveMaster = new DrivingMaster();
 		driveMaster.onStart(node);
+		// set up kinect
+		kinecter.onStart(node);
 		// set up camera processing
 		camProc.onStart(node);
 		camProc.setProcessing(true);
-		camProc.takeOverDriving(false);
+		camProc.takeOverDriving(true);
 		
 		Thread runThis = new Thread(this);
 		runThis.start();

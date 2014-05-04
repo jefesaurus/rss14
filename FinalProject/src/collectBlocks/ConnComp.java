@@ -52,7 +52,7 @@ public class ConnComp {
 	public float blockSatThresh = .6f;
 	public float blockBrightThresh = .35f;
 	public float hueSimilarityThresh = .05f;
-	public int minPixelsPerGroup = 200;
+	public int minPixelsPerGroup = 40;
 	int[][] colors;
 	
 	public ConnComp() {
@@ -159,6 +159,7 @@ public class ConnComp {
 	 */
 	public List<BlockInfo> makeBlockInfos(Image src, List<ArrayList<Point>> groups) {
 		List<BlockInfo> answer = new ArrayList<BlockInfo>();
+		System.out.println("Number of groupings: " + groups.size());
 		for (ArrayList<Point> g : groups) {
 			if (g.size() <1) {
 				answer.add(new BlockInfo(new Point(0,0), 1, "invalid"));
@@ -191,7 +192,9 @@ public class ConnComp {
 			}
 			color = colors[g.get(0).x][g.get(0).y];
 			String colorName = (color >=0)?RangeMapping[color]:"background";
-			answer.add(new BlockInfo(new Point(avgX, avgY), size, colorName));
+			BlockInfo bi = new BlockInfo(new Point(avgX, avgY), size, colorName);
+			answer.add(bi);
+//			System.out.println("x : " + bi.centroid.x + "| y : " + bi.centroid.y + " | color : " + bi.color);
 		}
 		Collections.sort(answer);
 		return answer;

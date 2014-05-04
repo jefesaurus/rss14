@@ -1,7 +1,10 @@
 package collectBlocks;
 
+import java.awt.Point;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
+
+import kinect.KinectData;
 
 import master.DrivingMaster;
 
@@ -17,8 +20,8 @@ import collectBlocks.FiducialFinder.FidPattern;
 
 public class BlockCollector implements NodeMain, Runnable {
 
-	private static final int width = 160*4;
-	private static final int height = 120*4;
+	private int width = 640;
+	private int height = 480;
 	
 	private ArrayBlockingQueue<byte[]> visionImage = new ArrayBlockingQueue<byte[]>(1);
 	protected boolean firstUpdate = true;
@@ -29,6 +32,7 @@ public class BlockCollector implements NodeMain, Runnable {
 	private ConnComp cct;
 	private FiducialFinder fidFind;
 	private DrivingMaster driveMaster;
+	private KinectData kinecter;
 	
 	private Image src;
 	public boolean guiOn = true;
@@ -39,9 +43,14 @@ public class BlockCollector implements NodeMain, Runnable {
 	private List<BlockInfo> binfos;
 	private List<FidPattern> finfos;
 	
-	public BlockCollector(DrivingMaster driveMaster) {
-		gui = new VisionGUI();
+	public BlockCollector(DrivingMaster driveMaster, KinectData kinecter, int divideScale) {
+		width /= divideScale;
+		height /= divideScale;
+		if (guiOn) {
+			gui = new VisionGUI();
+		}
 		this.driveMaster = driveMaster;
+		this.kinecter = kinecter;
 	}
 	
 	public void setProcessing (boolean toggle) {
@@ -61,43 +70,40 @@ public class BlockCollector implements NodeMain, Runnable {
 	}
 	
 	public BlockInfo largestBlob() {
+		if (binfos == null || binfos.isEmpty()) 
+			return new BlockInfo(new Point(0,0), 0, "red");
 		return binfos.get(0);
 	}
+	
 	/**
 	 * Should be called in the run command if you want to process data
 	 */
 	private void processData() {
-		try {
-			src = new Image(visionImage.take(), width, height);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		src = kinecter.getImage();
+		if (src == null)
 			return;
-		}
-		//reduce image by factor
-		int factor = 4;
-		Image newSrc = new Image(src.getWidth()/factor, src.getHeight()/factor);
-		for (int x = 0; x<src.getWidth()/factor; x++) {
-			for (int y = 0; y<src.getHeight()/factor; y++) {
-				newSrc.setPixel(x, y, src.getPixel(x*factor, y*factor));
-			}
-		}
-		src = newSrc;
 		Image dest = new Image(src);
+//		System.out.println("src image width: " + src.getWidth() + " height: " + src.getHeight());
 		
-		// process here
+//		process here
 		if (guiOn){
 			dest = new Image(src);
 			binfos = cct.visualize(src, dest);
+//			cct.calibrateHelp(src, dest);
+//			cct.debugHelp(src, dest);
 		} else {
 			binfos = cct.getBlockInfosForFrame(src);
 		}
-		finfos = fidFind.findFids(binfos);
-			
-		cct.calibrateHelp(src, dest);
-//		cct.debugHelp(src, dest);
-		
+		finfos = fidFind.findFids(binfos);	
+
+		try {
+			Thread.sleep(200);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		if (guiOn) {
-			gui.setVisionImage(dest.toArray(), width/factor, height/factor);
+			gui.setVisionImage(dest.toArray(), width, height);
 		}
 	}
 	
@@ -114,17 +120,19 @@ public class BlockCollector implements NodeMain, Runnable {
 		// publish velocity messages to move the robot towards the target
         double tv = 0.0;
         double rv = 0.0;
-        long currentTime = System.nanoTime();
-
+        // always go forward and adjust rv to collect
         if (!binfos.isEmpty()) {
         	BlockInfo b = binfos.get(0);
             // Very basic proportional controller
         	System.out.println("size : " + b.size + " | cx : " + b.centroid.x + " | cy : " + b.centroid.y);
             double rangeError = desiredRange - b.centroid.y; // negative because y pixels increase downward
-            double bearingError = desiredBearing - b.centroid.x;
-            tv = rangeError*RANGE_GAIN;
+//            double bearingError = desiredBearing - b.centroid.x;
+            double bearingError = width/2 - b.centroid.x;
+            tv = -.05;
             rv = bearingError*BEARING_GAIN;
         }
+        
+        System.out.println("tv : " +tv+" |rv : "+rv);
 
         driveMaster.setVelocity(tv, rv);
 	}
@@ -141,35 +149,35 @@ public class BlockCollector implements NodeMain, Runnable {
 
 	@Override
 	public void onStart(Node node) {
-		System.out.println("Starting camera processor");
+		System.out.println("Starting block collector");
 		cct = new ConnComp();
 		fidFind = new FiducialFinder();
-		System.out.println("Getting parameter tree");
-		final boolean reverseRGB = node.newParameterTree().getBoolean("reverse_rgb", true);
+//		System.out.println("Getting parameter tree");
+//		final boolean reverseRGB = node.newParameterTree().getBoolean("reverse_rgb", true);
 
-		System.out.println("about to video subscribe");
-		vidSub = node.newSubscriber("/rss/video", "sensor_msgs/Image");
-		System.out.println("Inserting video listener");
-		vidSub
-		.addMessageListener(new MessageListener<org.ros.message.sensor_msgs.Image>() {
-			@Override
-			public void onNewMessage(
-					org.ros.message.sensor_msgs.Image message) {
-				System.out.println("received video frame");
-				byte[] rgbData;
-				if (reverseRGB) {
-					rgbData = Image.RGB2BGR(message.data,
-							(int) message.width, (int) message.height);
-				}
-				else {
-					rgbData = message.data;
-				}
-				assert ((int) message.width == width);
-				assert ((int) message.height == height);
-				handle(rgbData);
-			}
-		});
-		System.out.println("inserted video listener");
+//		System.out.println("about to video subscribe");
+//		vidSub = node.newSubscriber("/rss/video", "sensor_msgs/Image");
+//		System.out.println("Inserting video listener");
+//		vidSub
+//		.addMessageListener(new MessageListener<org.ros.message.sensor_msgs.Image>() {
+//			@Override
+//			public void onNewMessage(
+//					org.ros.message.sensor_msgs.Image message) {
+//				System.out.println("received video frame");
+//				byte[] rgbData;
+//				if (reverseRGB) {
+//					rgbData = Image.RGB2BGR(message.data,
+//							(int) message.width, (int) message.height);
+//				}
+//				else {
+//					rgbData = message.data;
+//				}
+//				assert ((int) message.width == width);
+//				assert ((int) message.height == height);
+//				handle(rgbData);
+//			}
+//		});
+//		System.out.println("inserted video listener");
 		
 		Thread runThis = new Thread(this);
 		runThis.start();

@@ -142,7 +142,9 @@ public class DrivingMaster implements NodeMain, Runnable {
 				robotPose = new Pose(message.x, message.y, message.theta);
 			}
 		});
-		this.motionPub = node.newPublisher("command/Motors", "rss_msgs/Motionmsg");
+		this.motionPub = node.newPublisher("command/Motors", "rss_msgs/MotionMsg");
+		
+		new Thread(this).start();
 	}
 	
 	@Override
