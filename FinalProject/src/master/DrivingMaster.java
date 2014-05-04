@@ -100,7 +100,7 @@ public class DrivingMaster implements NodeMain, Runnable {
 	}
 	
 	@Override
-	public void run() {
+	public void run() { // !!!!! Working on a controller in WaypointNavigator that I'll later move here - Caelan
 		while (true) {
 			double tv, rv;
 			if (goalOriented) {

@@ -15,7 +15,7 @@ import org.ros.node.topic.Publisher;
 import org.ros.node.topic.Subscriber;
 
 
-import cameraProcessing.BlobTracking;
+//import cameraProcessing.BlobTracking;
 
 public class Grasping implements NodeMain, Runnable {
 	
@@ -36,7 +36,7 @@ public class Grasping implements NodeMain, Runnable {
 	private ServoController wristServo;
 	private ServoController gripperServo;
 	
-	private BlobTracking blobTrack = null; //KN
+	//private BlobTracking blobTrack = null; //KN
 	
 	private final double lengthS = .245;
 	private final double lengthW = .19;
@@ -71,17 +71,17 @@ public class Grasping implements NodeMain, Runnable {
 	public void run() { 
 		System.out.println("Initial Position");
 
-		graspAndTransport();
+		//graspAndTransport();
 		//searchAndRetrieve();
 	}
 	
 	public void searchAndRetrieve(){
-		visualServoing();
+		//visualServoing();
 		graspAndTransport();
 	}
 	
 	public void graspAndTransport() {
-		String state = "start";
+		/*String state = "start";
 		int counter = 0;
 		while(true) {
 			System.out.println("stating machine");
@@ -168,7 +168,7 @@ public class Grasping implements NodeMain, Runnable {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-		}
+		}*/
 	}
 	
 	public void moveToConfiguration(double x, double y) {

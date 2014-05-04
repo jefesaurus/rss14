@@ -9,6 +9,8 @@ public class Grid {
 	public final int width;
 	public final int height;
 
+	//TODO - average observations over time
+	
 	public Grid(BoundingBox box) { //TODO cache the boxes
 		this.box = box;
 		this.width = (int)Math.ceil((box.max.x - box.min.x)/Constants.gridResolution);

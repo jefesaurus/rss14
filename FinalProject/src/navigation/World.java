@@ -10,6 +10,8 @@ import java.text.ParseException;
 import java.util.LinkedList;
 import java.util.List;
 
+import navigation.Constants.CollisionCheck;
+
 public class World {
 	protected Point start;
 	protected Point goal;
@@ -17,13 +19,11 @@ public class World {
 	protected LinkedList<Fiducial> fiducials = new LinkedList<Fiducial>();
 	protected LinkedList<Point> blocks = new LinkedList<Point>();
 	protected LinkedList<Polygon> obstacles = new LinkedList<Polygon>();
-	protected Shape robot;
 	protected Polygon viewCone;
 	protected Grid occupancyGrid;
 	protected Grid visibilityGrid;
 
 	public World(File mapFile) throws IOException, ParseException {
-		robot = Constants.createRobot();
 		viewCone = Constants.createViewCone();
 		if (mapFile != null)
 			parseChallenge(mapFile);
@@ -218,7 +218,11 @@ public class World {
 	}
 
 	public Shape getRobot(Configuration c){
-		return robot.pose(c);
+		return Constants.createRobot(0.).pose(c);
+	}
+	
+	public Shape getRobot(Configuration c, double grow){
+		return Constants.createRobot(grow).pose(c);
 	}
 	
 	public Polygon getViewCone(Configuration c){
@@ -257,8 +261,8 @@ public class World {
 		return visibilityGrid;
 	}
 	
-	public boolean robotCollision(Configuration c) {
-		Shape placedRobot = getRobot(c);
+	public boolean robotMapOnlyCollision(Configuration c, double grow) {
+		Shape placedRobot = getRobot(c, grow); //TODO lazily place robot
 		for (Polygon obst : obstacles) {
 			if (placedRobot.collides(obst)) {
 				return true;
@@ -267,11 +271,35 @@ public class World {
 		return !region.contains(placedRobot);
 	}
 	
+	public boolean robotGridOnlyCollision(Configuration c, double grow) {
+		Shape placedRobot = getRobot(c, grow); //TODO lazily place robot
+		return occupancyGrid.collides(placedRobot, .1); //TODO adjust threshold
+	}
+	
+	public boolean robotMapAndGridCollision(Configuration c, double grow) {
+		Shape placedRobot = getRobot(c, grow); //TODO lazily place robot
+		for (Polygon obst : obstacles) {
+			if (placedRobot.collides(obst)) {
+				return true;
+			}
+		}		
+		return !region.contains(placedRobot) || occupancyGrid.collides(placedRobot, .1); //TODO adjust threshold
+	}
+	
+	public boolean robotCollision(Configuration c, double grow, CollisionCheck check) {
+		switch (check) {
+		case MAPONLY: return robotMapOnlyCollision(c, grow);
+		case GRIDONLY: return robotGridOnlyCollision(c, grow);
+		case MAPANDGRID: return robotMapAndGridCollision(c, grow);
+		default: return true;
+		}
+	}
+	
 	public Configuration sampleConfigurationForPoint(Point p) {
 		int attempts = 30;
 		for (int i = 0; i < attempts; i++) {
 			Configuration config = p.configuration(2 * Math.PI * Math.random());
-			if (!robotCollision(config)) {
+			if (!robotMapOnlyCollision(config, 0.)) {
 				return config;
 			}
 		}

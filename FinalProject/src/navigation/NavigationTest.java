@@ -24,8 +24,6 @@ public class NavigationTest implements NodeMain {
 
 	@Override
 	public void onStart(Node node) {
-		long startTime = System.currentTimeMillis();
-
 		ParameterTree paramTree = node.newParameterTree();
 		String mapFileName = paramTree.getString(node
 				.resolveName("~/mapFileName"));
@@ -38,25 +36,39 @@ public class NavigationTest implements NodeMain {
 		gui = new NavigationGUI(world);
 		Configuration start = world.getStart().configuration(0);
 		Configuration goal = world.getGoal().configuration(3*Math.PI/2);
-		
+
 		gui.clear();
 		gui.draw();
 		gui.draw(world.getRobot(start), true, Color.BLUE);
-		gui.draw(world.getViewCone(start), false, Color.BLUE);
 		gui.draw(world.getRobot(goal), true, Color.RED);
+		gui.draw(world.getViewCone(start), false, Color.BLUE);
 		gui.draw(world.getOccupancyGrid(), Color.RED);
 		gui.draw(world.getVisibilityGrid(), Color.GREEN);
 		
 		navigator = new Navigator(node, gui, world);
-		
-		long collectionTime = 120*1000;
+
+		//switchControlDemo(goal);
+		blocksDemo(goal);
+	}
+	
+	private void switchControlDemo(Configuration goal) {
+		navigator.setGoal(goal);
+		Util.pause(10000);
+		navigator.freeze();
+		Util.pause(10000);
+		navigator.resume();
+	}
+	
+	private void blocksDemo(Configuration goal) {
+		long startTime = System.currentTimeMillis();
+		long collectionTime = 120*1000; //TODO Global clock 
 		List<Point> collected = new LinkedList<Point>();
 		for (Point block : world.getBlocks()) { //TODO sort by distance of RRT paths
 			Configuration config = world.sampleConfigurationForPoint(block);
 			if (config == null) {
 				continue;
 			}
-			navigator.setGoal(config); //TODO need to back up or it could get traped. Prioritize moving forward but back up in case forward is not possible
+			navigator.setGoal(config);
 			
 			while (navigator.getGoal() != null && (System.currentTimeMillis() - startTime) < collectionTime) {
 				Util.pause(100);
@@ -69,9 +81,10 @@ public class NavigationTest implements NodeMain {
 			} 
 		}
 		//Done collecting, return to goal
-		navigator.setGoal(goal); //TODO Global clock 
+		navigator.setGoal(goal); 
 		System.out.println("Collected " + collected.size() + " blocks");
 	}
+	
 	
 	@Override
 	public void onShutdown(Node node) {

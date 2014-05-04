@@ -1,16 +1,19 @@
 package navigation;
 
 import java.util.List;
+import navigation.Constants.DriveSystem;
 
 public class RRT {
 	public TreeNode root;
 	public int size;
-	public boolean forward;
+	public boolean startTree;
+	public DriveSystem drive;
 
-	public RRT(Configuration start, boolean forward) {
+	public RRT(Configuration start, boolean startTree, DriveSystem drive) {
 		this.root = new TreeNode(start);
 		this.size = 1;
-		this.forward = forward;
+		this.startTree = startTree;
+		this.drive = Constants.computeDrive(drive, !startTree);
 	}
 
 	public TreeNode add(TreeNode parent, Configuration config) {
@@ -21,11 +24,7 @@ public class RRT {
 	}
 	
 	public double distance(Configuration start, Configuration end) {
-		if (forward) {
-			return start.distanceForward(end);
-		} else {
-			return start.distanceBackward(end);
-		}
+		return start.distance(end, drive);
 	}
 
 	private TreeNode closestRecur(Configuration config, TreeNode node) {
@@ -43,16 +42,11 @@ public class RRT {
 		return closestNode;
 	}
 
-	public TreeNode closest(Configuration config) { // TODO - place Nodes in array
-												// to make closest faster
+	public TreeNode closest(Configuration config) { // TODO - place Nodes in array to make closest faster
 		return closestRecur(config, root);
 	}
 	
 	public List<Configuration> interpolatePath(Configuration start, Configuration end) {
-		if (forward) {
-			return start.interpolatePathForward(end);
-		} else {
-			return start.interpolatePathBackward(end);
-		}
+		return start.interpolatePath(end, drive);
 	}
 }

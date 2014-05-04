@@ -12,8 +12,9 @@ import GlobalNavigation.MapGUI;
 
 public class NavigationGUI extends MapGUI implements NodeMain {
 
-	public NavigationGUI(){
-		super();
+	public World world;
+	public NavigationGUI(World world){
+		this.world = world; //TODO overwrite ROBOT_SHAPE in VisionGUI to draw new robot
 	}
 	
 	public void draw(Point point, Color color) {
@@ -54,7 +55,7 @@ public class NavigationGUI extends MapGUI implements NodeMain {
 		}
 	}
 	
-	public void draw(World world) { //TODO Draw order
+	public void draw() { //TODO Draw order
 		draw(world.getRegion(), false, Color.BLACK);
 		
 		for (Fiducial fid : world.getFiducials()) {
@@ -66,23 +67,15 @@ public class NavigationGUI extends MapGUI implements NodeMain {
 		for (Point block : world.getBlocks()) {
 			draw(block, Color.BLACK);
 		}
-		draw(world.getStart(), Color.GREEN);
-		draw(world.getGoal(), Color.BLUE);
-		draw(world.getOccupancyGrid(), Color.RED);
-		draw(world.getVisibilityGrid(), Color.GREEN);
+		draw(world.getStart(), Color.BLUE);
+		draw(world.getGoal(), Color.RED);
 	}
 	
-	public void draw(List<Configuration> path) {
-		if (path == null || path.size() < 1) return;
-		for (int i = 1; i < path.size(); i ++) {
-			addSegment(path.get(i-1).x, path.get(i-1).y, path.get(i).x, path.get(i).y, Color.GREEN);
-		}
-	}	
-	
-	public void draw(World world, List<Configuration> path) {
+	public void draw(List<Configuration> path, double grow, Color color) {
 		if (path == null || path.size() < 1) return;
 		for (int i = 0; i < path.size(); i ++) {
-			draw(world.getRobot(path.get(i)), false, Color.GREEN);
+			//addSegment(path.get(i-1).x, path.get(i-1).y, path.get(i).x, path.get(i).y, color);
+			draw(world.getRobot(path.get(i), grow), false, color);
 		}
 	}
 	
@@ -93,13 +86,12 @@ public class NavigationGUI extends MapGUI implements NodeMain {
 		}
 	}	
 	
-	public void draw(World world, TreeNode node, Color color) {
-		for (TreeNode child : node.children) {
-			addSegment(node.config.x, node.config.y, child.config.x, child.config.y, color);
-			draw(world, child, color);
-		}
-		if (node.children.size() == 0) {
-			draw(world.getRobot(node.config), false, color);
-		}
-	}	
+	public void clear() {
+		eraseLine();
+		eraseSegments();
+		erasePoints();
+		eraseRects();
+		erasePolys();
+	}
+	
 }

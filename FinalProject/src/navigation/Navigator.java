@@ -6,6 +6,9 @@ import java.awt.Color;
 import java.util.LinkedList;
 import java.util.List;
 
+import navigation.Constants.CollisionCheck;
+import navigation.Constants.DriveSystem;
+
 import org.ros.message.MessageListener;
 import org.ros.message.rss_msgs.MotionMsg;
 import org.ros.node.Node;
@@ -20,9 +23,10 @@ public class Navigator implements Runnable {
 	public NavigationGUI gui;
 	public World world;
 	public MotionPlanner planner;
-	protected boolean firstUpdate;
-	protected Configuration reference, current, goal;
+	protected boolean firstUpdate, frozen, pathReset;
+	protected Configuration reference, initial, current, goal;
 	protected List<Configuration> path;
+	protected DriveSystem pathDrive;
 
 	public Navigator(Node node, NavigationGUI gui, World world) {
 		this.node = node;
@@ -31,10 +35,14 @@ public class Navigator implements Runnable {
 		this.planner = new MotionPlanner(world);
 		
 		this.firstUpdate = true;
+		this.frozen = false;
+		this.pathReset = false;
 		this.reference = null;
+		this.initial = world.getStart().configuration(0.); //Alec said that we can assume the robot starts facing east (angle 0)
 		this.current = null;
-		this.goal = null;
+		this.goal = null; //TODO queue of goals
 		path = new LinkedList<Configuration>();
+		pathDrive = null;
 		setup();
 	}
 	
@@ -50,17 +58,8 @@ public class Navigator implements Runnable {
 					gui.draw();
 					firstUpdate = false;
 					reference = new Configuration(message.x, message.y, message.theta);
-				}				
-				double length = Util.vectorLength(message.x - reference.x, message.y - reference.y);
-				double angle = Util.vectorAngle(message.x - reference.x, message.y - reference.y) - reference.theta;
-				double x = length*Math.cos(angle);
-				double y = length*Math.sin(angle);
-				
-				Configuration configuration = new Configuration(message.x, message.y, message.theta).compose(reference);	
-				//TODO add the the start angle
-				//configuration = new Configuration(configuration.x + world.getStart().x, configuration.y + world.getStart().y, configuration.theta); //Only correct for theta = 0
-
-				//Configuration configuration = new Configuration(message.x, message.y, message.theta).compose(reference).compose(start);	
+				}							
+				Configuration configuration = new Configuration(message.x, message.y, message.theta).inverseTransform(reference).forwardTransform(initial);	
 				gui.setRobotPose(configuration.x, configuration.y, configuration.theta);
 				setConfiguration(configuration);
 			}
@@ -86,10 +85,10 @@ public class Navigator implements Runnable {
 		goal = g;
 		if (goal != null) {
 			if (!replan()){ //Could not find path. Do not set it as the goal
+				System.out.println("Unreachable Goal: " + goal + "\n");
 				goal = null; //TODO instead just maintain past goal?
-				setPath(new LinkedList<Configuration>());
 			} else {
-				System.out.println("New Goal: " + goal);
+				System.out.println("New Goal: " + goal + "\n");
 			}
 		}
 	}
@@ -102,30 +101,44 @@ public class Navigator implements Runnable {
 		current = c;
 	}
 	
-	public boolean replan() { //Grow RRT on grid + obstacles then just obstacles if fails
-		Configuration start = getConfiguration();
-		//TODO getGoal()?
-		List<Configuration> path = planner.findPath(start, goal); 
-		
-		if (path != null) { //TODO RRT fails to find path failure modes
-			System.out.println("Found path of length " + path.size() + " from " + start + " to " + goal);
-			setPath(path);
-			
-			gui.clear();
-			gui.draw();
-			gui.draw(path);
-			gui.draw(planner.tree1.root, Color.BLUE);
-			gui.draw(planner.tree2.root, Color.RED);
-			
-			return true;
-		} else {
-			System.out.println("Could not find path from " + start + " to " + goal);
+	public boolean replan() { //TODO Grow RRT on grid + obstacles then just obstacles if fails, relax drive system, and grown robot stuff
+		if (goal == null) {
 			return false;
 		}
+		
+		Configuration start = getConfiguration();
+		//TODO getGoal()?
+		
+		for (int i = 0; i < Constants.PLANNING_ATTEMPTS.size(); i++) {
+			DriveSystem drive = Constants.PLANNING_ATTEMPTS.get(i).one;
+			double grow = Constants.PLANNING_ATTEMPTS.get(i).two.one;
+			CollisionCheck check = Constants.PLANNING_ATTEMPTS.get(i).two.two;
+			List<Configuration> newPath = planner.findPath(start, goal, drive, grow, check); 
+			if (newPath != null) { //TODO RRT fails to find path failure modes
+				System.out.println("Found path of length " + newPath.size() + " from " + start + " to " + goal);
+				setPath(newPath, drive);
+				gui.clear();
+				gui.draw();
+				gui.draw(newPath, grow, Color.BLUE);
+				gui.draw(planner.tree1.root, Color.BLUE);
+				gui.draw(planner.tree2.root, Color.RED);
+				return true;
+			} 
+		}
+		
+		System.out.println("Could not find path from " + start + " to " + goal);
+		setPath(new LinkedList<Configuration>(), null);
+		gui.clear();
+		gui.draw();
+		gui.draw(planner.tree1.root, Color.BLUE);
+		gui.draw(planner.tree2.root, Color.RED);
+		return false;
 	}
 	
-	public synchronized void setPath(List<Configuration> path) { //TODO Replan
-		this.path = path;
+	public synchronized void setPath(List<Configuration> newPath, DriveSystem drive) { //TODO Replan more frequently
+		path = newPath;
+		pathDrive = drive;
+		pathReset = true;
 	}
 	
 	public synchronized Configuration nextConfig() {
@@ -136,75 +149,162 @@ public class Navigator implements Runnable {
 		}
 	}
 
-	//TOOD - remove unused launch components
-	//TODO - remove netbook window of robot spaz
-		
-	public void sendVelocityMessage(double tv, double rv) {
+	public MotionMsg createMotionMsg(double tv, double rv) {
 		MotionMsg msg = new MotionMsg();
 		msg.translationalVelocity = tv;
 		msg.rotationalVelocity = rv;
-		motionPub.publish(msg);
+		return msg;
+	}
+	
+	public synchronized void freeze() {
+		frozen = true;
+		System.out.println("Navigation frozen\n");
+		Util.pause(10); //TODO remove and fix concurrency bug
+		motionPub.publish(createMotionMsg(0., 0.));
+	}
+	
+	public synchronized void resume() {
+		replan();
+		System.out.println("Navigation resumed\n");
+		frozen = false;
+	}
+	
+	//TODO - remove unused launch components
+	//TODO - remove netbook window of robot spaz
+	//TODO - bump sensor feedback to back up and replan
+	//TODO - automatically replan every couple seconds
+	//TODO - Alec says that the given map is complete wrt obstacles (ie it includes each perfectly), but the block positions may change
+	//If replanning frequently, it will automatically try forward after moving backward out of tough space
+	
+	public MotionMsg computeForwardVelocities(Configuration start, Configuration end) {
+		//if (!planner.safePath(start, end, DriveSystem.FORWARD, 0., CollisionCheck.MAPONLY)) {
+		//	replan();
+		//	return null; //TODO collision checks to make sure if off path that it doesn't collide, else replan
+		//}
+		
+		double translateAngle =  Util.vectorAngle(end.x - start.x ,end.y - start.y);
+		double directionError = Util.angleDistance(start.theta, translateAngle);
+		double translationError = Util.vectorLength(end.x - start.x, end.y - start.y);
+		double angleError = Util.angleDistance(start.theta, Util.cleanAngle(end.theta));				
+						
+		double tv = 0.;
+		double rv = 0.; //TODO collision checks to make sure if off path that it doesn't collide
+		if (translationError > Constants.TRANSLATION_THRESHOLD) {
+			if (directionError > Constants.ROTATION_THRESHOLD) { 
+				double rotationSpeed = Math.max(Math.min(Constants.K_ROTATE*directionError, Constants.MAX_RV), Constants.MIN_RV);
+				rv = rotationSpeed*Util.angleDistanceSign(start.theta, translateAngle);
+			} 
+			else {
+				double translationSpeed = Math.max(Math.min(Constants.K_TRANSLATE*translationError, Constants.MAX_TV), Constants.MIN_TV);
+				tv = translationSpeed;
+			}
+		} else if (angleError > Constants.ROTATION_THRESHOLD) { 
+			double rotationSpeed = Math.max(Math.min(Constants.K_ROTATE*angleError, Constants.MAX_RV), Constants.MIN_RV);
+			rv = rotationSpeed*Util.angleDistanceSign(start.theta, end.theta);
+		} else {
+			//Reached waypoint
+			return null;
+		}
+		return createMotionMsg(tv, rv);
+	}
+	
+	public MotionMsg computeBackwardVelocities(Configuration start, Configuration end) {
+		//if (!planner.safePath(start, end, DriveSystem.BACKWARD, 0., CollisionCheck.MAPONLY)) {
+		//	replan();
+		//	return null; //TODO collision checks to make sure if off path that it doesn't collide
+		//}
+		
+		double translateAngle = Util.cleanAngle(Util.vectorAngle(end.x - start.x ,end.y - start.y) + Math.PI);
+		double directionError = Util.angleDistance(start.theta, translateAngle);
+		double translationError = Util.vectorLength(end.x - start.x, end.y - start.y);
+		double angleError = Util.angleDistance(start.theta, Util.cleanAngle(end.theta));				
+						
+		double tv = 0.;
+		double rv = 0.;
+		if (translationError > Constants.TRANSLATION_THRESHOLD) {
+			if (directionError > Constants.ROTATION_THRESHOLD) { 
+				double rotationSpeed = Math.max(Math.min(Constants.K_ROTATE*directionError, Constants.MAX_RV), Constants.MIN_RV);
+				rv = rotationSpeed*Util.angleDistanceSign(start.theta, translateAngle);
+			} 
+			else {
+				double translationSpeed = Math.max(Math.min(Constants.K_TRANSLATE*translationError, Constants.MAX_TV), Constants.MIN_TV);
+				tv = -translationSpeed;
+			}
+		} else if (angleError > Constants.ROTATION_THRESHOLD) { 
+			double rotationSpeed = Math.max(Math.min(Constants.K_ROTATE*angleError, Constants.MAX_RV), Constants.MIN_RV);
+			rv = rotationSpeed*Util.angleDistanceSign(start.theta, end.theta);
+		} else {
+			//Reached waypoint
+			return null;
+		}
+		return createMotionMsg(tv, rv);
+	}
+	
+	public MotionMsg computeFOBVelocities(Configuration start, Configuration end) {
+		if (start.distanceForward(end) < start.distanceBackward(end)) {
+			return computeForwardVelocities(start, end);
+		} else {
+			return computeBackwardVelocities(start, end);
+		}
+	}
+	
+	//TODO if drive system path is no longer good then replan
+	public MotionMsg computeVelocities(Configuration start, Configuration end) {
+		switch(pathDrive) {
+		case FORWARD: return computeForwardVelocities(start, end);
+		case BACKWARD: return computeBackwardVelocities(start, end);
+		case FOB: return computeFOBVelocities(start, end);
+		default: return null;
+		}		
 	}
 	
 	@Override
-	public void run() {
-		double tv, rv;
-		
+	public void run() { 		
 		System.out.println("Started Navigator Loop");
 		long startTime = System.currentTimeMillis();
 		while (true) {
 			Util.pause(1); //TODO remove and fix concurrency bug
 			Configuration waypoint = nextConfig();
 			if (waypoint == null) {
-				sendVelocityMessage(0., 0.);
+				if (!frozen) {
+					motionPub.publish(createMotionMsg(0., 0.));
+				}
 				continue;
 			}
-			System.out.println("New Waypoint: " + waypoint);
+			pathReset = false;
+			System.out.println("New Waypoint: " + waypoint + "\n");
 			while (true) {			
 				Util.pause(1); //TODO remove and fix concurrency bug
 				
-				Configuration configuration = getConfiguration();
-				double directionTheta =  Util.vectorAngle(waypoint.x - configuration.x ,waypoint.y - configuration.y);
-				
-				double directionError = Util.angleDistance(configuration.theta, directionTheta);
-				double translationError = Util.vectorLength(waypoint.x - configuration.x, waypoint.y - configuration.y);
-				double angleError = Util.angleDistance(configuration.theta, Util.cleanAngle(waypoint.theta));				
-								
-				tv = 0.;
-				rv = 0.;				
-				if (translationError > Constants.TRANSLATION_THRESHOLD) {
-					if (directionError > Constants.ROTATION_THRESHOLD) { 
-						double rotationSpeed = Math.max(Math.min(Constants.K_ROTATE*directionError, Constants.MAX_RV), Constants.MIN_RV);
-						tv = 0.0;
-						rv = rotationSpeed*Util.angleDistanceSign(configuration.theta, directionTheta);
-					} 
-					else {
-						double translationSpeed = Math.max(Math.min(Constants.K_TRANSLATE*translationError, Constants.MAX_TV), Constants.MIN_TV); //Only moves forward
-						tv = translationSpeed;
-						rv = 0.0;
-					}
-				} else if (angleError > Constants.ROTATION_THRESHOLD) { 
-					double rotationSpeed = Math.max(Math.min(Constants.K_ROTATE*angleError, Constants.MAX_RV), Constants.MIN_RV);
-					tv = 0.0;
-					rv = rotationSpeed*Util.angleDistanceSign(configuration.theta, Util.cleanAngle(waypoint.theta));
-				} else {
-					//Reached waypoint
-					sendVelocityMessage(0., 0.);
-					if (path.size() == 0) {
-						//Reached goal
-						setGoal(null);
-					}
+				if (pathReset) {
+					pathReset = false;
 					break;
 				}
+				
+				Configuration configuration = getConfiguration();
+				MotionMsg msg = null;
+				if (!frozen) {
+					msg = computeVelocities(configuration, waypoint); //TODO - only recompute if something has changed
+					if (msg == null) {
+						if (path.size() == 0) {
+							//Reached goal
+							setGoal(null);
+						}
+						break;
+					} 
+					motionPub.publish(msg);
+				}	
 				
 				if ((System.currentTimeMillis() - startTime) % 2000 == 0) {
 					System.out.println("Time: " + (System.currentTimeMillis() - startTime)/1000 + " seconds");
 					System.out.println("Current: " + configuration);
 					System.out.println("Waypoint: " + waypoint);
-					System.out.println("Error: " + directionError + ", " + translationError + ", " + angleError);
-					System.out.println("Velocity: " + tv + ", " + rv + "\n");
+					if (msg != null) {
+						System.out.println("Velocity: " + msg.translationalVelocity + ", " + msg.rotationalVelocity + "\n");
+					} else {
+						System.out.println("Velocity: N/A, N/A\n");
+					}
 				}
-				sendVelocityMessage(tv, rv);
 			}
 		}
 	}
