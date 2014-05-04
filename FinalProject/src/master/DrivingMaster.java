@@ -127,6 +127,12 @@ public class DrivingMaster implements NodeMain, Runnable {
 			msg.translationalVelocity = tv;
 			msg.rotationalVelocity = rv;
 			motionPub.publish(msg);
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 

@@ -1,6 +1,7 @@
 package collectBlocks;
 
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
@@ -34,8 +35,9 @@ public class BlockCollector implements NodeMain, Runnable {
 	private DrivingMaster driveMaster;
 	private KinectData kinecter;
 	
-	private Image src;
-	public boolean guiOn = true;
+	private Image srcImage;
+	private int[][][] srcArray;
+	public boolean guiOn = false;
 	private boolean processBool = true;
 	private boolean collectBool = true;
 	private VisionGUI gui;
@@ -51,6 +53,8 @@ public class BlockCollector implements NodeMain, Runnable {
 		}
 		this.driveMaster = driveMaster;
 		this.kinecter = kinecter;
+		binfos = new ArrayList<BlockInfo>();
+		finfos = new ArrayList<FidPattern>();
 	}
 	
 	public void setProcessing (boolean toggle) {
@@ -79,37 +83,31 @@ public class BlockCollector implements NodeMain, Runnable {
 	 * Should be called in the run command if you want to process data
 	 */
 	private void processData() {
-		src = kinecter.getImage();
-		if (src == null)
+		srcArray = kinecter.getNewRGBArray();
+		if (srcArray == null)
 			return;
-		Image dest = new Image(src);
+		srcArray = kinecter.getRGBArray();
+		
 //		System.out.println("src image width: " + src.getWidth() + " height: " + src.getHeight());
 		
 //		process here
 		if (guiOn){
-			dest = new Image(src);
-			binfos = cct.visualize(src, dest);
-//			cct.calibrateHelp(src, dest);
-//			cct.debugHelp(src, dest);
-		} else {
-			binfos = cct.getBlockInfosForFrame(src);
-		}
-		finfos = fidFind.findFids(binfos);	
-
-		try {
-			Thread.sleep(200);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		if (guiOn) {
+			Image dest = kinecter.getImage();
+			binfos = cct.visualize(srcArray, dest);
+			cct.calibrateHelp(srcArray, dest);
+//			cct.debugHelp(srcArray, dest);
 			gui.setVisionImage(dest.toArray(), width, height);
+		} else {
+			binfos = cct.getBlockInfosForFrame(srcArray);
 		}
+		finfos = fidFind.findFids(binfos);
+		
+//		System.out.println("Kinect data processed: " + System.nanoTime()/1000000);
 	}
 	
 	
 	public double RANGE_GAIN = .005;
-    public double BEARING_GAIN = .005;
+    public double BEARING_GAIN = 1.;
     public double desiredRange = 441/4; // desired centroid.y in pixels
     public double desiredBearing = 391/4; //desired centroid.x in pixels
 	/**
@@ -124,15 +122,15 @@ public class BlockCollector implements NodeMain, Runnable {
         if (!binfos.isEmpty()) {
         	BlockInfo b = binfos.get(0);
             // Very basic proportional controller
-        	System.out.println("size : " + b.size + " | cx : " + b.centroid.x + " | cy : " + b.centroid.y);
+//        	System.out.println("size : " + b.size + " | cx : " + b.centroid.x + " | cy : " + b.centroid.y);
             double rangeError = desiredRange - b.centroid.y; // negative because y pixels increase downward
 //            double bearingError = desiredBearing - b.centroid.x;
-            double bearingError = width/2 - b.centroid.x;
-            tv = -.05;
+            double bearingError = ((double)(width/2 - b.centroid.x))/width;
+//            tv = -.05;
             rv = bearingError*BEARING_GAIN;
         }
         
-        System.out.println("tv : " +tv+" |rv : "+rv);
+//        System.out.println("tv : " +tv+" |rv : "+rv);
 
         driveMaster.setVelocity(tv, rv);
 	}

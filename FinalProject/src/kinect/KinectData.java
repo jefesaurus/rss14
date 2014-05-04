@@ -30,8 +30,8 @@ import java.awt.Point;
 public class KinectData implements NodeMain {
 	public Subscriber<org.ros.message.sensor_msgs.PointCloud2> kinSub;
 	public boolean firstUpdate;
-	public int[][][] rgb;
-	public float[][] xyz;
+	private int[][][] rgb;
+	private float[][] xyz;
 	public Pose pose;
 	public Pose3D kinectPose;
 	
@@ -85,6 +85,20 @@ public class KinectData implements NodeMain {
 		return null;
 	}
 	
+	public int[][][] getRGBArray() {
+		synchronized (rgb) {
+			return rgb;
+		}
+	}
+	
+	public int[][][] getNewRGBArray() {
+		if (newData) {
+			newData = false;
+			return getRGBArray();
+		}
+		return null;
+	}
+	
 	@Override
 	public void onStart(Node node) {
 		System.out.println("KINECT NODE STARTED");
@@ -126,18 +140,19 @@ public class KinectData implements NodeMain {
   */
 
   private long lastTimeProcessed = -1;
-  private int fps = 5;
+  private int fps = 10;
   public void unpackPointCloudData(int width, int height, int pointStep, int rowStep, byte[] data) {
-	  if (lastTimeProcessed < 0)
+	if (lastTimeProcessed < 0)
+		lastTimeProcessed = System.nanoTime();
+	else {
+		long elapsedMilli = (System.nanoTime() - lastTimeProcessed)/1000000;
+		if (elapsedMilli > 1000/fps) {
 			lastTimeProcessed = System.nanoTime();
-		else {
-			long elapsedMilli = (System.nanoTime() - lastTimeProcessed)/1000000;
-			if (elapsedMilli > 1000/fps) {
-				lastTimeProcessed = System.nanoTime();
-			} else {
-				return;
-			}
+		} else {
+			return;
 		}
+	}
+//	System.out.println("Kinect message received: " + System.nanoTime()/1000000);
 	int n = 1;
     int total = 1;
     float x_avg = 0.0f;
@@ -149,47 +164,49 @@ public class KinectData implements NodeMain {
     float blue = 0.0f;
     float green = 0.0f;
     
-    int stepSize = this.divideScale;
-    for (int row = 0; row < this.rawHeight; row += stepSize) {
-      for (int col = 0; col < this.rawWidth; col += stepSize) {
-        int offset = rowStep*row + pointStep*col;
-        int x_i = offset+X_OFFSET;
-        int y_i = offset+Y_OFFSET;
-        int z_i = offset+Z_OFFSET;
-        int r_i = offset+R_OFFSET;
-        int g_i = offset+G_OFFSET;
-        int b_i = offset+B_OFFSET;
-        float x = Float.intBitsToFloat((data[x_i+3] & 0xff) << 24 | (data[x_i+2] & 0xff) << 16 | (data[x_i+1] & 0xff) << 8 | (data[x_i] & 0xff)); 
-        float y = Float.intBitsToFloat((data[y_i+3] & 0xff) << 24 | (data[y_i+2] & 0xff) << 16 | (data[y_i+1] & 0xff) << 8 | (data[y_i] & 0xff)); 
-        float z = Float.intBitsToFloat((data[z_i+3] & 0xff) << 24 | (data[z_i+2] & 0xff) << 16 | (data[z_i+1] & 0xff) << 8 | (data[z_i] & 0xff)); 
-        int r = (data[r_i] & 0xff); 
-        int g = (data[g_i] & 0xff); 
-        int b = (data[b_i] & 0xff); 
-        this.rgb[col/divideScale][row/divideScale][2] = r;
-        this.rgb[col/divideScale][row/divideScale][1] = g;
-        this.rgb[col/divideScale][row/divideScale][0] = b;
-        
-        this.xyz[col/divideScale][row/divideScale] = z;
+    synchronized (rgb) {
+    	 int stepSize = this.divideScale;
+    	    for (int row = 0; row < this.rawHeight; row += stepSize) {
+    	      for (int col = 0; col < this.rawWidth; col += stepSize) {
+    	        int offset = rowStep*row + pointStep*col;
+    	        int x_i = offset+X_OFFSET;
+    	        int y_i = offset+Y_OFFSET;
+    	        int z_i = offset+Z_OFFSET;
+    	        int r_i = offset+R_OFFSET;
+    	        int g_i = offset+G_OFFSET;
+    	        int b_i = offset+B_OFFSET;
+    	        float x = Float.intBitsToFloat((data[x_i+3] & 0xff) << 24 | (data[x_i+2] & 0xff) << 16 | (data[x_i+1] & 0xff) << 8 | (data[x_i] & 0xff)); 
+    	        float y = Float.intBitsToFloat((data[y_i+3] & 0xff) << 24 | (data[y_i+2] & 0xff) << 16 | (data[y_i+1] & 0xff) << 8 | (data[y_i] & 0xff)); 
+    	        float z = Float.intBitsToFloat((data[z_i+3] & 0xff) << 24 | (data[z_i+2] & 0xff) << 16 | (data[z_i+1] & 0xff) << 8 | (data[z_i] & 0xff)); 
+    	        int r = (data[r_i] & 0xff); 
+    	        int g = (data[g_i] & 0xff); 
+    	        int b = (data[b_i] & 0xff); 
+    	        this.rgb[col/divideScale][row/divideScale][2] = r;
+    	        this.rgb[col/divideScale][row/divideScale][1] = g;
+    	        this.rgb[col/divideScale][row/divideScale][0] = b;
+    	        
+    	        this.xyz[col/divideScale][row/divideScale] = z;
 
-        if (!Float.isNaN(x) && !Float.isNaN(y) && !Float.isNaN(z)) {
-          Point3D realPoint = kinectPose.fromFrame(new Point3D(x, y, z));
-          if (realPoint.z > 0) {
-            obstaclePoints.add(realPoint); 
-          } else {
-            n++;
-          }
-          total ++;
-          x_avg += realPoint.x;
-          y_avg += realPoint.y;
-          z_avg += realPoint.z;
+    	        if (!Float.isNaN(x) && !Float.isNaN(y) && !Float.isNaN(z)) {
+    	          Point3D realPoint = kinectPose.fromFrame(new Point3D(x, y, z));
+    	          if (realPoint.z > 0) {
+    	            obstaclePoints.add(realPoint); 
+    	          } else {
+    	            n++;
+    	          }
+    	          total ++;
+    	          x_avg += realPoint.x;
+    	          y_avg += realPoint.y;
+    	          z_avg += realPoint.z;
 
-          //red += r;
-          //blue += b;
-          //green += g;
-        }
-      }
+    	          //red += r;
+    	          //blue += b;
+    	          //green += g;
+    	        }
+    	      }
+    	    }
+    	    newData = true;
     }
-    newData = true;
   }
 
   HashMap<Point2D.Float, Integer> occupancy;

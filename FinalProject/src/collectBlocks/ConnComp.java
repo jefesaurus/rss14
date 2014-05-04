@@ -26,10 +26,10 @@ public class ConnComp {
 			this.brightMax = brightMax;
 		}
 		
-		public boolean checkRange(Image src, Point pix) {
-			int red = (src.getPixelRed(pix.x, pix.y) >= 0)?src.getPixelRed(pix.x, pix.y):256+src.getPixelRed(pix.x, pix.y);
-			int green = (src.getPixelGreen(pix.x, pix.y) >= 0)?src.getPixelGreen(pix.x, pix.y):256+src.getPixelGreen(pix.x, pix.y);
-			int blue = (src.getPixelBlue(pix.x, pix.y) >= 0)?src.getPixelBlue(pix.x, pix.y):256+src.getPixelBlue(pix.x, pix.y);
+		public boolean checkRange(int[][][] src, Point pix) {
+			int red = src[pix.x][pix.y][0];
+			int green = src[pix.x][pix.y][1];
+			int blue = src[pix.x][pix.y][2];
 			float[] pixelArray = Color.RGBtoHSB(red, green, blue, null);
 			float hue = pixelArray[0];
 			float sat = pixelArray[1];
@@ -52,7 +52,7 @@ public class ConnComp {
 	public float blockSatThresh = .6f;
 	public float blockBrightThresh = .35f;
 	public float hueSimilarityThresh = .05f;
-	public int minPixelsPerGroup = 40;
+	public int minPixelsPerGroup = 70;
 	int[][] colors;
 	
 	public ConnComp() {
@@ -86,13 +86,13 @@ public class ConnComp {
 	 * @param src
 	 * @return
 	 */
-	public List<ArrayList<Point>> findColorPointGroups(Image src) {
-		UF labels = new UF(src.getWidth()*src.getHeight());
-		colors = new int[src.getWidth()][src.getHeight()];
+	public List<ArrayList<Point>> findColorPointGroups(int[][][] src) {
+		UF labels = new UF(src.length*src[0].length);
+		colors = new int[src.length][src[0].length];
 		
 		// First pass, determine color of pixel
-		for (int x = 0; x<src.getWidth(); x++) {
-			for (int y = 0; y<src.getHeight(); y++) {
+		for (int x = 0; x<src.length; x++) {
+			for (int y = 0; y<src[0].length; y++) {
 				boolean background = true;
 				for (HSBRanges range : this.hsbRanges) {
 					if (range.checkRange(src, new Point(x,y))) {
@@ -106,8 +106,8 @@ public class ConnComp {
 			}
 		}
 		// Second pass, label everything
-		for (int x = 0; x<src.getWidth(); x++) {
-			for (int y = 0; y<src.getHeight(); y++) {
+		for (int x = 0; x<src.length; x++) {
+			for (int y = 0; y<src[0].length; y++) {
 				Point pix = new Point(x,y);
 				//ignore background pixels
 				if (colors[x][y] == -1) {
@@ -121,20 +121,20 @@ public class ConnComp {
 				
 				// otherwise blindly union them all
 				for (Point neigh : neighbors) {
-					labels.union(pix.x*src.getHeight()+pix.y, neigh.x*src.getHeight()+neigh.y);
+					labels.union(pix.x*src[0].length+pix.y, neigh.x*src[0].length+neigh.y);
 				}
 			}
 		}
 		// Third pass, extract groups with size greater than 1
 		List<ArrayList<Point>> groups = new ArrayList<ArrayList<Point>>();
-		for (int i = 0; i<src.getWidth()*src.getHeight(); i++) {
+		for (int i = 0; i<src.length*src[0].length; i++) {
 			groups.add(new ArrayList<Point>());
 		}
 		//System.out.println("size: " + groups.size());
-		for (int x = 0; x<src.getWidth(); x++) {
-			for (int y = 0; y<src.getHeight(); y++) {
+		for (int x = 0; x<src.length; x++) {
+			for (int y = 0; y<src[0].length; y++) {
 				Point pix = new Point(x,y);
-				int component = labels.find(pix.x*src.getHeight()+pix.y);
+				int component = labels.find(pix.x*src[0].length+pix.y);
 				groups.get(component).add(pix);
 			}
 		}
@@ -157,7 +157,7 @@ public class ConnComp {
 	 * @param groups
 	 * @return
 	 */
-	public List<BlockInfo> makeBlockInfos(Image src, List<ArrayList<Point>> groups) {
+	public List<BlockInfo> makeBlockInfos(int[][][] src, List<ArrayList<Point>> groups) {
 		List<BlockInfo> answer = new ArrayList<BlockInfo>();
 		System.out.println("Number of groupings: " + groups.size());
 		for (ArrayList<Point> g : groups) {
@@ -205,7 +205,7 @@ public class ConnComp {
 	 * @param src the source RGB
 	 * @param dest the destination RGB
 	 */
-	public List<BlockInfo> visualize(Image src, Image dest) {
+	public List<BlockInfo> visualize(int[][][] src, Image dest) {
 		Color[] groupColorings = {Color.white, Color.blue, Color.pink, Color.magenta, Color.yellow, Color.green};
 		List<ArrayList<Point>> groups = filterGroupsBySize(findColorPointGroups(src), minPixelsPerGroup);
 		List<BlockInfo> blockInfos = makeBlockInfos(src, groups);
@@ -234,7 +234,7 @@ public class ConnComp {
 	 * @param src
 	 * @return
 	 */
-	public List<BlockInfo> getBlockInfosForFrame(Image src) {
+	public List<BlockInfo> getBlockInfosForFrame(int[][][] src) {
 		List<ArrayList<Point>> groups = filterGroupsBySize(findColorPointGroups(src), minPixelsPerGroup);
 		return makeBlockInfos(src, groups);
 	}
@@ -244,15 +244,15 @@ public class ConnComp {
 	 * @param src
 	 * @param dest
 	 */
-	public void calibrateHelp(Image src, Image dest) {
+	public void calibrateHelp(int[][][] src, Image dest) {
 		float avgHue = 0;
 		float avgSat = 0;
 		float avgBright = 0;
-		for (int x = 2*src.getWidth()/5; x<3*src.getWidth()/5; x++) {
-			for (int y = 2*src.getHeight()/5; y<3*src.getHeight()/5; y++) {
-				int red = (src.getPixelRed(x, y) >= 0)?src.getPixelRed(x, y):256+src.getPixelRed(x, y);
-				int green = (src.getPixelGreen(x, y) >= 0)?src.getPixelGreen(x, y):256+src.getPixelGreen(x, y);
-				int blue = (src.getPixelBlue(x, y) >= 0)?src.getPixelBlue(x, y):256+src.getPixelBlue(x, y);
+		for (int x = 2*src.length/5; x<3*src.length/5; x++) {
+			for (int y = 2*src[0].length/5; y<3*src[0].length/5; y++) {
+				int red = src[x][y][0];
+				int green = src[x][y][1];
+				int blue = src[x][y][2];
 				float[] pixelArray = Color.RGBtoHSB(red, green, blue, null);
 				float hue = pixelArray[0];	float sat = pixelArray[1];	float bright = pixelArray[2];
 				avgHue += hue;
@@ -260,20 +260,20 @@ public class ConnComp {
 				avgBright += bright;
 			}
 		}
-		int totalPixels = src.getWidth()*src.getHeight()/25;
+		int totalPixels = src.length*src[0].length/25;
 		avgHue = avgHue/totalPixels;
 		avgSat /= totalPixels;
 		avgBright /= totalPixels;
 		System.out.println(String.format("AvgHue: %.5f | AvgSat: %.5f | avgBright: %.5f", avgHue, avgSat, avgBright));
 		
 		// draw black box around pixels we are checking
-		for (int x = 2*src.getWidth()/5; x<3*src.getWidth()/5; x++) {
-			dest.setPixel(x, 2*src.getHeight()/5, (byte)0, (byte)0, (byte)0);
-			dest.setPixel(x, 3*src.getHeight()/5, (byte)0, (byte)0, (byte)0);
+		for (int x = 2*src.length/5; x<3*src.length/5; x++) {
+			dest.setPixel(x, 2*src[0].length/5, (byte)0, (byte)0, (byte)0);
+			dest.setPixel(x, 3*src[0].length/5, (byte)0, (byte)0, (byte)0);
 		}
-		for (int y = 2*src.getHeight()/5; y<3*src.getHeight()/5; y++) {
-			dest.setPixel(2*src.getWidth()/5, y, (byte)0, (byte)0, (byte)0);
-			dest.setPixel(3*src.getWidth()/5, y, (byte)0, (byte)0, (byte)0);
+		for (int y = 2*src[0].length/5; y<3*src[0].length/5; y++) {
+			dest.setPixel(2*src.length/5, y, (byte)0, (byte)0, (byte)0);
+			dest.setPixel(3*src.length/5, y, (byte)0, (byte)0, (byte)0);
 		}
 	}
 	
