@@ -1,0 +1,11 @@
+<launch>
+  <include file="$(find FinalProject)/launch/config.launch" />
+
+  <node name="lis" pkg="rosjava_bootstrap" type="run.py" args="uorc_listener Listener" machine="netbook" /> 
+  <node name="pub" pkg="rosjava_bootstrap" type="run.py" args="uorc_publisher Publisher" machine="netbook" />
+  <node name="odo" pkg="rosjava_bootstrap" type="run.py" args="odometry odometry.Odometry" machine="netbook" />
+  <node name="robotMain" pkg="rosjava_bootstrap" type="run.py" args="FinalProject master.Main" machine="netbook" output="screen"/>
+  <param name="/robotMain/mapFileName" value="/home/rss-student/RSS-I-group/FinalProject/maps/challenge_2014.txt" /> 
+
+  <node name="vid" pkg="gscam" type="gscam" machine="netbook" /> 
+</launch>

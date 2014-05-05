@@ -6,8 +6,10 @@ import java.awt.Color;
 
 import kinect.KinectData;
 
+import navigation.Block;
 import navigation.Configuration;
 import navigation.Navigator;
+import navigation.Util;
 import navigation.World;
 
 import org.ros.namespace.GraphName;
@@ -24,6 +26,7 @@ public class Main implements NodeMain, Runnable {
 	private BlockCollector camProc;
 	private DrivingMaster driveMaster;
 	private KinectData kinecter;
+	public GatesController gates;
 	public Node node;
 	public World world;
 	private NavigationGUI gui;
@@ -32,8 +35,9 @@ public class Main implements NodeMain, Runnable {
 	public Main() {
 		int divideScale = 4;
 		driveMaster = new DrivingMaster();
+		gates = new GatesController();
 		kinecter = new KinectData(divideScale);
-		camProc = new BlockCollector(driveMaster, kinecter, divideScale);
+		camProc = new BlockCollector(driveMaster, kinecter, gates, divideScale);
 	}
 	
 	@Override
@@ -43,16 +47,19 @@ public class Main implements NodeMain, Runnable {
 			// if less than 30 seconds left
 			boolean runningOutOfTime = false;
 			if (runningOutOfTime) {
+				System.out.println("running out of time");
 				// prioritize shelter building
 			} else {
 				// go around and collect blocks
 				BlockInfo b = camProc.largestBlob();
 				// block of big enough size
-				if (b.size > 50) {
+				if (b.size > 90) {
+					System.out.println("collecting");
 					// do block collection
 					navigator.freeze();
 					camProc.takeOverDriving(true);
 				} else {
+					System.out.println("navigating");
 					// do navigation
 					navigator.resume();
 					camProc.takeOverDriving(false);
@@ -86,6 +93,7 @@ public class Main implements NodeMain, Runnable {
 	@Override
 	public void onStart(Node node) {
 		// create navigator
+		System.out.println("creating navigator");
 		ParameterTree paramTree = node.newParameterTree();
 		String mapFileName = paramTree.getString(node
 				.resolveName("~/mapFileName"));
@@ -97,7 +105,7 @@ public class Main implements NodeMain, Runnable {
 		this.node = node;
 		gui = new NavigationGUI(world);
 		Configuration start = world.getStart().configuration(0);
-		Configuration goal = world.getGoal().configuration(3*Math.PI/2);
+		Configuration goal = world.getGoal().configuration(Math.PI);
 
 		gui.clear();
 		gui.draw();
@@ -109,6 +117,7 @@ public class Main implements NodeMain, Runnable {
 		
 		navigator = new Navigator(node, gui, world);
 		
+		System.out.println("Creating the rest");
 		// TODO Auto-generated method stub
 		// set up driving module
 		driveMaster.onStart(node);
@@ -117,9 +126,14 @@ public class Main implements NodeMain, Runnable {
 		// set up camera processing
 		camProc.onStart(node);
 		camProc.setProcessing(true);
-		camProc.takeOverDriving(true);
+		camProc.takeOverDriving(false);
+		// set up gates controller
+		gates.onStart(node);
 		
-		navigator.setGoal(goal);
+		for (Block block : world.getBlocks()) {
+			navigator.newGoal(block.position);
+		}
+		navigator.newGoal(goal);
 		
 		Thread runThis = new Thread(this);
 		runThis.start();

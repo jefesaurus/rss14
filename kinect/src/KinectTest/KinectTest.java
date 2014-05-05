@@ -30,40 +30,34 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 
+
 public class KinectTest implements NodeMain, Runnable {
 	public Subscriber<org.ros.message.rss_msgs.OdometryMsg> odoSub;
 	public Subscriber<org.ros.message.sensor_msgs.PointCloud2> kinSub;
   public KinectGUI gui;
+  public VisionGUI vgui;
   public boolean firstUpdate;
   public Pose pose;
   public Pose3D kinectPose;
   HashMap<IntTuple, double[]> occupancy;
-  BufferedWriter bw;
-  boolean WRITE_POINTS_TO_FILE = false;
+
+  public boolean POINT_GUI = true;
+  public boolean VISION_GUI = false;
 
 	public KinectTest() {
 		System.out.println("Constructed GUI");
 
-		gui = new KinectGUI();
-	  gui.setRobotPose(0., 0., 0.);
+    if (POINT_GUI) {
+		  gui = new KinectGUI();
+	    gui.setRobotPose(0., 0., 0.);
+    }
+    if (VISION_GUI) {
+		  vgui = new VisionGUI();
+    }
     kinectPose = new Pose3D(new Point3D(0.0, 0.67, 0.0), Math.PI/2., -Math.PI/2. - .571, 0.);
 
     occupancy = new HashMap<IntTuple, double[]>();
 
-    if (WRITE_POINTS_TO_FILE) {
-    try { 
-      File pointFile = new File("/home/rss-student/RSS-I-group/kinect/src/KinectTest/points.txt");
-      if (WRITE_POINTS_TO_FILE) {
-        if (!pointFile.exists()) {
-          pointFile.createNewFile();
-        }
-      }
-      FileWriter fw = new FileWriter(pointFile.getAbsoluteFile());
-      bw = new BufferedWriter(fw);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    }
 	}
 
 	@Override
@@ -88,26 +82,39 @@ public class KinectTest implements NodeMain, Runnable {
   int X_OFFSET = 0;
   int Y_OFFSET = 4;
   int Z_OFFSET = 8;
-  int R_OFFSET = 16;
+  int R_OFFSET = 18;
   int G_OFFSET = 17;
-  int B_OFFSET = 18;
+  int B_OFFSET = 16;
 
   //<fffxxxxBBB
   //f = 4
   //x = 1
   //B = 1
-  int START_COL = 100;
-  int END_COL = 540;
-  int START_ROW = 0;
+  /*
+  int START_COL = 300;
+  int END_COL = 400;
+  int START_ROW = 240;
   int END_ROW = 480;
+  */
+  int START_COL = 200;
+  int END_COL = 440;
+  int START_ROW = 100;
+  int END_ROW = 380;
 
-  float OCCUPANCY_RESOLUTION = .02f;
+
+  float OCCUPANCY_RESOLUTION = .05f;
   int OCCUPANCY_THRESHOLD = 3;
   public void unpackPointCloudData(int width, int height, int pointStep, int rowStep, byte[] data) {
     int offset, x_i, y_i, z_i, r_i, g_i, b_i;
     float x, y, z;
     int r, g, b;
     Point3D point;
+    double avg_h = 0;
+    double avg_s = 0;
+    double avg_v = 0;
+    int pic_height = this.END_ROW - this.START_ROW;
+    int pic_width = this.END_COL - this.START_COL;
+    Image rep = new Image(pic_width, pic_height);
     for (int row = START_ROW; row < END_ROW; row ++) {
       for (int col = START_COL; col < END_COL; col ++) {
         offset = rowStep*row + pointStep*col;
@@ -123,51 +130,73 @@ public class KinectTest implements NodeMain, Runnable {
         r = (data[r_i] & 0xff);
         g = (data[g_i] & 0xff);
         b = (data[b_i] & 0xff);
+        float[] hsv = new float[3];
         if (!Float.isNaN(x) && !Float.isNaN(y) && !Float.isNaN(z)) {
           point = kinectPose.fromFrame(new Point3D(x, y, z));
-          if (point.z > 0) {
+          if (point.z > 0.0) {
             IntTuple loc = new IntTuple((int)(point.x/OCCUPANCY_RESOLUTION), (int)(point.y/OCCUPANCY_RESOLUTION));
             double[] point_data = occupancy.get(loc);
+            Color.RGBtoHSB(r,g,b,hsv);
+            //System.out.println("r: " + r + " g: " +g + " b: " + b);
+            //System.out.println("h: " + hsv[0] + " s: " + hsv[1] + " v: " + hsv[2]);
+            rep.setPixel(col - START_COL, row - START_ROW, data[r_i], data[g_i], data[b_i]);
             if (point_data == null) {
-              occupancy.put(loc, new double[] {1,point.z,r,g,b});
+              if (checkRed(hsv[0], hsv[1], hsv[2])) {
+                occupancy.put(loc, new double[] {1,point.z,0, 1,0});
+              } else if (checkGreen(hsv[0], hsv[1], hsv[2])) {
+                occupancy.put(loc, new double[] {1,point.z,0,0, 1});
+              } else if (checkYellow(hsv[0], hsv[1], hsv[2])) {
+                occupancy.put(loc, new double[] {1,point.z, 1,0,0});
+              } else {
+                occupancy.put(loc, new double[] {1,point.z,0,0,0});
+              }
             } else {
               point_data[0] ++;
               point_data[1] += point.z;
-              point_data[2] += r;
-              point_data[3] += g;
-              point_data[4] += b;
+              if (checkRed(hsv[0], hsv[1], hsv[2])) {
+                point_data[3] ++;
+              } else if (checkGreen(hsv[0], hsv[1], hsv[2])) {
+                point_data[4] ++;
+              } else if (checkYellow(hsv[0], hsv[1], hsv[2])) {
+                point_data[2] ++;
+              }
             }
           }
         }
       }
     }
-    gui.erasePoints();
+    if (VISION_GUI) {
+      vgui.setVisionImage(rep.toArray(), pic_width, pic_height);
+    }
+    if (POINT_GUI) {
+      gui.erasePoints();
+    }
     for (Map.Entry<IntTuple, double[]> cell : occupancy.entrySet()) {
       double[] point_data = cell.getValue();
       double num_points = point_data[0];
       if (point_data[0] > OCCUPANCY_THRESHOLD) {
-        IntTuple loc = cell.getKey();
-        int red = (int)(point_data[2]/num_points);
-        int green = (int)(point_data[3]/num_points);
-        int blue = (int)(point_data[4]/num_points);
-        float[] hsv = new float[3];
-        Color.RGBtoHSB(red,green,blue,hsv);
-        //System.out.println(point_data[1]);
-
-
-        if (point_data[1]/num_points > .05) {
-          gui.addPoint(loc.x*OCCUPANCY_RESOLUTION, loc.y*OCCUPANCY_RESOLUTION, 1, Color.BLACK);
-        } else {
-          if (checkYellow(hsv[0], hsv[1], hsv[2])) {
-            gui.addPoint(loc.x*OCCUPANCY_RESOLUTION, loc.y*OCCUPANCY_RESOLUTION, 1, Color.YELLOW);
-          } else if (checkRed(hsv[0], hsv[1], hsv[2])) {
-            gui.addPoint(loc.x*OCCUPANCY_RESOLUTION, loc.y*OCCUPANCY_RESOLUTION, 1, Color.RED);
-          } else if (checkGreen(hsv[0], hsv[1], hsv[2])) {
-            gui.addPoint(loc.x*OCCUPANCY_RESOLUTION, loc.y*OCCUPANCY_RESOLUTION, 1, Color.GREEN);
-          } else if (checkBlue(hsv[0], hsv[1], hsv[2])) {
-            gui.addPoint(loc.x*OCCUPANCY_RESOLUTION, loc.y*OCCUPANCY_RESOLUTION, 1, Color.BLUE);
-          } else if (checkOrange(hsv[0], hsv[1], hsv[2])) {
-            gui.addPoint(loc.x*OCCUPANCY_RESOLUTION, loc.y*OCCUPANCY_RESOLUTION, 1, Color.ORANGE);
+        if (POINT_GUI) {
+          IntTuple loc = cell.getKey();
+          int yellow = (int)point_data[2];
+          int red = (int)point_data[3];
+          int green = (int)point_data[4];
+          //System.out.println("r: " + red + " g: " + green + " y: " + yellow);
+          if (point_data[1]/num_points > .05) {
+            gui.addPoint(loc.x*OCCUPANCY_RESOLUTION, loc.y*OCCUPANCY_RESOLUTION, 1, Color.BLACK);
+          } else {
+            if (red > green) {
+              if (red > yellow) {
+                gui.addPoint(loc.x*OCCUPANCY_RESOLUTION, loc.y*OCCUPANCY_RESOLUTION, 1, Color.RED);
+              } else {
+                gui.addPoint(loc.x*OCCUPANCY_RESOLUTION, loc.y*OCCUPANCY_RESOLUTION, 1, Color.YELLOW);
+              }
+            } else {
+              if (green > yellow) {
+                gui.addPoint(loc.x*OCCUPANCY_RESOLUTION, loc.y*OCCUPANCY_RESOLUTION, 1, Color.GREEN);
+              } else {
+                gui.addPoint(loc.x*OCCUPANCY_RESOLUTION, loc.y*OCCUPANCY_RESOLUTION, 1, Color.YELLOW);
+              }
+            }
           }
         }
       }
@@ -177,35 +206,24 @@ public class KinectTest implements NodeMain, Runnable {
 
   //greenRange = new HSBRanges(.35f, .45f, .6f, 1.f, .3f, 1.f);
   public boolean checkGreen(float hue, float sat, float bright) {
-    float hueMin = .35f; float hueMax = .45f;
-    float satMin = .6f;float satMax = 1.f;
-    float brightMin = .3f;float brightMax = 1.f;
-    if (hue < hueMin || hue > hueMax) return false;
-    if (sat < satMin || sat > satMax) return false;
-    if (bright < brightMin || bright > brightMax) return false;
-    return true;
+    //if (sat < .6f) return false;
+    //if (bright < .3f || bright > 1.f) return false;
+    return (hue > .2f && hue < .45f);
   }
 
   //yellowRange = new HSBRanges(.1f, .2f, .4f, 1.f, .4f, 1.f);
   public boolean checkYellow(float hue, float sat, float bright) {
-    float hueMin = .1f;float hueMax = .2f;
-    float satMin = .4f;float satMax = 1.f;
-    float brightMin = .4f;float brightMax = 1.f;
-    if (hue < hueMin || hue > hueMax) return false;
-    if (sat < satMin || sat > satMax) return false;
-    if (bright < brightMin || bright > brightMax) return false;
-    return true;
+    //if (sat < .5f) return false;
+    //if (bright < .4f) return false;
+    return (hue > .13f && hue < .19f);
   }
 
   //redRange = new HSBRanges(.0f, .05f, .5f, 1.f, .5f, 1.f);
+  //349
   public boolean checkRed(float hue, float sat, float bright) {
-    float hueMin = .0f;float hueMax = .05f;
-    float satMin = .5f;float satMax = 1.f;
-    float brightMin = .5f;float brightMax = 1.f;
-    if (hue < hueMin || hue > hueMax) return false;
-    if (sat < satMin || sat > satMax) return false;
-    if (bright < brightMin || bright > brightMax) return false;
-    return true;
+    //if (sat < .5f) return false;
+    //if (bright < .5f) return false;
+    return (hue > .90f || hue < .1f);
   }
 
   //orangeRange = new HSBRanges(.05f, .08f, .5f, 1.f, .4f, 1.f);
@@ -232,7 +250,6 @@ public class KinectTest implements NodeMain, Runnable {
   }
 
 	public void onShutdown(Node node) {
-    if (WRITE_POINTS_TO_FILE) {try {bw.close();} catch (IOException e) {e.printStackTrace();}}
 		if (node != null) {
 			node.shutdown();
 		}

@@ -8,6 +8,6 @@
   <node name="lis" pkg="rosjava_bootstrap" type="run.py" args="uorc_listener Listener" machine="netbook" />
 
  
-  <node name="gui" pkg="rosjava_bootstrap" type="run.py" args="lab7 Grasping.ArmPoseGUI" machine="workstation" output="screen"/>
+  <node name="gui" pkg="rosjava_bootstrap" type="run.py" args="lab7 Grasping.ArmPoseGUI" machine="netbook" output="screen"/>
 
 </launch>

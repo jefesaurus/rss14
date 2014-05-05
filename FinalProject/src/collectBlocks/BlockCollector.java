@@ -8,6 +8,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import kinect.KinectData;
 
 import master.DrivingMaster;
+import master.GatesController;
 
 import org.ros.message.MessageListener;
 import org.ros.message.rss_msgs.MotionMsg;
@@ -34,10 +35,11 @@ public class BlockCollector implements NodeMain, Runnable {
 	private FiducialFinder fidFind;
 	private DrivingMaster driveMaster;
 	private KinectData kinecter;
+	private GatesController gates;
 	
 	private Image srcImage;
 	private int[][][] srcArray;
-	public boolean guiOn = false;
+	public boolean guiOn = true;
 	private boolean processBool = true;
 	private boolean collectBool = true;
 	private VisionGUI gui;
@@ -45,7 +47,7 @@ public class BlockCollector implements NodeMain, Runnable {
 	private List<BlockInfo> binfos;
 	private List<FidPattern> finfos;
 	
-	public BlockCollector(DrivingMaster driveMaster, KinectData kinecter, int divideScale) {
+	public BlockCollector(DrivingMaster driveMaster, KinectData kinecter, GatesController gates, int divideScale) {
 		width /= divideScale;
 		height /= divideScale;
 		if (guiOn) {
@@ -53,6 +55,7 @@ public class BlockCollector implements NodeMain, Runnable {
 		}
 		this.driveMaster = driveMaster;
 		this.kinecter = kinecter;
+		this.gates = gates;
 		binfos = new ArrayList<BlockInfo>();
 		finfos = new ArrayList<FidPattern>();
 	}
@@ -63,7 +66,12 @@ public class BlockCollector implements NodeMain, Runnable {
 	
 	public void takeOverDriving (boolean toggle) {
 		this.collectBool = toggle;
-		this.driveMaster.active = toggle;
+		this.driveMaster.setActive(toggle);
+		if (toggle) {
+			gates.openFrontGate();
+		} else {
+			gates.closeFrontGate();
+		}
 	}
 	
 	public boolean isProcessing() {
@@ -127,7 +135,7 @@ public class BlockCollector implements NodeMain, Runnable {
             double rangeError = desiredRange - b.centroid.y; // negative because y pixels increase downward
 //            double bearingError = desiredBearing - b.centroid.x;
             double bearingError = ((double)(width/2 - b.centroid.x))/width;
-//            tv = -.05;
+            tv = .2;
             rv = bearingError*BEARING_GAIN;
         }
         

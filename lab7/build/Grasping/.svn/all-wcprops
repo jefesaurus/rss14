@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/rss-2014/group1/!svn/ver/118/lab7/src/Grasping
+END
+BlobTracking.java
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/rss-2014/group1/!svn/ver/118/lab7/src/Grasping/BlobTracking.java
+END
+PoseNavigator.java
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/rss-2014/group1/!svn/ver/118/lab7/src/Grasping/PoseNavigator.java
+END
+ServoController.java
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/rss-2014/group1/!svn/ver/95/lab7/src/Grasping/ServoController.java
+END
+SensorAverage.java
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/rss-2014/group1/!svn/ver/87/lab7/src/Grasping/SensorAverage.java
+END
+ImageProc.java
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/rss-2014/group1/!svn/ver/95/lab7/src/Grasping/ImageProc.java
+END
+Grasping.java
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/rss-2014/group1/!svn/ver/119/lab7/src/Grasping/Grasping.java
+END
+ArmPoseGUI.java
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/rss-2014/group1/!svn/ver/87/lab7/src/Grasping/ArmPoseGUI.java
+END
+ArmVisualizerPanel.java
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/rss-2014/group1/!svn/ver/87/lab7/src/Grasping/ArmVisualizerPanel.java
+END
+Histogram.java
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/rss-2014/group1/!svn/ver/95/lab7/src/Grasping/Histogram.java
+END

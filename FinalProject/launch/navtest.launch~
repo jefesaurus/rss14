@@ -1,8 +1,9 @@
 <launch>
   <include file="$(find FinalProject)/launch/config.launch" />
 
-  <node name="odo" pkg="rosjava_bootstrap" type="run.py" args="odometry odometry.Odometry" machine="netbook" /> 
   <node name="lis" pkg="rosjava_bootstrap" type="run.py" args="uorc_listener Listener" machine="netbook" /> 
-  <node name="nav" pkg="rosjava_bootstrap" type="run.py" args="FinalProject navigation.NavigationTest" machine="workstation" output="screen"/>
-  <param name="mapFileName" value="/home/rss-student/rss14/FinalProject/maps/challenge_2014.txt" /> 
+  <node name="pub" pkg="rosjava_bootstrap" type="run.py" args="uorc_publisher Publisher" machine="netbook" />
+  <node name="odo" pkg="rosjava_bootstrap" type="run.py" args="odometry odometry.Odometry" machine="netbook" />
+  <node name="nav" pkg="rosjava_bootstrap" type="run.py" args="FinalProject navigation.NavigationTest" machine="netbook" output="screen"/>
+  <param name="/nav/mapFileName" value="/home/rss-student/RSS-I-group/FinalProject/maps/challenge_2014.txt" /> 
 </launch>

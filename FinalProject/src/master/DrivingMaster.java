@@ -18,7 +18,8 @@ public class DrivingMaster implements NodeMain, Runnable {
 	private Pose robotPose;
 	private Pose goalPose;
 	
-	public boolean active;
+	private double[] activeLock = {1.,2.};
+	private boolean active;
 	
 	private double tv, rv;
 	public double ROTATION_FUZZ = .1;
@@ -67,6 +68,10 @@ public class DrivingMaster implements NodeMain, Runnable {
 		return robotPose;
 	}
 	
+	public void setActive(boolean toggle) {
+			this.active = toggle;
+	}
+	
 	/**
 	 * Set whether the driving module should simply listen for
 	 * tv, rv messages or should actively drive to a goal point
@@ -105,39 +110,46 @@ public class DrivingMaster implements NodeMain, Runnable {
 	@Override
 	public void run() { // !!!!! Working on a controller in WaypointNavigator that I'll later move here - Caelan
 		while (true) {
-			if (!active)
-				continue;
-			double tv, rv;
-			if (goalOriented) {
-				// try to get to goal
-				double angle_error = angleError(goalPose.theta, robotPose.theta, Math.PI*2);
-				double translate_error = robotPose.distance(goalPose);
-				if (Math.abs(angle_error) > ROTATION_FUZZ) {
-					tv = 0.0;
-					rv = k_spin*(angle_error);
-				} else if (translate_error > TRANSLATION_FUZZ) {
-					tv = Math.min(translate_error * k_translate, MAX_V);
-					tv = Math.max(tv, MIN_V);
-					rv = k_follow*(angle_error);
-				} else {
-					tv = 0.;
-					rv = 0.;
-				}
-			} else {
-				// simply pass on the rv, tv commands
-				tv = this.tv;
-				rv = this.rv;
-			}
-			MotionMsg msg = new MotionMsg();
-			msg.translationalVelocity = tv;
-			msg.rotationalVelocity = rv;
-			motionPub.publish(msg);
 			try {
+//				System.out.println("Motion published");
+//				System.out.println("tv : " +tv+" |rv : "+rv);
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+				if (!active) {
+					continue;
+				} else {
+					System.out.println("active is true");
+				}
+					
+				double tv, rv;
+				if (goalOriented) {
+					// try to get to goal
+					double angle_error = angleError(goalPose.theta, robotPose.theta, Math.PI*2);
+					double translate_error = robotPose.distance(goalPose);
+					if (Math.abs(angle_error) > ROTATION_FUZZ) {
+						tv = 0.0;
+						rv = k_spin*(angle_error);
+					} else if (translate_error > TRANSLATION_FUZZ) {
+						tv = Math.min(translate_error * k_translate, MAX_V);
+						tv = Math.max(tv, MIN_V);
+						rv = k_follow*(angle_error);
+					} else {
+						tv = 0.;
+						rv = 0.;
+					}
+				} else {
+					// simply pass on the rv, tv commands
+					tv = this.tv;
+					rv = this.rv;
+				}
+				MotionMsg msg = new MotionMsg();
+				msg.translationalVelocity = tv;
+				msg.rotationalVelocity = rv;
+				motionPub.publish(msg);
+				
 		}
 	}
 

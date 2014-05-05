@@ -46,7 +46,7 @@ public class ConnComp {
 	public HSBRanges greenRange = new HSBRanges(2, .35f, .45f, .6f, 1.f, .3f, 1.f);
 	public HSBRanges blueRange = new HSBRanges(3, .5f, .7f, .4f, 1.f, .2f, .4f);
 	public HSBRanges orangeRange = new HSBRanges(4, .05f, .08f, .5f, 1.f, .4f, 1.f);
-	public HSBRanges[] hsbRanges = {yellowRange};//, redRange, greenRange, blueRange, orangeRange};
+	public HSBRanges[] hsbRanges = {yellowRange, redRange, greenRange};//, blueRange};//, orangeRange};
 	public String[] RangeMapping = {"yellow", "red", "green", "blue", "orange"}; 
 	
 	public float blockSatThresh = .6f;
