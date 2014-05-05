@@ -5,7 +5,7 @@ import java.util.List;
 
 import navigation.Constants.DriveSystem;
 
-public class Configuration {
+public class Configuration implements Goal {
 	public final double x, y, theta;
 
 	public Configuration(double x, double y, double theta) {
@@ -104,6 +104,37 @@ public class Configuration {
 		default: return null;
 		}
 	}
+	
+	public List<Configuration> interpolateForwardPath(Point end) {
+		double translateAngle = Util.vectorAngle(end.x - x, end.y - y);
+		List<Configuration> path = interpolateRotate(theta, translateAngle, x, y);
+		path.addAll(interpolateTranslate(x, y, end.x, end.y, translateAngle));
+		return path;
+	}
+	
+	public List<Configuration> interpolateBackwardPath(Point end) {
+		double translateAngle = Util.cleanAngle(Util.vectorAngle(end.x - x, end.y - y) + Math.PI);
+		List<Configuration> path = interpolateRotate(theta, translateAngle, x, y);
+		path.addAll(interpolateTranslate(x, y, end.x, end.y, translateAngle));
+		return path;
+	}
+	
+	public List<Configuration> interpolateFOBPath(Point end) {
+		if (distanceForward(end) < distanceBackward(end)) {
+			return interpolateForwardPath(end);
+		} else {
+			return interpolateBackwardPath(end);
+		}
+	}
+	
+	public List<Configuration> interpolatePath(Point end, DriveSystem drive) {
+		switch(drive) {
+		case FORWARD: return interpolateForwardPath(end);
+		case BACKWARD: return interpolateBackwardPath(end);
+		case FOB: return interpolateFOBPath(end);
+		default: return null;
+		}
+	}
 
 	public double distanceForward(Configuration other) {
 		double translateAngle = Util.vectorAngle(other.x - x, other.y - y);
@@ -133,6 +164,47 @@ public class Configuration {
 		case BACKWARD: return distanceBackward(other);
 		case FOB: return distanceFOB(other);
 		default: return -1.;
+		}
+	}
+	
+	public double distanceForward(Point other) {
+		double translateAngle = Util.vectorAngle(other.x - x, other.y - y);
+		return Constants.ROBOT_RADIUS
+				* Util.angleDistance(theta, translateAngle)
+				+ Util.vectorLength(other.x - x, other.y - y);
+	}
+	
+	public double distanceBackward(Point other) {
+		double translateAngle = Util.cleanAngle(Util.vectorAngle(other.x - x, other.y - y) + Math.PI);
+		return Constants.ROBOT_RADIUS
+				* Util.angleDistance(theta, translateAngle)
+				+ Util.vectorLength(other.x - x, other.y - y);
+	}
+	
+	public double distanceFOB(Point other) {
+		return Math.min(distanceForward(other), distanceBackward(other));
+	}
+	
+	public double distance(Point other, DriveSystem drive) {
+		switch(drive) {
+		case FORWARD: return distanceForward(other);
+		case BACKWARD: return distanceBackward(other);
+		case FOB: return distanceFOB(other);
+		default: return -1.;
+		}
+	}
+	
+	public Configuration endConfiguration(Point end, DriveSystem drive) {
+		switch(drive) {
+		case FORWARD: return end.configuration(Util.vectorAngle(end.x - x, end.y - y));
+		case BACKWARD: return end.configuration(Util.cleanAngle(Util.vectorAngle(end.x - x, end.y - y) + Math.PI));
+		case FOB: 
+			if (distanceForward(end) < distanceBackward(end)) {
+				return end.configuration(Util.vectorAngle(end.x - x, end.y - y));
+			} else {
+				return end.configuration(Util.cleanAngle(Util.vectorAngle(end.x - x, end.y - y) + Math.PI));
+			}			
+		default: return null;
 		}
 	}
 

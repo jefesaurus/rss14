@@ -429,7 +429,7 @@ public class VisionGUI extends JPanel implements NodeMain {
 	/**
 	 * <p>Whether to paint the historical robot poses.</p>
 	 **/
-	protected boolean historicalPosesEnabled = true;
+	protected boolean historicalPosesEnabled = false;
 
 	/**
 	 * <p>Whether to paint the vision image.</p>

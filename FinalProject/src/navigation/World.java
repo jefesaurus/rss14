@@ -16,197 +16,26 @@ public class World {
 	protected Point start;
 	protected Point goal;
 	protected BoundingBox region;
-	protected LinkedList<Fiducial> fiducials = new LinkedList<Fiducial>();
-	protected LinkedList<Point> blocks = new LinkedList<Point>();
-	protected LinkedList<Polygon> obstacles = new LinkedList<Polygon>();
+	protected List<Fiducial> fiducials;
+	protected List<Block> blocks;
+	protected List<Polygon> obstacles;
 	protected Polygon viewCone;
 	protected Grid occupancyGrid;
 	protected Grid visibilityGrid;
 
 	public World(File mapFile) throws IOException, ParseException {
-		viewCone = Constants.createViewCone();
-		if (mapFile != null)
-			parseChallenge(mapFile);
+		if (mapFile != null) {
+			loadWorld(mapFile);
+		}
 	}
 	
 	public World(String mapFile) throws IOException, ParseException {
 		this((mapFile != null) ? new File(mapFile) : null);
 	}
 	
-	protected double parseDouble(BufferedReader br, String name, int lineNumber) throws IOException, ParseException, NumberFormatException {
-		String line = br.readLine();
-		if (line == null)
-			throw new ParseException(name + " (line " + lineNumber + ")",
-					lineNumber);
-
-		return Double.parseDouble(line);
-	}
-
-	protected void parsePoint(Point2D.Double point, BufferedReader br, String name, int lineNumber) throws IOException, ParseException, NumberFormatException {
-		String line = br.readLine();
-		String[] tok = (line != null) ? line.split("\\s+") : null;
-
-		if ((tok == null) || (tok.length < 2)){
-			throw new ParseException(name + " (line " + lineNumber + ")",
-					lineNumber);
-		}
-
-		point.x = Double.parseDouble(tok[0]);
-		point.y = Double.parseDouble(tok[1]);
-	}
-
-	protected BoundingBox parseRect(BufferedReader br, String name, int lineNumber) throws IOException, ParseException, NumberFormatException {
-		String line = br.readLine();
-		String[] tok = (line != null) ? line.split("\\s+") : null;
-
-		if ((tok == null) || (tok.length < 4))
-			throw new ParseException(name + " (line " + lineNumber + ")",
-					lineNumber);
-
-		double x = Double.parseDouble(tok[0]);
-		double y = Double.parseDouble(tok[1]);
-		double width = Double.parseDouble(tok[2]);
-		double height = Double.parseDouble(tok[3]);
+	private void loadWorld(File file) throws IOException, ParseException{
+		parseFile(file);
 		
-		return new BoundingBox(new Point(x, y), new Point(x + width, y + height));	
-	}
-
-	protected Polygon parseObs(BufferedReader br, String name, int lineNumber) throws IOException, ParseException, NumberFormatException {
-		String line = br.readLine();
-
-		if (line == null)
-			return null;
-
-		String[] tok = line.trim().split("\\s+");
-
-		if (tok.length == 0)
-			return null;
-
-		if (tok.length%2 != 0)
-			throw new ParseException(name + " (line " + lineNumber + ")",
-					lineNumber);
-
-		LinkedList<Point> points = new LinkedList<Point>();	
-		for (int i = 0; i < tok.length/2; i++)
-			points.add(new Point(Double.parseDouble(tok[2*i]), Double.parseDouble(tok[2*i+1])));
-
-		return new Polygon(points);
-	}
-
-	protected void parse(File mapFile) throws IOException, ParseException {
-		int lineNumber = 1;
-		try {
-
-			BufferedReader br = new BufferedReader(new FileReader(mapFile));
-
-			br.readLine(); br.readLine(); //Skipping start and goal
-			//parsePoint(robotStart, br, "robot start", lineNumber++);
-			//parsePoint(robotGoal, br, "robot goal", lineNumber++);
-			region = parseRect(br, "region", lineNumber++);
-
-			for (int obstacleNumber = 0; ; obstacleNumber++) {
-				Polygon poly = parseObs(br, "obstacle " + obstacleNumber, lineNumber++);
-				if (poly != null) {
-					obstacles.add(poly);
-				}
-				else
-					break;
-			}
-
-		} catch (NumberFormatException e) {
-			throw new ParseException("malformed number on line " + lineNumber,
-					lineNumber);
-		}
-	}
-	
-	protected Integer readInt(BufferedReader br) throws IOException {
-		String line = nextLine(br);
-		String[] tok = line.split("\\s+");
-		
-		return Integer.parseInt(tok[1]);
-	}
-	
-	protected Double readDouble(BufferedReader br) throws IOException {
-		String line = nextLine(br);
-		String[] tok = line.split("\\s+");
-
-		return Double.parseDouble(tok[1]);
-	}
-	
-	protected Color readColor(BufferedReader br) throws Exception {
-		String line = nextLine(br);
-		String[] tok = line.split("\\s+");
-	
-		return (Color)Class.forName("java.awt.Color").getField(tok[1]).get(null);
-	}
-	
-	protected Point readPoint(BufferedReader br) throws IOException {
-		String line = nextLine(br);
-		String[] tok = line.split("\\s+");
-
-		return new Point(Double.parseDouble(tok[2]), Double.parseDouble(tok[3]));
-	}
-	
-	protected String nextLine(BufferedReader br) throws IOException{
-		String line = br.readLine();
-		while (line != null) {
-			String trimmed = line.trim();
-			if (!(trimmed.length() == 0 || trimmed.charAt(0) == '#' || trimmed.charAt(0) == '{' || trimmed.charAt(0) == '}')){
-				return trimmed;
-			} 			
-			line = br.readLine();
-		}
-		return null;
-	}
-	
-	protected void parseChallenge(File mapFile) throws ParseException {
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(mapFile));
-			
-			String line = nextLine(br);
-			while (line != null) {
-				if (line.length() >= 3 && line.substring(0, 3).equals("map")) {
-					Point bottomLeft = readPoint(br);
-					Point topRight = readPoint(br);
-					region = new BoundingBox(bottomLeft, topRight);
-					start = readPoint(br);
-					goal = readPoint(br);
-				} else if (line.length() >= 9 && line.substring(0, 9).equals("fiducials")) {
-					int numFiducials = readInt(br);
-					for (int i = 0; i < numFiducials; i++) {
-						nextLine(br);
-						Point position = readPoint(br);
-						Color topColor = readColor(br);
-						Color bottomColor = readColor(br);
-						Double topRadius = readDouble(br);
-						Double bottomRadius = readDouble(br);
-						fiducials.add(new Fiducial(position, topRadius, topColor));
-					}
-				} else if (line.length() >= 20 && line.substring(0, 20).equals("construction_objects")) {
-					int numBlocks = readInt(br); //TODO blocks may have additional syntax
-					for (int i = 0; i < numBlocks; i++) {
-						nextLine(br);
-						blocks.add(readPoint(br));
-					}
-				} else if (line.length() >= 9 && line.substring(0, 9).equals("obstacles")) {
-					int numObstacles = readInt(br);
-					for (int i = 0; i < numObstacles; i++) {
-						nextLine(br);
-						LinkedList<Point> points = new LinkedList<Point>();
-						int numPoints = readInt(br);
-						for (int p = 0; p < numPoints; p++) {
-							points.add(readPoint(br));
-						}
-						obstacles.add(new Polygon(points));
-					}
-				} else {
-					throw new Exception();
-				}
-				line = nextLine(br);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		occupancyGrid = new Grid(region);
 		visibilityGrid = new Grid(region);
 		
@@ -214,8 +43,267 @@ public class World {
 			occupancyGrid.markColliding(obst);
 		}
 		
+		viewCone = Constants.createViewCone();
 		visibilityGrid.markColliding(getViewCone(start.configuration(0)));
 	}
+	
+	
+	private static final String COMMENT = "#";
+    private static final String SECTION_START = "{";
+    private static final String SECTION_END = "}";  
+    private void parseFile(File file) throws IOException, ParseException{
+    	BufferedReader br = new BufferedReader(new FileReader(file));
+    	
+    	parseToken(br,"map");
+    	parseToken(br,SECTION_START);
+    	
+    	Point bottomLeft = null;
+    	Point topRight = null;
+    	while(true){
+    		String token = parseToken(br);
+    		if(token.equals(SECTION_END)){
+    			break;
+    		}
+    		else if(token.equals("fiducials")){
+    			fiducials = parseFiducials(br);
+    		}
+    		else if(token.equals("construction_objects")){
+    			blocks = parseBlocks(br);
+    		}
+    		else if(token.equals("obstacles")){
+    			obstacles = parseObstacles(br);
+    		}
+    		else if(token.equals("bottom_left")){
+    			bottomLeft = parsePoint(br);
+    		}
+    		else if(token.equals("top_right")){
+    			topRight = parsePoint(br);
+    		} 
+		else if(token.equals("robot_start")){
+    			start = parsePoint(br);
+    		}
+    		else if(token.equals("robot_goal")){
+    			goal = parsePoint(br);
+    		}
+    		else{
+    			throw new ParseException("Unknown section token '"+token+"' in file.",0);
+    		}
+    	}
+    	if(bottomLeft!=null && topRight!=null){
+    		region = new BoundingBox(bottomLeft, topRight);
+    	}
+    	else{
+    		throw new ParseException("Could not define the world rectangle.  Missing either bottom_left or top_right.",0);
+    	}
+    	br.close();
+    }
+
+    private List<Fiducial> parseFiducials(BufferedReader br) throws IOException, ParseException{
+    	parseToken(br,SECTION_START);
+    	parseToken(br,"num_fiducials");
+    	int numFiducials = parseInt(br);
+    	List<Fiducial> fids = new LinkedList<Fiducial>();
+    	for(int i=0;i<numFiducials;i++){
+    		int index = parseInt(br);
+    		if(index<0 || index>=numFiducials){
+    			throw new ParseException("Fiducial Index out of range: Expected [0-"+(numFiducials-1)+"].  Got '"+index+"'.",0);
+    		}
+    		fids.add(parseFiducial(br));
+    	}
+    	parseToken(br,SECTION_END);
+
+    	return fids;
+    }
+    
+    private Fiducial parseFiducial(BufferedReader br) throws IOException, ParseException{
+    	parseToken(br,SECTION_START);
+    	Fiducial fiducial = new Fiducial();
+    	while(true){
+    		String token = parseToken(br);
+    		if(token.equals("position")){
+    			fiducial.position = parsePoint(br);
+    		}
+    		else if(token.equals("top_color")){
+    			fiducial.topColor = parseColor(br);
+    		}
+    		else if(token.equals("bottom_color")){
+    			fiducial.bottomColor = parseColor(br);
+    		}
+    		else if(token.equals("top_radius")){
+    			fiducial.topRadius = parseDouble(br);
+    		}
+    		else if(token.equals("bottom_radius")){
+    			fiducial.bottomRadius = parseDouble(br);
+    		}
+    		else if(token.equals(SECTION_END)){
+    			break;
+    		}
+    		else{
+    			throw new ParseException("Unknown token in Fiducial: '"+token+"'",0);
+    		}
+    	}
+    	return fiducial;
+    }
+    
+    private List<Block> parseBlocks(BufferedReader br) throws IOException, ParseException{    	
+    	parseToken(br,SECTION_START);
+    	parseToken(br,"num_construction_objects");
+    	int numConstructionObjects = parseInt(br);
+    	List<Block> bls = new LinkedList<Block>();
+    	for (int i=0;i<numConstructionObjects;i++){
+    		int index = parseInt(br);
+    		if(index<0 || index>=numConstructionObjects){
+    			throw new ParseException("ConstructionObject Index out of range: Expected [0-"+(numConstructionObjects-1)+"].  Got '"+index+"'.",0);
+    		}
+    		bls.add(parseBlock(br));
+    	}
+    	parseToken(br,SECTION_END);
+    	return bls;
+    }
+    
+    private Block parseBlock(BufferedReader br) throws IOException, ParseException{    	
+    	parseToken(br,SECTION_START);
+    	Block block = new Block();
+    	while(true){
+    		String token = parseToken(br);
+    		if(token.equals("position")){
+    			block.position = parsePoint(br);
+    		}
+    		else if(token.equals("color")){
+    			block.color = parseColor(br);
+    		}
+    		else if(token.equals("size")){
+    			block.size = parseInt(br);
+    		}
+    		else if(token.equals(SECTION_END)){
+    			break;
+    		}
+    		else{
+    			throw new ParseException("Unknown token in ConstructionObject: '"+token+"'",0);
+    		}
+    	}
+    	return block;
+    }
+    
+    private List<Polygon> parseObstacles(BufferedReader br) throws IOException, ParseException{
+    	parseToken(br,SECTION_START);
+    	parseToken(br,"num_obstacles");
+    	int numObstacles = parseInt(br);
+    	List<Polygon> obs = new LinkedList<Polygon>();
+    	for(int i=0;i<numObstacles;i++){
+    		int index = parseInt(br);
+    		if(index<0 || index>=numObstacles){
+    			throw new ParseException("Obstacle Index out of range: Expected [0-"+(numObstacles-1)+"].  Got '"+index+"'.",0);
+    		}
+    		obs.add(parseObstacle(br));
+    	}
+    	return obs;
+    }
+    
+    private Polygon parseObstacle(BufferedReader br) throws IOException, ParseException{
+    	parseToken(br,SECTION_START);
+    	parseToken(br,"num_points");
+    	int numPoints = parseInt(br);
+    	if(numPoints<3){
+    		throw new ParseException("Cannot have fewer than 3 points in obstacles.  This one only has "+numPoints+" points.",0);
+    	}
+    	
+    	List<Point> points = new LinkedList<Point>();
+    	for (int i=0;i<numPoints;i++){
+    		parseInt(br);//Don't need to store the index.
+    		points.add(parsePoint(br));
+    	}
+    	parseToken(br,SECTION_END);    	
+    	return new Polygon(points);
+    }
+    
+    private double[] parseVectorNd(BufferedReader br, int n) throws IOException, ParseException {
+    	if(n<1){
+    		throw new ParseException("Tried to parse a Vector of length "+n+".",0);
+    	}
+    	double[] result = new double[n];
+    	parseToken(br,SECTION_START);
+    	for(int i=0;i<n;i++){
+    		result[i] = parseDouble(br);
+    	}
+    	parseToken(br,SECTION_END);
+    	return result;
+    }
+    
+    private Point parsePoint(BufferedReader br) throws IOException, ParseException {
+    	double[] vec = parseVectorNd(br,2);
+    	return new Point(vec[0],vec[1]);
+    }
+    
+    private double parseDouble(BufferedReader br) throws IOException, ParseException {
+    	String token = parseToken(br);
+    	
+    	try{
+    		return Double.parseDouble(token);
+    	}catch(NumberFormatException nfe){
+    		throw new ParseException("Expected Double.  Got '"+token+"'.",0);
+    	}
+    }
+
+    private Color parseColor(BufferedReader br) throws IOException, ParseException {
+    	String token = parseToken(br).toLowerCase();
+		if(token.equals("red")){
+		    return Color.RED;
+		}
+		else if(token.equals("blue")){
+		    return Color.BLUE;
+		}
+		else if(token.equals("yellow")){
+		    return Color.YELLOW;
+		}
+		else if(token.equals("orange")){
+		    return Color.ORANGE;
+		}
+		else if(token.equals("green")){
+		    return Color.GREEN;
+		}
+		throw new ParseException("Unable to parse color with token '"+token+"'.",0);
+    }
+    
+    private int parseInt(BufferedReader br) throws IOException, ParseException {
+    	String token = parseToken(br);
+    	try{
+    		return Integer.parseInt(token);
+    	}catch(NumberFormatException nfe){
+    		throw new ParseException("Expected Integer.  Got '"+token+"'.",0);
+    	}
+    }
+    
+    private String parseToken(BufferedReader br) throws IOException, ParseException {
+    	String result = "";
+    	boolean leadingWhitespace = true;
+    	while(true){
+    		int c = br.read();
+    		String s = Character.toString((char)c);
+    		if(s.equals(COMMENT)){
+    			br.readLine();
+    			continue;
+    		}
+    		else if(Character.isWhitespace(c)){
+    			if(!leadingWhitespace){
+    				break;
+    			}
+    		}
+    		else{
+    			leadingWhitespace = false;
+    			result+=s;
+    		}
+    	}
+    	return result;
+    }
+    
+    private String parseToken(BufferedReader br, String expected) throws IOException, ParseException {
+    	String token = parseToken(br);
+    	if(!token.equals(expected)){
+    		throw new ParseException("Expected token '"+expected+"'.  Got '"+token+"' instead.",0);
+    	}
+    	return token;
+    }
 
 	public Shape getRobot(Configuration c){
 		return Constants.createRobot(0.).pose(c);
@@ -249,7 +337,7 @@ public class World {
 		return fiducials;
 	}
 	
-	public List<Point> getBlocks() {
+	public List<Block> getBlocks() {
 		return blocks;
 	}
 	
@@ -305,28 +393,23 @@ public class World {
 		}
 		return null;
 	}
-
-	@Override
-	public String toString() {
-		StringBuffer sb = new StringBuffer();
+	
+	public Configuration sampleBackwardsConfiguration(Configuration current) {
+		int attempts = 30;
+		double minDistance = .2;
+		double maxDistance = .8;
+		double targetDistance = (minDistance + maxDistance)/2.; //Constants.ROBOT_RADIUS; 
+		double maxGrow = 0.05;
 		
-		/*
-		sb.append("\nworld rect: x=");
-		sb.append(Double.toString(region.x));
-		sb.append(" y=");
-		sb.append(Double.toString(region.y));
-		sb.append(" width=");
-		sb.append(Double.toString(region.width));
-		sb.append(" height=");
-		sb.append(Double.toString(region.height));
-		
-		sb.append("\n" + obstacles.size() + " obstacles:");
-		for (Polygon obstacle : obstacles) {
-			sb.append("\n ");
-			obstacle.toStringBuffer(sb);
+		for (int i = 0; i < attempts; i++) {
+			double min = targetDistance - (targetDistance - minDistance)/(attempts - i);
+			double max = targetDistance + (maxDistance - targetDistance)/(attempts - i);
+			double distance = (max - min)*Math.random() + min;
+			Configuration config = new Configuration(current.x - distance*Math.cos(current.theta), current.y - distance*Math.sin(current.theta), current.theta);
+			if (!robotMapOnlyCollision(config, maxGrow - maxGrow/(attempts - i))) {
+				return config;
+			}
 		}
-		*/
-
-		return sb.toString();
+		return null;
 	}
 }

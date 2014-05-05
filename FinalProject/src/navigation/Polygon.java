@@ -12,7 +12,7 @@ public class Polygon {
 
 	public Polygon(List<Point> points) { // Assumes vertices in increasing angle order for a convex polygon
 		this.points = points;
-		this.lines = Util.getLines(points);
+		this.lines = Util.getLines(points); //TODO - lazily create these
 		this.boundingBox = BoundingBox.pointsToBoundingBox(points);
 	}
 	

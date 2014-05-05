@@ -24,7 +24,11 @@ public class RRT {
 	}
 	
 	public double distance(Configuration start, Configuration end) {
-		return start.distance(end, drive);
+		if (start == null || end == null) {
+			return Double.POSITIVE_INFINITY;
+		} else {
+			return start.distance(end, drive);
+		}
 	}
 
 	private TreeNode closestRecur(Configuration config, TreeNode node) {

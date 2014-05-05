@@ -1,6 +1,9 @@
 package navigation;
 
-public class Point {
+import java.util.LinkedList;
+import java.util.List;
+
+public class Point implements Goal {
 	public final double x, y;
 
 	public Point(double x, double y) {
@@ -15,6 +18,14 @@ public class Point {
 	
 	public Configuration configuration(double theta) {
 		return new Configuration(x, y, theta);
+	}
+	
+	public List<Configuration> interpolateConfigurations() {
+		List<Configuration> configs = new LinkedList<Configuration>();
+		for (double theta = 0.0; theta < 2*Math.PI; theta += Constants.ROTATION_STEP_DISTANCE) {
+			configs.add(new Configuration(x, y, theta));
+		}
+		return configs;
 	}
 
 	public String toString() {

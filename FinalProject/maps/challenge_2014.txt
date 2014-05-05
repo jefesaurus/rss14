@@ -3,9 +3,9 @@
 map {
 
     bottom_left { -0.6096 -0.4953 }
-    top_right { 2.4384 4.1466 }
+    top_right { 3.05 4.1466 }
     robot_start { 0.0 0.0 }
-    robot_goal { 2.0574 0.0000 }
+    robot_goal { 0.00 2.50 }
 
     #Fiducials will contain a position,
     #a top_color, a bottom_color, a top_radius, and a bottom_radius
@@ -31,7 +31,7 @@ map {
 	    }
 	
 	    2 {
-	        position { 2.4125 3.325 }
+	        position { 3.0125 3.325 }
 		    top_color green
 		    bottom_color orange
 		    top_radius 0.055
@@ -39,7 +39,7 @@ map {
 	    }
 	
 	    3 {
-	        position { 1.3875 -0.475 }
+	        position { 1.9875 -0.475 }
 		    top_color red
 		    bottom_color green
 		    top_radius 0.055
@@ -98,7 +98,7 @@ map {
         }
         6 {
             position { 2.30 2.595 } # Double block
-            #size 2 # TODO UNDO - CAELAN
+            size 2
         }
         7 {
             position { -0.232 3.494 } # Around concave obstacle
@@ -159,19 +159,18 @@ map {
 
 		6 {
 	        num_points 4
-		    0 { 1.2192 3.3528 }
-		    1 { 1.2192 3.5687 }
-		    2 { 2.4384 3.5687 }
-		    3 { 2.4384 3.3528 }
+		    0 { 1.8192 3.3528 }
+		    1 { 1.8192 3.5687 }
+		    2 { 3.0384 3.5687 }
+		    3 { 3.0384 3.3528 }
 		}
 
 		7 {
 	        num_points 4
-		    0 { 1.4097 0.7620  }
-		    1 { 1.6383 0.7620 }
-		    2 { 1.6383 -0.4953  }
-		    3 { 1.4097 -0.4953 }
+		    0 { 2.0097 0.7620  }
+		    1 { 2.2383 0.7620 }
+		    2 { 2.2383 -0.4953  }
+		    3 { 2.0097 -0.4953 }
 		}
 	}
 }
-

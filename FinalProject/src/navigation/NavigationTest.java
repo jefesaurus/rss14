@@ -35,7 +35,7 @@ public class NavigationTest implements NodeMain {
 		this.node = node;
 		gui = new NavigationGUI(world);
 		Configuration start = world.getStart().configuration(0);
-		Configuration goal = world.getGoal().configuration(3*Math.PI/2);
+		Configuration goal = world.getGoal().configuration(Math.PI);
 
 		gui.clear();
 		gui.draw();
@@ -45,14 +45,19 @@ public class NavigationTest implements NodeMain {
 		gui.draw(world.getOccupancyGrid(), Color.RED);
 		gui.draw(world.getVisibilityGrid(), Color.GREEN);
 		
+		//Configuration backward = world.sampleBackwardsConfiguration(goal);
+		//System.out.println(backward);
+		//gui.draw(world.getRobot(backward), true, Color.ORANGE);
+		
 		navigator = new Navigator(node, gui, world);
 
 		//switchControlDemo(goal);
-		blocksDemo(goal);
+		//blocksDemo(goal);
+		blocksDemoAddAll(goal);
 	}
 	
 	private void switchControlDemo(Configuration goal) {
-		navigator.setGoal(goal);
+		navigator.newGoal(goal);
 		Util.pause(10000);
 		navigator.freeze();
 		Util.pause(10000);
@@ -62,29 +67,55 @@ public class NavigationTest implements NodeMain {
 	private void blocksDemo(Configuration goal) {
 		long startTime = System.currentTimeMillis();
 		long collectionTime = 120*1000; //TODO Global clock 
-		List<Point> collected = new LinkedList<Point>();
-		for (Point block : world.getBlocks()) { //TODO sort by distance of RRT paths
-			Configuration config = world.sampleConfigurationForPoint(block);
-			if (config == null) {
-				continue;
-			}
-			navigator.setGoal(config);
+		List<Block> collected = new LinkedList<Block>();
+		for (Block block : world.getBlocks()) { //TODO sort by distance of RRT paths
+			//Configuration config = world.sampleConfigurationForPoint(block.position);
+			//if (config == null) {
+			//	continue;
+			//}
+			navigator.newGoal(block.position);
 			
-			while (navigator.getGoal() != null && (System.currentTimeMillis() - startTime) < collectionTime) {
+			while (navigator.currentGoal() == block.position && (System.currentTimeMillis() - startTime) < collectionTime) {
 				Util.pause(100);
 			}
-			if (navigator.getGoal() == null ) {
-				collected.add(block); //TODO adds failed RRT paths too
+			if (navigator.accomplished.size() != 0 && navigator.accomplished.get(navigator.accomplished.size()-1) == block.position) {
+				collected.add(block); 
 			} 
 			if ((System.currentTimeMillis() - startTime) >= collectionTime) {
 				break;
 			} 
 		}
 		//Done collecting, return to goal
-		navigator.setGoal(goal); 
+		navigator.clearGoals();
+		navigator.newGoal(goal);
+		Configuration backward = world.sampleBackwardsConfiguration(goal);
+		if (backward != null) {
+			navigator.newGoal(backward);
+		}
+
 		System.out.println("Collected " + collected.size() + " blocks");
 	}
 	
+	private void blocksDemoAddAll(Configuration goal) {
+		long startTime = System.currentTimeMillis();
+		long collectionTime = 180*1000; //TODO Global clock 		
+		for (Block block : world.getBlocks()) {
+			navigator.newGoal(block.position);
+		}
+		while ((System.currentTimeMillis() - startTime) < collectionTime && navigator.currentGoal() != null) {
+			Util.pause(100);
+		}
+		
+		//Done collecting, return to goal
+		navigator.clearGoals();
+		Util.pause(10);
+		navigator.newGoal(goal);
+		//navigator.newGoal(world.getStart().configuration(Math.PI));
+		//Configuration backward = world.sampleBackwardsConfiguration(goal);
+		//if (backward != null) {
+		//	navigator.newGoal(backward);
+		//}
+	}
 	
 	@Override
 	public void onShutdown(Node node) {

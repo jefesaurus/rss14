@@ -3,6 +3,7 @@ package navigation;
 import gui.*;
 
 import java.awt.Color;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -17,17 +18,21 @@ import org.ros.node.topic.Subscriber;
 
 public class Navigator implements Runnable {
 	public Node node;
+	public Subscriber<org.ros.message.rss_msgs.BumpMsg> bumperSub;
 	public Subscriber<org.ros.message.rss_msgs.OdometryMsg> odoSub;
 	public Publisher<MotionMsg> motionPub;
 	
 	public NavigationGUI gui;
 	public World world;
 	public MotionPlanner planner;
-	protected boolean firstUpdate, frozen, pathReset;
-	protected Configuration reference, initial, current, goal;
+	protected boolean firstUpdate, frozen, pathReset, immediateLock;
+	protected Configuration reference, initial, current;
+	
+	protected List<Goal> goals;
 	protected List<Configuration> path;
 	protected DriveSystem pathDrive;
-
+	protected List<Goal> accomplished;
+	
 	public Navigator(Node node, NavigationGUI gui, World world) {
 		this.node = node;
 		this.gui = gui;
@@ -37,16 +42,55 @@ public class Navigator implements Runnable {
 		this.firstUpdate = true;
 		this.frozen = false;
 		this.pathReset = false;
+		this.immediateLock = false;
 		this.reference = null;
 		this.initial = world.getStart().configuration(0.); //Alec said that we can assume the robot starts facing east (angle 0)
 		this.current = null;
-		this.goal = null; //TODO queue of goals
-		path = new LinkedList<Configuration>();
-		pathDrive = null;
+		
+		this.goals = Collections.synchronizedList(new LinkedList<Goal>());		
+		this.path = new LinkedList<Configuration>();
+		this.pathDrive = null;
+		accomplished = new LinkedList<Goal>();
 		setup();
 	}
 	
 	private void setup() {
+		this.bumperSub = node.newSubscriber("/rss/BumpSensors", "rss_msgs/BumpMsg");
+		bumperSub
+				.addMessageListener(new MessageListener<org.ros.message.rss_msgs.BumpMsg>() {
+					@Override
+					public void onNewMessage(
+							org.ros.message.rss_msgs.BumpMsg message) {
+						boolean left = message.left;
+						boolean right = message.right;
+						if ((left || right) && !immediateLock) { //TODO - uncomment
+							freeze();
+							if (left) {
+								System.out.println("Left Bump Sensor Collision! Backing up\n");
+							} else {
+								System.out.println("Right Bump Sensor Collision! Backing up\n");
+							}
+							
+							Configuration start = getConfiguration();
+							Configuration backward = world.sampleBackwardsConfiguration(start);
+							if (backward != null) { //TODO expand on this
+								immediateLock = true;
+								DriveSystem drive = DriveSystem.BACKWARD; //TODO is it actually moving backward?
+								double grow = 0.;
+								CollisionCheck check = CollisionCheck.MAPONLY;
+								List<Configuration> newPath = planner.findPath(start, backward, drive, grow, check); 
+								if (newPath != null) {
+									System.out.println("Found path of length " + newPath.size() + " from " + start + " to " + backward);
+									goals.add(0, backward);
+									setPath(newPath, drive);
+									draw();
+								}
+							}
+							resume();
+						}
+					}
+				});
+		
 		this.odoSub = node.newSubscriber("/rss/odometry", "rss_msgs/OdometryMsg");
 		odoSub.addMessageListener(new MessageListener<org.ros.message.rss_msgs.OdometryMsg>() {
 			@Override
@@ -77,21 +121,47 @@ public class Navigator implements Runnable {
 		new Thread(this).start();
 	}
 	
-	public synchronized Configuration getGoal() {
-		return goal;
+	public void processGoals() {
+		while (goals.size() != 0) {
+			if (!replan()){ //Could not find path. Do not set it as the goal
+				System.out.println("Unreachable Goal: " + goals.get(0) + "\n");
+				goals.remove(0);
+				immediateLock = false;
+			} else {
+				System.out.println("New Goal: " + goals.get(0) + "\n");
+				break;
+			}
+		}	
+		draw();
+	}
+
+	public synchronized void immediateGoal(Goal g) {
+		if (!immediateLock) {
+			goals.add(0, g);
+			immediateLock = true;
+			processGoals();
+		}
 	}
 	
-	public synchronized void setGoal(Configuration g) {
-		goal = g;
-		if (goal != null) {
-			if (!replan()){ //Could not find path. Do not set it as the goal
-				System.out.println("Unreachable Goal: " + goal + "\n");
-				goal = null; //TODO instead just maintain past goal?
-				draw();
-			} else {
-				System.out.println("New Goal: " + goal + "\n");
-				draw();
-			}
+	public synchronized void newGoal(Goal g) {
+		goals.add(g);
+		if (goals.size() == 1) { //Currently the only goal
+			processGoals();
+		}
+	}
+	
+	public synchronized void clearGoals() {
+		goals.clear();
+		immediateLock = false;
+		setPath(new LinkedList<Configuration>(), null); //TODO - include this?
+		draw();
+	}
+	
+	public Goal currentGoal() {
+		if (goals.size() == 0) {
+			return null;
+		} else {
+			return goals.get(0);
 		}
 	}
 	
@@ -103,20 +173,23 @@ public class Navigator implements Runnable {
 		current = c;
 	}
 	
-	public boolean replan() { //TODO Grow RRT on grid + obstacles then just obstacles if fails, relax drive system, and grown robot stuff
-		if (goal == null) {
+	public boolean replan() {
+		if (goals.size() == 0) {
+			//setPath(new LinkedList<Configuration>(), null); //TODO - include this?
+			//draw();
 			return false;
 		}
 		
 		Configuration start = getConfiguration();
-		//TODO getGoal()?
+		Goal goal = goals.get(0);
+		//TODO - sample back up point and see if feasible, then grow to move towards the goal
 		
 		for (int i = 0; i < Constants.PLANNING_ATTEMPTS.size(); i++) {
 			DriveSystem drive = Constants.PLANNING_ATTEMPTS.get(i).one;
 			double grow = Constants.PLANNING_ATTEMPTS.get(i).two.one;
 			CollisionCheck check = Constants.PLANNING_ATTEMPTS.get(i).two.two;
 			List<Configuration> newPath = planner.findPath(start, goal, drive, grow, check); 
-			if (newPath != null) { //TODO RRT fails to find path failure modes
+			if (newPath != null) {
 				System.out.println("Found path of length " + newPath.size() + " from " + start + " to " + goal);
 				setPath(newPath, drive);
 				/*gui.clear();
@@ -145,8 +218,12 @@ public class Navigator implements Runnable {
 	public void draw() {
 		gui.clear();
 		gui.draw();
-		if (goal != null) {
-			gui.draw(world.getRobot(goal), false, Color.RED);
+		if (goals.size() != 0) {
+			if (goals.get(0) instanceof Configuration) { //TODO - fix this mess
+				gui.draw(world.getRobot((Configuration)goals.get(0)), false, Color.RED);
+			} else {
+				gui.draw((Point)goals.get(0), Color.RED);
+			}
 		}	
 		gui.draw(path, 0., Color.BLUE);
 	}
@@ -193,10 +270,10 @@ public class Navigator implements Runnable {
 	
 	//TODO - remove unused launch components
 	//TODO - remove netbook window of robot spaz
-	//TODO - bump sensor feedback to back up and replan
 	//TODO - automatically replan every couple seconds
 	//TODO - Alec says that the given map is complete wrt obstacles (ie it includes each perfectly), but the block positions may change
 	//If replanning frequently, it will automatically try forward after moving backward out of tough space
+	//TODO - trianglulation using two fiducials and an angle differntial. Reset reference and initial
 	
 	public MotionMsg computeForwardVelocities(Configuration start, Configuration end) {
 		//if (!planner.safePath(start, end, DriveSystem.FORWARD, 0., CollisionCheck.MAPONLY)) {
@@ -310,7 +387,9 @@ public class Navigator implements Runnable {
 					if (msg == null) {
 						if (path.size() == 0) {
 							//Reached goal
-							setGoal(null);
+							accomplished.add(goals.remove(0));
+							immediateLock = false;
+							processGoals();
 						}
 						break;
 					} 

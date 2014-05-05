@@ -1,5 +1,6 @@
 package navigation;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -8,10 +9,13 @@ import navigation.Constants.DriveSystem;
 
 //TODO - options for drive system parameters (ie Forward, Backward, FOB, probabilities proportional to shortest distance)
 //TODO - combine grow and collision check into 1 parameter
+//TODO - enforce leaving/entering point to drive a certain way
+//TODO - interpolation from config to point
+//TODO - return what type of movement supposed to do
 
 public class MotionPlanner {
 	private World world;
-	public RRT tree1, tree2;
+	public RRT tree1, tree2; //TODO - if don't care about orientation when reaching a point, use a super root to connect several sampled configurations on the 2nd tree
 	public int iterations;
 	public int attempts;
 	
@@ -40,8 +44,12 @@ public class MotionPlanner {
 		return true;
 	}
 
-	public boolean safePath(Configuration start, Configuration end, DriveSystem drive, double grow, CollisionCheck check) {
-		return checkPath(start.interpolatePath(end, drive), grow, check);
+	public boolean safePath(Configuration start, Goal end, DriveSystem drive, double grow, CollisionCheck check) {
+		if (end instanceof Configuration) {
+			return checkPath(start.interpolatePath((Configuration)end, drive), grow, check);
+		} else {
+			return checkPath(start.interpolatePath((Point)end, drive), grow, check);
+		}
 	}
 	
 	private List<Configuration> pathToRoot(TreeNode node) {
@@ -53,9 +61,24 @@ public class MotionPlanner {
 		return path;
 	}
 
-	private List<Configuration> bidirectionalRRT(Configuration start, Configuration end, DriveSystem drive, double grow, CollisionCheck check) {
+	private List<Configuration> bidirectionalRRT(Configuration start, Goal end, DriveSystem drive, double grow, CollisionCheck check) {
 		tree1 = new RRT(start, true, drive);
-		tree2 = new RRT(end, false, drive);
+		
+		if (end instanceof Configuration) {
+			tree2 = new RRT((Configuration)end, false, drive);
+		} else {
+			tree2 = new RRT(null, false, drive);
+			for (Configuration config : ((Point)end).interpolateConfigurations()) {
+				if (!world.robotCollision(config, grow, check)) {
+					tree2.root.children.add(new TreeNode(config, null));
+					tree2.size += 1;
+				}
+			}
+			if (tree2.root.children.size() == 0) {
+				return null;
+			}
+		}
+		
 		
 		int i;
 		for (i = 0; i < Constants.RRT_ITERATIONS; i++) {
@@ -160,7 +183,15 @@ public class MotionPlanner {
 		return path;
 	}
 
-	public List<Configuration> findPath(Configuration start, Configuration end, DriveSystem drive, double grow, CollisionCheck check) { //TODO - don't return first waypoint
+	public List<Configuration> findPath(Configuration start, Goal end, DriveSystem drive, double grow, CollisionCheck check) { //TODO - don't return first waypoint
+		if (safePath(start, end, drive, grow, check)) { //Try direct path
+			if (end instanceof Configuration) {
+				return new LinkedList<Configuration>(Arrays.asList(start, (Configuration)end));
+			} else {
+				return new LinkedList<Configuration>(Arrays.asList(start, start.endConfiguration((Point)end, drive)));
+			}
+		}
+		
 		for (int i = 0; i < Constants.RRT_ATTEMPTS; i++) {
 			List<Configuration> path = bidirectionalRRT(start, end, drive, grow, check);
 			if (path != null) {

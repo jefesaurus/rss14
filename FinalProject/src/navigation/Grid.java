@@ -101,7 +101,7 @@ public class Grid {
 	public boolean collides(Polygon poly, double threshold) {
 		for (int x = getX(poly.boundingBox.min); x <= getX(poly.boundingBox.max); x++) {
 			for (int y = getY(poly.boundingBox.min); y <= getY(poly.boundingBox.max); y++) {
-				if (valid(x, y) && getValue(x, y) > threshold && poly.collides(getBox(x, y).getPolygon())) {
+				if (!valid(x, y) || (getValue(x, y) > threshold && poly.collides(getBox(x, y).getPolygon()))) {
 					return true;
 				}
 			}
@@ -112,7 +112,7 @@ public class Grid {
 	public boolean collides(Shape shape, double threshold) {
 		for (int x = getX(shape.boundingBox.min); x <= getX(shape.boundingBox.max); x++) {
 			for (int y = getY(shape.boundingBox.min); y <= getY(shape.boundingBox.max); y++) {
-				if (valid(x, y) && getValue(x, y) > threshold && shape.collides(getBox(x, y).getPolygon())) {
+				if (!valid(x, y) || (getValue(x, y) > threshold && shape.collides(getBox(x, y).getPolygon()))) {
 					return true;
 				}
 			}
