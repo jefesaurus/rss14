@@ -4,8 +4,10 @@ import gui.*;
 
 import java.awt.Color;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import navigation.Constants.CollisionCheck;
 import navigation.Constants.DriveSystem;
@@ -21,6 +23,7 @@ public class Navigator implements Runnable {
 	public Subscriber<org.ros.message.rss_msgs.BumpMsg> bumperSub;
 	public Subscriber<org.ros.message.rss_msgs.OdometryMsg> odoSub;
 	public Publisher<MotionMsg> motionPub;
+	public Subscriber<org.ros.message.sensor_msgs.PointCloud2> kinSub;
 	
 	public NavigationGUI gui;
 	public World world;
@@ -32,6 +35,14 @@ public class Navigator implements Runnable {
 	protected List<Waypoint> path;
 	protected DriveSystem pathDrive;
 	protected List<Goal> accomplished;
+	
+	
+	// KANENNNCT
+	public Pose3D kinectPose;
+	HashMap<IntTuple, double[]> occupancy;
+	public boolean KINECT_DATA = false;
+	public boolean VISION_GUI = true;
+	public VisionGUI vgui;
 	
 	public Navigator(Node node, NavigationGUI gui, World world) {
 		this.node = node;
@@ -109,6 +120,15 @@ public class Navigator implements Runnable {
 			}
 		});
 		this.motionPub = node.newPublisher("command/Motors", "rss_msgs/MotionMsg");
+		
+		kinSub = node.newSubscriber("/camera/depth_registered/points", "sensor_msgs/PointCloud2");
+		kinSub.addMessageListener(new MessageListener<org.ros.message.sensor_msgs.PointCloud2>() {
+			@Override
+			public synchronized void onNewMessage(org.ros.message.sensor_msgs.PointCloud2 message) {
+        unpackPointCloudData((int)message.width, (int)message.height, (int)message.point_step, (int)message.row_step, message.data);
+			}
+		});
+		
 		
 		long startTime = System.currentTimeMillis();	
 		while (firstUpdate) {
@@ -406,4 +426,86 @@ public class Navigator implements Runnable {
 			}
 		}
 	}
+	
+
+int X_OFFSET = 0;
+int Y_OFFSET = 4;
+int Z_OFFSET = 8;
+int R_OFFSET = 18;
+int G_OFFSET = 17;
+int B_OFFSET = 16;
+
+int START_COL = 100;
+int END_COL = 540;
+int START_ROW = 140;
+int END_ROW = 480;
+
+
+	  float OCCUPANCY_RESOLUTION = .05f;
+	  int OCCUPANCY_THRESHOLD = 3;
+	  public void unpackPointCloudData(int width, int height, int pointStep, int rowStep, byte[] data) {
+	    int offset, x_i, y_i, z_i, r_i, g_i, b_i;
+	    float x, y, z;
+	    int r, g, b;
+	    Point3D point;
+	    double avg_h = 0;
+	    double avg_s = 0;
+	    double avg_v = 0;
+	    int pic_height = this.END_ROW - this.START_ROW;
+	    int pic_width = this.END_COL - this.START_COL;
+	    Image rep = new Image(pic_width, pic_height);
+	    for (int row = START_ROW; row < END_ROW; row ++) {
+	      for (int col = START_COL; col < END_COL; col ++) {
+	        offset = rowStep*row + pointStep*col;
+	        x_i = offset+X_OFFSET;
+	        y_i = offset+Y_OFFSET;
+	        z_i = offset+Z_OFFSET;
+	        r_i = offset+R_OFFSET;
+	        g_i = offset+G_OFFSET;
+	        b_i = offset+B_OFFSET;
+	        x = Float.intBitsToFloat((data[x_i+3] & 0xff) << 24 | (data[x_i+2] & 0xff) << 16 | (data[x_i+1] & 0xff) << 8 | (data[x_i] & 0xff)); 
+	        y = Float.intBitsToFloat((data[y_i+3] & 0xff) << 24 | (data[y_i+2] & 0xff) << 16 | (data[y_i+1] & 0xff) << 8 | (data[y_i] & 0xff)); 
+	        z = Float.intBitsToFloat((data[z_i+3] & 0xff) << 24 | (data[z_i+2] & 0xff) << 16 | (data[z_i+1] & 0xff) << 8 | (data[z_i] & 0xff)); 
+	        r = (data[r_i] & 0xff);
+	        g = (data[g_i] & 0xff);
+	        b = (data[b_i] & 0xff);
+	        float[] hsv = new float[3];
+	        if (!Float.isNaN(x) && !Float.isNaN(y) && !Float.isNaN(z)) {
+	          point = kinectPose.fromFrame(new Point3D(x, y, z));
+	          if (point.z > 0.0) {
+	            IntTuple loc = new IntTuple((int)(point.x/OCCUPANCY_RESOLUTION), (int)(point.y/OCCUPANCY_RESOLUTION));
+	            double[] point_data = occupancy.get(loc);
+	            Color.RGBtoHSB(r,g,b,hsv);
+	            //System.out.println("r: " + r + " g: " +g + " b: " + b);
+	            //System.out.println("h: " + hsv[0] + " s: " + hsv[1] + " v: " + hsv[2]);
+	            rep.setPixel(col - START_COL, row - START_ROW, data[r_i], data[g_i], data[b_i]);
+	            if (point_data == null) {
+	              occupancy.put(loc, new double[] {1,point.z,0,0,0});
+	            } else {
+	              point_data[0] ++;
+	              point_data[1] += point.z;
+	            }
+	          }
+	        }
+	      }
+	    }
+	    if (VISION_GUI) {
+	      vgui.setVisionImage(rep.toArray(), pic_width, pic_height);
+	    }
+	    for (Map.Entry<IntTuple, double[]> cell : occupancy.entrySet()) {
+	      double[] point_data = cell.getValue();
+	      double num_points = point_data[0];
+	      if (point_data[0] > OCCUPANCY_THRESHOLD) {
+	        if (KINECT_DATA) {
+	          IntTuple loc = cell.getKey();
+	          if (point_data[1]/num_points > .05) {
+	            gui.addPoint(loc.x*OCCUPANCY_RESOLUTION, loc.y*OCCUPANCY_RESOLUTION, 1, Color.BLACK);
+	          } else {
+		        gui.addPoint(loc.x*OCCUPANCY_RESOLUTION, loc.y*OCCUPANCY_RESOLUTION, 1, Color.RED);
+	          }
+	        }
+	      }
+	    }
+	    occupancy.clear();
+	  }
 }
