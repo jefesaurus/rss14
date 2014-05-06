@@ -121,7 +121,7 @@ public class DrivingMaster implements NodeMain, Runnable {
 				if (!active) {
 					continue;
 				} else {
-					System.out.println("active is true");
+//					System.out.println("active is true");
 				}
 					
 				double tv, rv;

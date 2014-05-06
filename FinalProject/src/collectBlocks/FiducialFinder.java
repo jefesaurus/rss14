@@ -65,8 +65,8 @@ public class FiducialFinder {
 		return answer;
 	}
 	
-	public List<FidPattern> findFids(int[][][] src) {
-		List<BlockInfo> binfos = cct.getBlockInfosForFrame(src);
+	public List<FidPattern> findFids(int[][][] src, boolean[][] mask, int minPixelsPerGroup) {
+		List<BlockInfo> binfos = cct.getBlockInfosForFrame(src, mask, minPixelsPerGroup, false);
 		return findFids(binfos);
 	}
 	

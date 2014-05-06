@@ -96,20 +96,32 @@ public class BlockCollector implements NodeMain, Runnable {
 		if (srcArray == null)
 			return;
 		srcArray = kinecter.getRGBArray();
+		boolean[][] wallMask = kinecter.getWallMask();
+		boolean[][] blockMask = kinecter.getBlockMask();
+		
 		
 //		System.out.println("src image width: " + src.getWidth() + " height: " + src.getHeight());
 		
 //		process here
 		if (guiOn){
 			Image dest = kinecter.getImage();
-			binfos = cct.visualize(srcArray, dest);
-			cct.calibrateHelp(srcArray, dest);
+			//blocks
+//			binfos = cct.visualize(srcArray, blockMask, 50, true, dest);
+			//fiducials
+//			List<BlockInfo> fidbinfos = cct.visualize(srcArray, wallMask, 50, false, dest);
+//			finfos = fidFind.findFids(fidbinfos);
+			
+//			cct.calibrateHelp(srcArray, dest);
 //			cct.debugHelp(srcArray, dest);
+			cct.maskHelp(srcArray, blockMask, dest);
 			gui.setVisionImage(dest.toArray(), width, height);
 		} else {
-			binfos = cct.getBlockInfosForFrame(srcArray);
+			binfos = cct.getBlockInfosForFrame(srcArray, blockMask, 50, true);
+			// fiducials
+			finfos = fidFind.findFids(srcArray, wallMask, 50);
 		}
-		finfos = fidFind.findFids(binfos);
+		
+		
 		
 //		System.out.println("Kinect data processed: " + System.nanoTime()/1000000);
 	}
@@ -189,10 +201,6 @@ public class BlockCollector implements NodeMain, Runnable {
 		Thread runThis = new Thread(this);
 		runThis.start();
 		System.out.println("running camera processing thread");
-	}
-	
-	public void handle(byte[] rawImage) {
-		visionImage.offer(rawImage);
 	}
 
 	@Override

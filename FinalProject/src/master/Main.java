@@ -118,7 +118,6 @@ public class Main implements NodeMain, Runnable {
 		navigator = new Navigator(node, gui, world);
 		
 		System.out.println("Creating the rest");
-		// TODO Auto-generated method stub
 		// set up driving module
 		driveMaster.onStart(node);
 		// set up kinect

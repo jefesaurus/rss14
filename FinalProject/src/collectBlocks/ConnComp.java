@@ -16,6 +16,7 @@ public class ConnComp {
 		public float satMax;
 		public float brightMin;
 		public float brightMax;
+		// if hueMin is greater than hueMax, it will know to consider it as modular thing
 		public HSBRanges(int name, float hueMin, float hueMax, float satMin, float satMax, float brightMin, float brightMax) {
 			this.name = name;
 			this.hueMin = hueMin;
@@ -34,25 +35,35 @@ public class ConnComp {
 			float hue = pixelArray[0];
 			float sat = pixelArray[1];
 			float bright = pixelArray[2];
-			if (hue < hueMin || hue > hueMax) return false;
+			if (hueMin > hueMax) {
+				if (!(hue > hueMin || hue < hueMax)) return false;
+			} else {
+				if (hue < hueMin || hue > hueMax) return false;
+			}
 			if (sat < satMin || sat > satMax) return false;
 			if (bright < brightMin || bright > brightMax) return false;
 			return true;
 		}
 	}
 	
-	public HSBRanges yellowRange = new HSBRanges(0, .1f, .2f, .4f, 1.f, .4f, 1.f);
-	public HSBRanges redRange = new HSBRanges(1, .0f, .05f, .5f, 1.f, .5f, 1.f);
-	public HSBRanges greenRange = new HSBRanges(2, .35f, .45f, .6f, 1.f, .3f, 1.f);
-	public HSBRanges blueRange = new HSBRanges(3, .5f, .7f, .4f, 1.f, .2f, .4f);
-	public HSBRanges orangeRange = new HSBRanges(4, .05f, .08f, .5f, 1.f, .4f, 1.f);
-	public HSBRanges[] hsbRanges = {yellowRange, redRange, greenRange};//, blueRange};//, orangeRange};
-	public String[] RangeMapping = {"yellow", "red", "green", "blue", "orange"}; 
+	public HSBRanges yellowBlock = new HSBRanges(0, .1f, .2f, .4f, 1.f, .4f, 1.f);
+	public HSBRanges redBlock = new HSBRanges(1, .95f, .0f, .7f, 1.f, .4f, 1.f);
+	public HSBRanges greenBlock = new HSBRanges(2, .25f, .32f, .5f, 1.f, .4f, 1.f);
+	public HSBRanges blueBlock = new HSBRanges(3, .6f, .73f, .5f, 1.f, .2f, .5f);
+	public HSBRanges[] hsbBlockRanges = {yellowBlock, redBlock, greenBlock, blueBlock};
+	public String[] blockHSBMapping = {"yellow", "red", "green", "blue"};
+	
+	public HSBRanges yellowFid = new HSBRanges(0, .09f, .17f, .3f, 1.f, .5f, 1.f);
+	public HSBRanges redFid = new HSBRanges(1, .85f, .999f, .5f, 1.f, .3f, 1.f);
+	public HSBRanges greenFid= new HSBRanges(2, .33f, .43f, .4f, 1.f, .3f, 1.f); //dark green
+	public HSBRanges blueFid = new HSBRanges(3, .54f, .62f, .4f, 1.f, .2f, .5f);
+	public HSBRanges orangeFid = new HSBRanges(4, .01f, .09f, .7f, 1.f, .5f, 1.f);
+	public HSBRanges[] hsbFidRanges = {yellowFid, redFid, greenFid, blueFid, orangeFid};
+	public String[] FidHSBMapping = {"yellow", "red", "green", "blue", "orange"}; 
 	
 	public float blockSatThresh = .6f;
 	public float blockBrightThresh = .35f;
 	public float hueSimilarityThresh = .05f;
-	public int minPixelsPerGroup = 70;
 	int[][] colors;
 	
 	public ConnComp() {
@@ -86,15 +97,19 @@ public class ConnComp {
 	 * @param src
 	 * @return
 	 */
-	public List<ArrayList<Point>> findColorPointGroups(int[][][] src) {
+	public List<ArrayList<Point>> findColorPointGroups(int[][][] src, boolean[][] mask, HSBRanges[] hsbRanges) {
 		UF labels = new UF(src.length*src[0].length);
 		colors = new int[src.length][src[0].length];
 		
 		// First pass, determine color of pixel
 		for (int x = 0; x<src.length; x++) {
 			for (int y = 0; y<src[0].length; y++) {
+				if (!mask[x][y]) {
+					colors[x][y] = -1;
+					continue;
+				}
 				boolean background = true;
-				for (HSBRanges range : this.hsbRanges) {
+				for (HSBRanges range : hsbRanges) {
 					if (range.checkRange(src, new Point(x,y))) {
 						colors[x][y] = range.name;
 						background = false;
@@ -157,7 +172,7 @@ public class ConnComp {
 	 * @param groups
 	 * @return
 	 */
-	public List<BlockInfo> makeBlockInfos(int[][][] src, List<ArrayList<Point>> groups) {
+	public List<BlockInfo> makeBlockInfos(int[][][] src, List<ArrayList<Point>> groups, HSBRanges[] hsbRanges, String[] hsbMapping) {
 		List<BlockInfo> answer = new ArrayList<BlockInfo>();
 		System.out.println("Number of groupings: " + groups.size());
 		for (ArrayList<Point> g : groups) {
@@ -185,13 +200,13 @@ public class ConnComp {
 			int size = (maxx-minx)*(maxy-miny);
 			//re-derive color
 			int color = -1;
-			for (HSBRanges range : this.hsbRanges) {
+			for (HSBRanges range : hsbRanges) {
 				if (range.checkRange(src, new Point(g.get(0).x, g.get(0).y))) {
 					color = range.name;
 				}
 			}
 			color = colors[g.get(0).x][g.get(0).y];
-			String colorName = (color >=0)?RangeMapping[color]:"background";
+			String colorName = (color >=0)?hsbMapping[color]:"background";
 			BlockInfo bi = new BlockInfo(new Point(avgX, avgY), size, colorName);
 			answer.add(bi);
 //			System.out.println("x : " + bi.centroid.x + "| y : " + bi.centroid.y + " | color : " + bi.color);
@@ -205,10 +220,19 @@ public class ConnComp {
 	 * @param src the source RGB
 	 * @param dest the destination RGB
 	 */
-	public List<BlockInfo> visualize(int[][][] src, Image dest) {
+	public List<BlockInfo> visualize(int[][][] src, boolean[][] mask, int minPixelsPerGroup, boolean blocksBool, Image dest) {
 		Color[] groupColorings = {Color.white, Color.blue, Color.pink, Color.magenta, Color.yellow, Color.green};
-		List<ArrayList<Point>> groups = filterGroupsBySize(findColorPointGroups(src), minPixelsPerGroup);
-		List<BlockInfo> blockInfos = makeBlockInfos(src, groups);
+		HSBRanges[] hsbRanges;
+		String[] hsbMapping;
+		if (blocksBool) {
+			hsbRanges = this.hsbBlockRanges;
+			hsbMapping = this.blockHSBMapping;
+		} else {
+			hsbRanges = this.hsbFidRanges;
+			hsbMapping = this.FidHSBMapping;
+		}
+		List<ArrayList<Point>> groups = filterGroupsBySize(findColorPointGroups(src, mask, hsbRanges), minPixelsPerGroup);
+		List<BlockInfo> blockInfos = makeBlockInfos(src, groups, hsbRanges, hsbMapping);
 		System.out.println("Number of groupings: " + groups.size());
 		for (int i = 0; i < groups.size(); i++) {
 			ArrayList<Point> g = groups.get(i);
@@ -218,7 +242,7 @@ public class ConnComp {
 			}
 			BlockInfo bi = blockInfos.get(i);
 			Point centroid = bi.centroid;
-			System.out.println("x : " + centroid.x + "| y : " + centroid.y + " | color : " + bi.color);
+//			System.out.println("x : " + centroid.x + "| y : " + centroid.y + " | color : " + bi.color);
 			for(int x =  centroid.x- 4; x <= centroid.x + 4; x++)
 				if(x >= 0 && x < dest.getWidth() && centroid.y >= 0 && centroid.y < dest.getHeight())
 					dest.setPixel(x, centroid.y, (byte)0, (byte)0, (byte)0);				
@@ -234,9 +258,18 @@ public class ConnComp {
 	 * @param src
 	 * @return
 	 */
-	public List<BlockInfo> getBlockInfosForFrame(int[][][] src) {
-		List<ArrayList<Point>> groups = filterGroupsBySize(findColorPointGroups(src), minPixelsPerGroup);
-		return makeBlockInfos(src, groups);
+	public List<BlockInfo> getBlockInfosForFrame(int[][][] src, boolean[][] mask, int minPixelsPerGroup, boolean blocksBool) {
+		HSBRanges[] hsbRanges;
+		String[] hsbMapping;
+		if (blocksBool) {
+			hsbRanges = this.hsbBlockRanges;
+			hsbMapping = this.blockHSBMapping;
+		} else {
+			hsbRanges = this.hsbFidRanges;
+			hsbMapping = this.FidHSBMapping;
+		}
+		List<ArrayList<Point>> groups = filterGroupsBySize(findColorPointGroups(src, mask, hsbRanges), minPixelsPerGroup);
+		return makeBlockInfos(src, groups, hsbRanges, hsbMapping);
 	}
 	
 	/**
@@ -286,6 +319,19 @@ public class ConnComp {
 		for (int x = 0; x<src.getWidth(); x++) {
 			byte grey = (byte)(256*x/src.getWidth());
 			dest.setPixel(x, src.getHeight()/2, grey, grey, grey);
+		}
+	}
+	
+	/**
+	 * Simply shows unmasked pixels
+	 */
+	public void maskHelp(int[][][] src, boolean[][]mask, Image dest) {
+		for (int x = 0; x<src.length; x++) {
+			for (int y = 0; y<src[0].length; y++) {
+				if (!mask[x][y]) {
+					dest.setPixel(x, y, (byte)0, (byte)0, (byte)0);
+				}
+			}
 		}
 	}
 }

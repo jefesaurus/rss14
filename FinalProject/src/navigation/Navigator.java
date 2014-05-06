@@ -136,7 +136,7 @@ public class Navigator implements Runnable {
 			}
 		});
 		
-		
+
 		long startTime = System.currentTimeMillis();	
 		while (firstUpdate) {
 			Util.pause(1); //TODO remove and fix concurrency bug
@@ -446,12 +446,25 @@ int START_COL = 100;
 int END_COL = 540;
 int START_ROW = 140;
 int END_ROW = 480;
-
+public int[][][] rgb = new int[END_COL - START_COL][END_ROW - START_ROW][3];
+public double[][] zCoord = new double[END_COL - START_COL][END_ROW - START_ROW];
 
 	  float OCCUPANCY_RESOLUTION = .02f;
 	  int OCCUPANCY_THRESHOLD = 3;
+	  private long lastTimeProcessed = -1;
+	  private int fps = 10;
 	  public void unpackPointCloudData(int width, int height, int pointStep, int rowStep, byte[] data) {
-	    int offset, x_i, y_i, z_i, r_i, g_i, b_i;
+		  if (lastTimeProcessed < 0)
+				lastTimeProcessed = System.nanoTime();
+			else {
+				long elapsedMilli = (System.nanoTime() - lastTimeProcessed)/1000000;
+				if (elapsedMilli > 1000/fps) {
+					lastTimeProcessed = System.nanoTime();
+				} else {
+					return;
+				}
+			}
+		int offset, x_i, y_i, z_i, r_i, g_i, b_i;
 	    float x, y, z;
 	    int r, g, b;
 	    Point3D point;
@@ -461,6 +474,7 @@ int END_ROW = 480;
 	    int pic_height = this.END_ROW - this.START_ROW;
 	    int pic_width = this.END_COL - this.START_COL;
 	    Image rep = new Image(pic_width, pic_height);
+	    
 	    for (int row = START_ROW; row < END_ROW; row ++) {
 	      for (int col = START_COL; col < END_COL; col ++) {
 	        offset = rowStep*row + pointStep*col;
@@ -476,15 +490,11 @@ int END_ROW = 480;
 	        r = (data[r_i] & 0xff);
 	        g = (data[g_i] & 0xff);
 	        b = (data[b_i] & 0xff);
-	        float[] hsv = new float[3];
 	        if (!Float.isNaN(x) && !Float.isNaN(y) && !Float.isNaN(z)) {
 	          point = kinectPose.fromFrame(new Point3D(x, y, z));
 	          if (point.z > 0.0) {
 	            IntTuple loc = new IntTuple((int)((point.x-.58)/OCCUPANCY_RESOLUTION), (int)(point.y/OCCUPANCY_RESOLUTION));
 	            double[] point_data = occupancy.get(loc);
-	            Color.RGBtoHSB(r,g,b,hsv);
-	            //System.out.println("r: " + r + " g: " +g + " b: " + b);
-	            //System.out.println("h: " + hsv[0] + " s: " + hsv[1] + " v: " + hsv[2]);
 	            rep.setPixel(col - START_COL, row - START_ROW, data[r_i], data[g_i], data[b_i]);
 	            if (point_data == null) {
 	              occupancy.put(loc, new double[] {1,point.z,0,0,0});
@@ -493,6 +503,11 @@ int END_ROW = 480;
 	              point_data[1] += point.z;
 	            }
 	          }
+	          zCoord[col-START_COL][row-START_ROW] = point.z;
+	          // fill in rgb
+	          rgb[col-START_COL][row-START_ROW][2] = r;
+	          rgb[col-START_COL][row-START_ROW][1] = g;
+	          rgb[col-START_COL][row-START_ROW][0] = b;
 	        }
 	      }
 	    }
