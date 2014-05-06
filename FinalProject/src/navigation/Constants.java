@@ -113,10 +113,10 @@ public class Constants {
 	public static final double TRANSLATION_THRESHOLD = .05; 	//TODO - play with velocities more using interpolation
 	public static final double K_TRANSLATE = .5;
 	public static final double MAX_TV = 1.0;
-	public static final double MIN_TV = .2;
+	public static final double MIN_TV = .3;
 	
 	public static final double ROTATION_THRESHOLD = .2;
-	public static final double K_ROTATE = .25;
+	public static final double K_ROTATE = .3;
 	public static final double MAX_RV = .5;
-	public static final double MIN_RV = .1;
+	public static final double MIN_RV = .2;
 }

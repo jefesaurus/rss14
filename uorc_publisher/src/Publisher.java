@@ -9,6 +9,7 @@ import sonar.SonarPublisher;
 import analogIO.AnalogIOPublisher;
 import digitalIO.BreakBeamPublisher;
 import digitalIO.BumperPublisher;
+import digitalIO.BackBumperPublisher;
 import digitalIO.DigitalIOPublisher;
 
 public class Publisher implements NodeMain {
@@ -18,6 +19,7 @@ public class Publisher implements NodeMain {
 
 	Thread breakBeamThread;
 	Thread bumpThread;
+	Thread backBumpThread;
 
 	Thread analogThread;
 
@@ -43,6 +45,9 @@ public class Publisher implements NodeMain {
 		BumperPublisher bumpPub = new BumperPublisher(node, orc, lock);
 		bumpThread = new Thread(bumpPub);
 
+		BackBumperPublisher backBumpPub = new BackBumperPublisher(node, orc, lock);
+		backBumpThread = new Thread(backBumpPub);
+
 		AnalogIOPublisher analogPub = new AnalogIOPublisher(node, orc, lock);
 		analogThread = new Thread(analogPub);
 
@@ -60,6 +65,7 @@ public class Publisher implements NodeMain {
 		digitalThread.start();
 		breakBeamThread.start();
 		bumpThread.start();
+		backBumpThread.start();
 		analogThread.start();
 		encoderThread.start();
 		frontSonarThread.start();
@@ -72,6 +78,7 @@ public class Publisher implements NodeMain {
 		digitalThread.stop();
 		breakBeamThread.stop();
 		bumpThread.stop();
+		backBumpThread.stop();
 		analogThread.stop();
 		encoderThread.stop();
 		frontSonarThread.stop();
