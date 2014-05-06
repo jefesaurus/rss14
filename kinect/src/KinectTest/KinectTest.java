@@ -41,8 +41,8 @@ public class KinectTest implements NodeMain, Runnable {
   public Pose3D kinectPose;
   HashMap<IntTuple, double[]> occupancy;
 
-  public boolean POINT_GUI = true;
-  public boolean VISION_GUI = false;
+  public boolean POINT_GUI = false;
+  public boolean VISION_GUI = true;
 
 	public KinectTest() {
 		System.out.println("Constructed GUI");
@@ -55,6 +55,7 @@ public class KinectTest implements NodeMain, Runnable {
 		  vgui = new VisionGUI();
     }
     kinectPose = new Pose3D(new Point3D(0.0, 0.67, 0.0), Math.PI/2., -Math.PI/2. - .571, 0.);
+    //kinectPose = new Pose3D(new Point3D(0.0, 0.67, 0.0), Math.PI/2., -Math.PI/2. - .34, 0.);
 
     occupancy = new HashMap<IntTuple, double[]>();
 
@@ -90,16 +91,16 @@ public class KinectTest implements NodeMain, Runnable {
   //f = 4
   //x = 1
   //B = 1
-  /*
-  int START_COL = 300;
-  int END_COL = 400;
-  int START_ROW = 240;
+  int START_COL = 100;
+  int END_COL = 540;
+  int START_ROW = 140;
   int END_ROW = 480;
-  */
+  /*
   int START_COL = 200;
   int END_COL = 440;
   int START_ROW = 100;
   int END_ROW = 380;
+  */
 
 
   float OCCUPANCY_RESOLUTION = .05f;
