@@ -33,7 +33,7 @@ public class Constants {
 				
 		//Wheel position moves under growth
 		//Right wheel
-		/*points = new LinkedList<Point>();
+		points = new LinkedList<Point>();
 		points.add(new Point(FULL_WIDTH + 2*grow, AXLE_DEPTH + WHEEL_RADIUS + grow)); // Front Right
 		points.add(new Point(FULL_WIDTH - WHEEL_WIDTH, AXLE_DEPTH + WHEEL_RADIUS + grow)); // Front Left
 		points.add(new Point(FULL_WIDTH - WHEEL_WIDTH, AXLE_DEPTH - WHEEL_RADIUS - grow)); // Back Left
@@ -46,11 +46,11 @@ public class Constants {
 		points.add(new Point(0. + WHEEL_WIDTH, AXLE_DEPTH + WHEEL_RADIUS + grow)); // Front Left
 		points.add(new Point(0. + WHEEL_WIDTH, AXLE_DEPTH - WHEEL_RADIUS - grow)); // Back Left
 		points.add(new Point(0. - 2*grow, AXLE_DEPTH - WHEEL_RADIUS - grow)); // Back Right
-		polygons.add(new Polygon(points));*/
+		polygons.add(new Polygon(points));
 		
 		//Wheel position constant under growth
 		//Right wheel
-		points = new LinkedList<Point>();
+		/*points = new LinkedList<Point>();
 		points.add(new Point(FULL_WIDTH + grow, AXLE_DEPTH + WHEEL_RADIUS + grow)); // Front Right
 		points.add(new Point(FULL_WIDTH - WHEEL_WIDTH - grow, AXLE_DEPTH + WHEEL_RADIUS + grow)); // Front Left
 		points.add(new Point(FULL_WIDTH - WHEEL_WIDTH - grow, AXLE_DEPTH - WHEEL_RADIUS - grow)); // Back Left
@@ -63,7 +63,7 @@ public class Constants {
 		points.add(new Point(0. + WHEEL_WIDTH + grow, AXLE_DEPTH + WHEEL_RADIUS + grow)); // Front Left
 		points.add(new Point(0. + WHEEL_WIDTH + grow, AXLE_DEPTH - WHEEL_RADIUS - grow)); // Back Left
 		points.add(new Point(0. - grow, AXLE_DEPTH - WHEEL_RADIUS - grow)); // Back Right
-		polygons.add(new Polygon(points));
+		polygons.add(new Polygon(points));*/
 		
 		//TODO - method to automatically grow any shape
 		
@@ -86,7 +86,7 @@ public class Constants {
 	public static final int RRT_ATTEMPTS = 2;
 	public static final int RRT_ITERATIONS = 500;
 	public static final int RRT_SMOOTHING = 200;
-	public static final double TRANSLATION_STEP_DISTANCE = .1; //Previously .2
+	public static final double TRANSLATION_STEP_DISTANCE = .1; 
 	public static final double ROTATION_STEP_DISTANCE = (Math.PI/6);
 	public static final double ROBOT_RADIUS = Math.sqrt(FULL_WIDTH*FULL_WIDTH/4 + PLATFORM_DEPTH*PLATFORM_DEPTH/4);	//TOOD make more accurate/include error
 	
@@ -111,16 +111,22 @@ public class Constants {
 	}
 		
 	// Planning
-	@SuppressWarnings("unchecked")
-	public static final List<Pair<DriveSystem, Pair<Double, CollisionCheck>>> PLANNING_ATTEMPTS = new ArrayList<Pair<DriveSystem, Pair<Double, CollisionCheck>>>(Arrays.asList(
-		new Pair<DriveSystem, Pair<Double, CollisionCheck>>(DriveSystem.FORWARD, new Pair<Double, CollisionCheck>(.05, CollisionCheck.MAPONLY)),
-		new Pair<DriveSystem, Pair<Double, CollisionCheck>>(DriveSystem.FORWARD, new Pair<Double, CollisionCheck>(.025, CollisionCheck.MAPONLY)),
-		new Pair<DriveSystem, Pair<Double, CollisionCheck>>(DriveSystem.FOB, new Pair<Double, CollisionCheck>(.025, CollisionCheck.MAPONLY)),
-		new Pair<DriveSystem, Pair<Double, CollisionCheck>>(DriveSystem.FOB, new Pair<Double, CollisionCheck>(0., CollisionCheck.MAPONLY))
-	));
+	/*public static final List<PlanningParameters> PLANNING_ATTEMPTS = new ArrayList<PlanningParameters>(Arrays.asList(
+		new ConstantGrowthParameters(DriveSystem.FORWARD, CollisionCheck.MAPONLY, .05),
+		new ConstantGrowthParameters(DriveSystem.FORWARD, CollisionCheck.MAPONLY, .025),
+		new ConstantGrowthParameters(DriveSystem.FOB, CollisionCheck.MAPONLY, .025),
+		new ConstantGrowthParameters(DriveSystem.FOB, CollisionCheck.MAPONLY, .0)
+	));*/
+	
+	public static final List<PlanningParameters> PLANNING_ATTEMPTS = new ArrayList<PlanningParameters>(Arrays.asList(
+			new LinearGrowthParameters(DriveSystem.FORWARD, CollisionCheck.MAPONLY, .05/1, .05),
+			new LinearGrowthParameters(DriveSystem.FORWARD, CollisionCheck.MAPONLY, .03/1, .03),
+			new LinearGrowthParameters(DriveSystem.FORWARD, CollisionCheck.MAPONLY, .01/1, .01),
+			new LinearGrowthParameters(DriveSystem.FOB, CollisionCheck.MAPONLY, .0, .0)
+		));
 	
 	// Grids
-	public static final double gridResolution = .02;
+	public static final double GRID_RESOLUTION = .02;
 	
 	// Motor Controllers
 	public static final double TRANSLATION_THRESHOLD = .05; 	//TODO - play with velocities more using interpolation

@@ -12,15 +12,14 @@ public class Point implements Goal {
 	}
 
 	public double distance(Point other) {
-		return Math.sqrt((other.x - x) * (other.x - x) + (other.y - y)
-				* (other.y - y));
+		return Math.sqrt((other.x - x) * (other.x - x) + (other.y - y)* (other.y - y));
 	}
 	
 	public Configuration configuration(double theta) {
 		return new Configuration(x, y, theta);
 	}
 	
-	public List<Configuration> interpolateConfigurations() {
+	public List<Configuration> goalConfigurations() {
 		List<Configuration> configs = new LinkedList<Configuration>();
 		for (double theta = 0.0; theta < 2*Math.PI; theta += Constants.ROTATION_STEP_DISTANCE) {
 			configs.add(new Configuration(x, y, theta));

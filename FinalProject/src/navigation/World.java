@@ -1,7 +1,6 @@
 package navigation;
 
 import java.awt.Color;
-import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;

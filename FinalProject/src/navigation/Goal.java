@@ -1,5 +1,7 @@
 package navigation;
 
-public interface Goal {
+import java.util.List;
 
+public interface Goal {
+	public List<Configuration> goalConfigurations();
 }

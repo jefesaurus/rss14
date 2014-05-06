@@ -40,20 +40,26 @@ public class NavigationTest implements NodeMain {
 		gui.clear();
 		gui.draw();
 		gui.draw(world.getRobot(start), true, Color.BLUE);
-		gui.draw(world.getRobot(goal), true, Color.RED);
-		gui.draw(world.getViewCone(start), false, Color.BLUE);
-		gui.draw(world.getOccupancyGrid(), Color.RED);
-		gui.draw(world.getVisibilityGrid(), Color.GREEN);
+		gui.draw(world.getRobot(goal), true, Color.YELLOW);
+		//gui.draw(world.getViewCone(start), false, Color.BLUE);
+		//gui.draw(world.getOccupancyGrid(), Color.RED);
+		//gui.draw(world.getVisibilityGrid(), Color.GREEN);
 		
 		//Configuration backward = world.sampleBackwardsConfiguration(goal);
 		//System.out.println(backward);
 		//gui.draw(world.getRobot(backward), true, Color.ORANGE);
 		
-		navigator = new Navigator(node, gui, world);
+		MotionPlanner planner = new MotionPlanner(world);
+		gui.draw(planner.findPath(start, goal, Constants.PLANNING_ATTEMPTS.get(0)), Color.GREEN);
+		gui.draw(planner.tree1, Color.BLUE);
+		gui.draw(planner.tree2, Color.RED);
+		
+		//navigator = new Navigator(node, gui, world);
 
+		//navigator.newGoal(goal);
 		//switchControlDemo(goal);
 		//blocksDemo(goal);
-		blocksDemoAddAll(goal);
+		//blocksDemoAddAll(goal);
 	}
 	
 	private void switchControlDemo(Configuration goal) {

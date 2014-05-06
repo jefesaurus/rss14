@@ -29,7 +29,7 @@ public class Navigator implements Runnable {
 	protected Configuration reference, initial, current;
 	
 	protected List<Goal> goals;
-	protected List<Configuration> path;
+	protected List<Waypoint> path;
 	protected DriveSystem pathDrive;
 	protected List<Goal> accomplished;
 	
@@ -48,7 +48,7 @@ public class Navigator implements Runnable {
 		this.current = null;
 		
 		this.goals = Collections.synchronizedList(new LinkedList<Goal>());		
-		this.path = new LinkedList<Configuration>();
+		this.path = new LinkedList<Waypoint>();
 		this.pathDrive = null;
 		accomplished = new LinkedList<Goal>();
 		setup();
@@ -63,7 +63,7 @@ public class Navigator implements Runnable {
 							org.ros.message.rss_msgs.BumpMsg message) {
 						boolean left = message.left;
 						boolean right = message.right;
-						if ((left || right) && !immediateLock) { //TODO - uncomment
+						if ((left || right) && !immediateLock) { //TODO - bumping when not in control
 							freeze();
 							if (left) {
 								System.out.println("Left Bump Sensor Collision! Backing up\n");
@@ -78,7 +78,7 @@ public class Navigator implements Runnable {
 								DriveSystem drive = DriveSystem.BACKWARD; //TODO is it actually moving backward?
 								double grow = 0.;
 								CollisionCheck check = CollisionCheck.MAPONLY;
-								List<Configuration> newPath = planner.findPath(start, backward, drive, grow, check); 
+								List<Waypoint> newPath = planner.findPath(start, backward, new ConstantGrowthParameters(drive, check, grow)); 
 								if (newPath != null) {
 									System.out.println("Found path of length " + newPath.size() + " from " + start + " to " + backward);
 									goals.add(0, backward);
@@ -153,7 +153,7 @@ public class Navigator implements Runnable {
 	public synchronized void clearGoals() {
 		goals.clear();
 		immediateLock = false;
-		setPath(new LinkedList<Configuration>(), null); //TODO - include this?
+		setPath(new LinkedList<Waypoint>(), null); //TODO - include this?
 		draw();
 	}
 	
@@ -184,14 +184,11 @@ public class Navigator implements Runnable {
 		Goal goal = goals.get(0);
 		//TODO - sample back up point and see if feasible, then grow to move towards the goal
 		
-		for (int i = 0; i < Constants.PLANNING_ATTEMPTS.size(); i++) {
-			DriveSystem drive = Constants.PLANNING_ATTEMPTS.get(i).one;
-			double grow = Constants.PLANNING_ATTEMPTS.get(i).two.one;
-			CollisionCheck check = Constants.PLANNING_ATTEMPTS.get(i).two.two;
-			List<Configuration> newPath = planner.findPath(start, goal, drive, grow, check); 
+		for (PlanningParameters param : Constants.PLANNING_ATTEMPTS) {
+			List<Waypoint> newPath = planner.findPath(start, goal, param); 
 			if (newPath != null) {
 				System.out.println("Found path of length " + newPath.size() + " from " + start + " to " + goal);
-				setPath(newPath, drive);
+				setPath(newPath, param.drive);
 				/*gui.clear();
 				gui.draw();
 				gui.draw(newPath, grow, Color.BLUE);
@@ -205,7 +202,7 @@ public class Navigator implements Runnable {
 		}
 		
 		System.out.println("Could not find path from " + start + " to " + goal);
-		setPath(new LinkedList<Configuration>(), null);
+		setPath(new LinkedList<Waypoint>(), null);
 		/*gui.clear();
 		gui.draw();
 		gui.draw(planner.tree1.root, Color.BLUE);
@@ -225,16 +222,16 @@ public class Navigator implements Runnable {
 				gui.draw((Point)goals.get(0), Color.RED);
 			}
 		}	
-		gui.draw(path, 0., Color.BLUE);
+		gui.draw(path, Color.BLUE);
 	}
 	
-	public synchronized void setPath(List<Configuration> newPath, DriveSystem drive) { //TODO Replan more frequently
+	public synchronized void setPath(List<Waypoint> newPath, DriveSystem drive) { //TODO Replan more frequently
 		path = newPath;
 		pathDrive = drive;
 		pathReset = true;
 	}
 	
-	public synchronized Configuration nextConfig() {
+	public synchronized Waypoint nextWaypoint() {
 		if (path.size() > 0) {
 			return path.remove(0);
 		} else {
@@ -254,7 +251,7 @@ public class Navigator implements Runnable {
 			frozen = true;
 			System.out.println("Navigation frozen\n");
 			Util.pause(10); //TODO remove and fix concurrency bug
-			setPath(new LinkedList<Configuration>(), null);
+			setPath(new LinkedList<Waypoint>(), null);
 			motionPub.publish(createMotionMsg(0., 0.));
 			draw();
 		}
@@ -363,7 +360,7 @@ public class Navigator implements Runnable {
 		long startTime = System.currentTimeMillis();
 		while (true) {
 			Util.pause(1); //TODO remove and fix concurrency bug
-			Configuration waypoint = nextConfig();
+			Waypoint waypoint = nextWaypoint();
 			if (waypoint == null) {
 				if (!frozen) {
 					motionPub.publish(createMotionMsg(0., 0.));
@@ -383,7 +380,7 @@ public class Navigator implements Runnable {
 				Configuration configuration = getConfiguration();
 				MotionMsg msg = null;
 				if (!frozen) {
-					msg = computeVelocities(configuration, waypoint); //TODO - only recompute if something has changed
+					msg = computeVelocities(configuration, waypoint.config); //TODO - only recompute if something has changed
 					if (msg == null) {
 						if (path.size() == 0) {
 							//Reached goal
@@ -399,7 +396,7 @@ public class Navigator implements Runnable {
 				if ((System.currentTimeMillis() - startTime) % 2000 == 0) {
 					System.out.println("Time: " + (System.currentTimeMillis() - startTime)/1000 + " seconds");
 					System.out.println("Current: " + configuration);
-					System.out.println("Waypoint: " + waypoint);
+					System.out.println("Waypoint: " + waypoint.config);
 					if (msg != null) {
 						System.out.println("Velocity: " + msg.translationalVelocity + ", " + msg.rotationalVelocity + "\n");
 					} else {

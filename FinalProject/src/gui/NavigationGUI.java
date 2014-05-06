@@ -62,20 +62,25 @@ public class NavigationGUI extends ChallengeGUI implements NodeMain {
 			draw(obstacle, true, Color.BLACK);
 		}
 		draw(world.getStart(), Color.BLUE);
-		draw(world.getGoal(), Color.RED);
+		draw(world.getGoal(), Color.YELLOW);
 	}
 
-	public void draw(List<Configuration> path, double grow, Color color) {
+	public void draw(List<Waypoint> path, Color color) {
 		if (path == null || path.size() < 1) return;
-		for (int i = 0; i < path.size(); i ++) {
-			//addSegment(path.get(i-1).x, path.get(i-1).y, path.get(i).x, path.get(i).y, color);
-			draw(world.getRobot(path.get(i), grow), false, color);
+		for (Waypoint waypoint : path) {
+			draw(world.getRobot(waypoint.config, waypoint.grow), false, color);
 		}
 	}
 
+	public void draw(RRT tree, Color color) {
+		draw(tree.root, color);
+	}
+	
 	public void draw(TreeNode node, Color color) {
 		for (TreeNode child : node.children) {
-			addSegment(node.config.x, node.config.y, child.config.x, child.config.y, color);
+			if (node.config != null) {
+				addSegment(node.config.x, node.config.y, child.config.x, child.config.y, color);
+			}
 			draw(child, color);
 		}
 	}	

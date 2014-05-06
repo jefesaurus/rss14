@@ -13,8 +13,8 @@ public class Grid {
 	
 	public Grid(BoundingBox box) { //TODO cache the boxes
 		this.box = box;
-		this.width = (int)Math.ceil((box.max.x - box.min.x)/Constants.gridResolution);
-		this.height = (int)Math.ceil((box.max.y - box.min.y)/Constants.gridResolution);
+		this.width = (int)Math.ceil((box.max.x - box.min.x)/Constants.GRID_RESOLUTION);
+		this.height = (int)Math.ceil((box.max.y - box.min.y)/Constants.GRID_RESOLUTION);
 		matrix = new double[height][width];
 		
 		for (int x = 0; x < width; x++) {
@@ -47,11 +47,11 @@ public class Grid {
 	}
 	
 	public int getX(Point p) {		
-		return (int)((p.x - box.min.x)/Constants.gridResolution);
+		return (int)((p.x - box.min.x)/Constants.GRID_RESOLUTION);
 	}
 	
 	public int getY(Point p) {
-		return (int)((p.y - box.min.y)/Constants.gridResolution);
+		return (int)((p.y - box.min.y)/Constants.GRID_RESOLUTION);
 	}
 	
 	public boolean valid(int x, int y) {
@@ -59,8 +59,8 @@ public class Grid {
 	}
 	
 	public BoundingBox getBox(int x, int y) {
-		return new BoundingBox(new Point(box.min.x + x*Constants.gridResolution, box.min.y + y*Constants.gridResolution),
-				new Point(Math.min(box.max.x, box.min.x + (x+1)*Constants.gridResolution), Math.min(box.max.y, box.min.y + (y+1)*Constants.gridResolution)));	
+		return new BoundingBox(new Point(box.min.x + x*Constants.GRID_RESOLUTION, box.min.y + y*Constants.GRID_RESOLUTION),
+				new Point(Math.min(box.max.x, box.min.x + (x+1)*Constants.GRID_RESOLUTION), Math.min(box.max.y, box.min.y + (y+1)*Constants.GRID_RESOLUTION)));	
 	}
 	
 	public List<BoundingBox> getAboveThreshold(double threshold) {

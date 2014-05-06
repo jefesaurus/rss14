@@ -9,15 +9,15 @@ public class RRT {
 	public boolean startTree;
 	public DriveSystem drive;
 
-	public RRT(Configuration start, boolean startTree, DriveSystem drive) {
-		this.root = new TreeNode(start);
+	public RRT(Configuration start, boolean startTree, DriveSystem drive, double grow) {
+		this.root = new TreeNode(start, grow);
 		this.size = 1;
 		this.startTree = startTree;
 		this.drive = Constants.computeDrive(drive, !startTree);
 	}
 
-	public TreeNode add(TreeNode parent, Configuration config) {
-		TreeNode child = new TreeNode(config, parent);
+	public TreeNode add(TreeNode parent, Configuration config, DriveSystem localDrive, double distance, double grow) {
+		TreeNode child = new TreeNode(config, parent, localDrive, distance, grow);
 		parent.children.add(child);
 		size++;
 		return child;
