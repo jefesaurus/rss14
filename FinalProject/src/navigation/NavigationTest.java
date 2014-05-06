@@ -34,7 +34,7 @@ public class NavigationTest implements NodeMain {
 		}
 		this.node = node;
 		gui = new NavigationGUI(world);
-		Configuration start = world.getStart().configuration(0);
+		Configuration start = world.getStart().configuration(0.);
 		Configuration goal = world.getGoal().configuration(Math.PI);
 
 		gui.clear();
@@ -45,21 +45,22 @@ public class NavigationTest implements NodeMain {
 		//gui.draw(world.getOccupancyGrid(), Color.RED);
 		//gui.draw(world.getVisibilityGrid(), Color.GREEN);
 		
-		//Configuration backward = world.sampleBackwardsConfiguration(goal);
-		//System.out.println(backward);
-		//gui.draw(world.getRobot(backward), true, Color.ORANGE);
-		
-		//MotionPlanner planner = new MotionPlanner(world);
-		//gui.draw(planner.findPath(start, goal, Constants.PLANNING_ATTEMPTS.get(0)), Color.GREEN);
-		//gui.draw(planner.tree1, Color.BLUE);
-		//gui.draw(planner.tree2, Color.RED);
+		/*start = new Configuration(0, .2, Math.PI/2);
+		MotionPlanner planner = new MotionPlanner(world);
+		List<Waypoint> newPath = planner.plan(start, goal, Constants.PLANNING_ATTEMPTS.get(1));
+		gui.draw(newPath, Color.GREEN);
+		gui.draw(planner.tree1, Color.BLUE);
+		gui.draw(planner.tree2, Color.RED);
+		System.out.println("Found path of length " + newPath.size() + " from " + start + " to " + goal + "\nTook " + planner.attempts + " attempts, " +
+				planner.iterations + " iterations, " + planner.time/1000.0 + " seconds");
+		*/
 		
 		navigator = new Navigator(node, gui, world);
 
 		//navigator.newGoal(goal);
 		//switchControlDemo(goal);
 		//blocksDemo(goal);
-		//blocksDemoAddAll(goal);
+		blocksDemoAddAll(goal);
 	}
 	
 	private void switchControlDemo(Configuration goal) {
@@ -94,17 +95,14 @@ public class NavigationTest implements NodeMain {
 		//Done collecting, return to goal
 		navigator.clearGoals();
 		navigator.newGoal(goal);
-		Configuration backward = world.sampleBackwardsConfiguration(goal);
-		if (backward != null) {
-			navigator.newGoal(backward);
-		}
+		//navigator.newGoal(backward);
 
 		System.out.println("Collected " + collected.size() + " blocks");
 	}
 	
 	private void blocksDemoAddAll(Configuration goal) {
 		long startTime = System.currentTimeMillis();
-		long collectionTime = 180*1000; //TODO Global clock 		
+		long collectionTime = 300*1000; //TODO Global clock 		
 		for (Block block : world.getBlocks()) {
 			navigator.newGoal(block.position);
 		}

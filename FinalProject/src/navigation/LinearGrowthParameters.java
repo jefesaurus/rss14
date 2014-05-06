@@ -15,4 +15,8 @@ public class LinearGrowthParameters extends PlanningParameters {
 	public double computeGrow(double distance) {
 		return Math.min(maxGrowth, growSlope*distance);
 	}
+	
+	public PlanningParameters changeDrive(DriveSystem newDrive) {
+		return new LinearGrowthParameters(newDrive, check, growSlope, maxGrowth);
+	}
 }

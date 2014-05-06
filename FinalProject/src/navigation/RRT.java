@@ -10,7 +10,7 @@ public class RRT {
 	public DriveSystem drive;
 
 	public RRT(Configuration start, boolean startTree, DriveSystem drive, double grow) {
-		this.root = new TreeNode(start, grow);
+		this.root = new TreeNode(start, drive, grow);
 		this.size = 1;
 		this.startTree = startTree;
 		this.drive = Constants.computeDrive(drive, !startTree);

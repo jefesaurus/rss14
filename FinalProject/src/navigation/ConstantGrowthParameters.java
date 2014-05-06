@@ -14,4 +14,8 @@ public class ConstantGrowthParameters extends PlanningParameters {
 	public double computeGrow(double distance) {
 		return grow;
 	}
+	
+	public PlanningParameters changeDrive(DriveSystem newDrive) {
+		return new ConstantGrowthParameters(newDrive, check, grow);
+	}
 }

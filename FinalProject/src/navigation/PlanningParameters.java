@@ -13,4 +13,5 @@ public abstract class PlanningParameters {
 	}
 	
 	public abstract double computeGrow(double distance);
+	public abstract PlanningParameters changeDrive(DriveSystem newDrive);
 }

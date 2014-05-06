@@ -73,7 +73,9 @@ public class NavigationGUI extends ChallengeGUI implements NodeMain {
 	}
 
 	public void draw(RRT tree, Color color) {
-		draw(tree.root, color);
+		if (tree != null) {
+			draw(tree.root, color);
+		}
 	}
 	
 	public void draw(TreeNode node, Color color) {

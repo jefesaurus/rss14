@@ -47,26 +47,7 @@ public class Constants {
 		points.add(new Point(0. + WHEEL_WIDTH, AXLE_DEPTH - WHEEL_RADIUS - grow)); // Back Left
 		points.add(new Point(0. - 2*grow, AXLE_DEPTH - WHEEL_RADIUS - grow)); // Back Right
 		polygons.add(new Polygon(points));
-		
-		//Wheel position constant under growth
-		//Right wheel
-		/*points = new LinkedList<Point>();
-		points.add(new Point(FULL_WIDTH + grow, AXLE_DEPTH + WHEEL_RADIUS + grow)); // Front Right
-		points.add(new Point(FULL_WIDTH - WHEEL_WIDTH - grow, AXLE_DEPTH + WHEEL_RADIUS + grow)); // Front Left
-		points.add(new Point(FULL_WIDTH - WHEEL_WIDTH - grow, AXLE_DEPTH - WHEEL_RADIUS - grow)); // Back Left
-		points.add(new Point(FULL_WIDTH + grow, AXLE_DEPTH - WHEEL_RADIUS - grow)); // Back Right
-		polygons.add(new Polygon(points));
-		
-		//Left wheel
-		points = new LinkedList<Point>();
-		points.add(new Point(0. - grow, AXLE_DEPTH + WHEEL_RADIUS + grow)); // Front Right
-		points.add(new Point(0. + WHEEL_WIDTH + grow, AXLE_DEPTH + WHEEL_RADIUS + grow)); // Front Left
-		points.add(new Point(0. + WHEEL_WIDTH + grow, AXLE_DEPTH - WHEEL_RADIUS - grow)); // Back Left
-		points.add(new Point(0. - grow, AXLE_DEPTH - WHEEL_RADIUS - grow)); // Back Right
-		polygons.add(new Polygon(points));*/
-		
-		//TODO - method to automatically grow any shape
-		
+				
 		return new Shape(polygons).translate(-ORIGIN_X, -ORIGIN_Y).rotate(-Math.PI/2, new Point(0., 0.));
 	}
 	
@@ -91,7 +72,7 @@ public class Constants {
 	public static final double ROBOT_RADIUS = Math.sqrt(FULL_WIDTH*FULL_WIDTH/4 + PLATFORM_DEPTH*PLATFORM_DEPTH/4);	//TOOD make more accurate/include error
 	
 	public enum DriveSystem {
-	    FORWARD, BACKWARD, FOB
+	    FORWARD, BACKWARD, FOB, FORWARDINITIALREVERSE
 	}
 	
 	public static DriveSystem computeDrive(DriveSystem drive, boolean reverse) {
@@ -120,9 +101,9 @@ public class Constants {
 	
 	public static final List<PlanningParameters> PLANNING_ATTEMPTS = new ArrayList<PlanningParameters>(Arrays.asList(
 			new LinearGrowthParameters(DriveSystem.FORWARD, CollisionCheck.MAPONLY, .05/1, .05),
-			new LinearGrowthParameters(DriveSystem.FORWARD, CollisionCheck.MAPONLY, .03/1, .03),
-			new LinearGrowthParameters(DriveSystem.FORWARD, CollisionCheck.MAPONLY, .01/1, .01),
-			new LinearGrowthParameters(DriveSystem.FOB, CollisionCheck.MAPONLY, .0, .0)
+			new LinearGrowthParameters(DriveSystem.FORWARDINITIALREVERSE, CollisionCheck.MAPONLY, .05/1, .05),
+			new LinearGrowthParameters(DriveSystem.FOB, CollisionCheck.MAPONLY, .03/1, .01)
+			
 		));
 	
 	// Grids
@@ -130,12 +111,12 @@ public class Constants {
 	
 	// Motor Controllers
 	public static final double TRANSLATION_THRESHOLD = .05; 	//TODO - play with velocities more using interpolation
-	public static final double K_TRANSLATE = 2.0;
-	public static final double MAX_TV = 1.5;
-	public static final double MIN_TV = .25;
+	public static final double K_TRANSLATE = .5;
+	public static final double MAX_TV = 1.0;
+	public static final double MIN_TV = .2;
 	
 	public static final double ROTATION_THRESHOLD = .2;
-	public static final double K_ROTATE = .5;
-	public static final double MAX_RV = 1.0;
-	public static final double MIN_RV = 0.2;
+	public static final double K_ROTATE = .25;
+	public static final double MAX_RV = .5;
+	public static final double MIN_RV = .1;
 }

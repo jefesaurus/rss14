@@ -13,11 +13,11 @@ public class TreeNode {
 	public double grow;
 	public double distance;
 
-	public TreeNode(Configuration config, double grow) {
+	public TreeNode(Configuration config, DriveSystem drive, double grow) {
 		this.config = config;
 		this.children = new LinkedList<TreeNode>();
 		this.parent = null;
-		this.drive = null;
+		this.drive = drive;
 		this.distance = 0.;
 		this.grow = grow;
 	}

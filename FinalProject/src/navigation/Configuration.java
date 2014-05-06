@@ -128,21 +128,21 @@ public class Configuration implements Goal {
 		return Math.min(distanceForward(other), distanceBackward(other));
 	}
 	
-	public double distance(Configuration other, DriveSystem drive) {
+	public Double distance(Configuration other, DriveSystem drive) {
 		switch(drive) {
 		case FORWARD: return distanceForward(other);
 		case BACKWARD: return distanceBackward(other);
 		case FOB: return distanceFOB(other);
-		default: return -1.;
+		default: return null;
 		}
-	}
-	
-	public double cartesianDistance(Configuration other) {
-		return Math.sqrt((other.x - x) * (other.x - x) + (other.y - y)* (other.y - y));
 	}
 	
 	public List<Configuration> goalConfigurations() {
 		return new LinkedList<Configuration>(Arrays.asList(this));
+	}
+	
+	public double goalDistance(Configuration config) {
+		return Math.sqrt((config.x - x) * (config.x - x) + (config.y - y)* (config.y - y));
 	}
 
 	public String toString() {

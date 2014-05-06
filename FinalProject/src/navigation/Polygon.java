@@ -1,19 +1,25 @@
 package navigation;
 
 import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
 import java.util.LinkedList;
 import java.util.List;
 
 public class Polygon {
 	public final List<Point> points;
 	public final BoundingBox boundingBox;
-	public final List<Line2D.Double> lines;
+	private List<Line2D.Double> lines;
 
 	public Polygon(List<Point> points) { // Assumes vertices in increasing angle order for a convex polygon
 		this.points = points;
-		this.lines = Util.getLines(points); //TODO - lazily create these
 		this.boundingBox = BoundingBox.pointsToBoundingBox(points);
+		this.lines = null; //TODO - lazily compute more things
+	}
+	
+	public List<Line2D.Double> getLines() {
+		if (lines == null) {
+			lines = Util.getLines(points);
+		}
+		return lines;
 	}
 	
 	public Polygon translate(double x, double y) {
@@ -58,8 +64,8 @@ public class Polygon {
 			return true;
 		}
 
-		for (Line2D.Double line1 : lines) {
-			for (Line2D.Double line2 : other.lines) {
+		for (Line2D.Double line1 : getLines()) {
+			for (Line2D.Double line2 : other.getLines()) {
 				if (line1.intersectsLine(line2)) {
 					return true;
 				}

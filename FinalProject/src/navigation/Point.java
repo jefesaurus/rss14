@@ -26,6 +26,10 @@ public class Point implements Goal {
 		}
 		return configs;
 	}
+	
+	public double goalDistance(Configuration config) {
+		return Math.sqrt((config.x - x) * (config.x - x) + (config.y - y)* (config.y - y));
+	}
 
 	public String toString() {
 		return "Point(" + x + ", " + y + ")";

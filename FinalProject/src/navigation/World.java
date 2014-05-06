@@ -381,34 +381,4 @@ public class World {
 		default: return true;
 		}
 	}
-	
-	public Configuration sampleConfigurationForPoint(Point p) {
-		int attempts = 30;
-		for (int i = 0; i < attempts; i++) {
-			Configuration config = p.configuration(2 * Math.PI * Math.random());
-			if (!robotMapOnlyCollision(config, 0.)) {
-				return config;
-			}
-		}
-		return null;
-	}
-	
-	public Configuration sampleBackwardsConfiguration(Configuration current) {
-		int attempts = 30;
-		double minDistance = .2;
-		double maxDistance = .8;
-		double targetDistance = (minDistance + maxDistance)/2.; //Constants.ROBOT_RADIUS; 
-		double maxGrow = 0.05;
-		
-		for (int i = 0; i < attempts; i++) {
-			double min = targetDistance - (targetDistance - minDistance)/(attempts - i);
-			double max = targetDistance + (maxDistance - targetDistance)/(attempts - i);
-			double distance = (max - min)*Math.random() + min;
-			Configuration config = new Configuration(current.x - distance*Math.cos(current.theta), current.y - distance*Math.sin(current.theta), current.theta);
-			if (!robotMapOnlyCollision(config, maxGrow - maxGrow/(attempts - i))) {
-				return config;
-			}
-		}
-		return null;
-	}
 }
