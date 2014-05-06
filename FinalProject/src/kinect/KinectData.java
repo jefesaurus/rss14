@@ -39,17 +39,25 @@ public class KinectData implements NodeMain {
 	public Pose pose;
 	public Pose3D kinectPose;
 	HashMap<IntTuple, double[]> occupancy;
+	Image rep;
 	
+	int START_COL = 0;
+	int END_COL = 640;
+	int START_ROW = 0;
+	int END_ROW = 480;
 	private int divideScale;
 	private final int rawWidth = 640;
+	private final int width = END_COL - START_COL;
 	private final int rawHeight = 480;
+	private final int height = END_ROW - START_ROW;
 	private boolean newData = false;
 
 	public KinectData(int divideScale) {
 		System.out.println("Kinect node constructed");
 		this.divideScale = divideScale;
-		rgb = new int[rawWidth/divideScale][rawHeight/divideScale][3];
-		zCoord = new double[rawWidth/divideScale][rawHeight/divideScale];
+		rgb = new int[width/divideScale][height/divideScale][3];
+		zCoord = new double[width/divideScale][height/divideScale];
+		rep = new Image(width/divideScale, height/divideScale);
 
 		this.kinectPose = new Pose3D(new Point3D(0.0, 0.67, 0.0), Math.PI/2, -Math.PI/2. - .571, 0.);
 	
@@ -154,32 +162,11 @@ public class KinectData implements NodeMain {
   int R_OFFSET = 16;
   int G_OFFSET = 17;
   int B_OFFSET = 18;
-
-  //<fffxxxxBBB
-  //f = 4
-  //x = 1
-  //B = 1
-  /*
-  int START_COL = 640/3;
-  int END_COL = 2*640/3;
-  int START_ROW = 480/3;
-  int END_ROW = 2*480/3;
-  */
-  int START_COL = 0;
-  int END_COL = 640;
-  int START_ROW = 0;
-  int END_ROW = 290;
-  /*
-  int START_COL = 220;
-  int END_COL = 420;
-  int START_ROW = 180;
-  int END_ROW = 300;
-  */
-
   float OCCUPANCY_RESOLUTION = .02f;
   int OCCUPANCY_THRESHOLD = 3;
   private long lastTimeProcessed = -1;
   private int fps = 10;
+  
   public void unpackPointCloudData(int width, int height, int pointStep, int rowStep, byte[] data) {
 	if (lastTimeProcessed < 0)
 		lastTimeProcessed = System.nanoTime();
@@ -196,17 +183,12 @@ public class KinectData implements NodeMain {
     float x, y, z;
     int r, g, b;
     Point3D point;
-    double avg_h = 0;
-    double avg_s = 0;
-    double avg_v = 0;
-    int pic_height = this.END_ROW - this.START_ROW;
-    int pic_width = this.END_COL - this.START_COL;
-    Image rep = new Image(pic_width, pic_height);
+    
     
     synchronized (rgb) {
     	 int stepSize = this.divideScale;
-    	    for (int row = 0; row < this.rawHeight; row += stepSize) {
-    	      for (int col = 0; col < this.rawWidth; col += stepSize) {
+    	    for (int row = START_ROW; row < END_ROW; row += stepSize) {
+    	      for (int col = START_COL; col < END_COL; col += stepSize) {
     	    	  offset = rowStep*row + pointStep*col;
 			        x_i = offset+X_OFFSET;
 			        y_i = offset+Y_OFFSET;
@@ -226,7 +208,7 @@ public class KinectData implements NodeMain {
 	    		          if (point.z > 0.0) {
 	    		            IntTuple loc = new IntTuple((int)((point.x-.58)/OCCUPANCY_RESOLUTION), (int)(point.y/OCCUPANCY_RESOLUTION));
 	    		            double[] point_data = occupancy.get(loc);
-	    		            rep.setPixel(col - START_COL, row - START_ROW, data[r_i], data[g_i], data[b_i]);
+	    		            rep.setPixel((col-START_COL)/divideScale, (row-START_ROW)/divideScale, data[r_i], data[g_i], data[b_i]);
 	    		            if (point_data == null) {
 	    		              occupancy.put(loc, new double[] {1,point.z,0,0,0});
 	    		            } else {

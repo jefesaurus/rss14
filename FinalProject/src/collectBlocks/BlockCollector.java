@@ -60,6 +60,10 @@ public class BlockCollector implements NodeMain, Runnable {
 		finfos = new ArrayList<FidPattern>();
 	}
 	
+	public boolean blockImminent() {
+		return largestBlob().size > 90;
+	}
+	
 	public void setProcessing (boolean toggle) {
 		this.processBool = toggle;
 	}
@@ -100,20 +104,20 @@ public class BlockCollector implements NodeMain, Runnable {
 		boolean[][] blockMask = kinecter.getBlockMask();
 		
 		
-//		System.out.println("src image width: " + src.getWidth() + " height: " + src.getHeight());
+
 		
 //		process here
 		if (guiOn){
 			Image dest = kinecter.getImage();
 			//blocks
-//			binfos = cct.visualize(srcArray, blockMask, 50, true, dest);
+			binfos = cct.visualize(srcArray, blockMask, 50, true, dest);
 			//fiducials
-//			List<BlockInfo> fidbinfos = cct.visualize(srcArray, wallMask, 50, false, dest);
-//			finfos = fidFind.findFids(fidbinfos);
+			List<BlockInfo> fidbinfos = cct.visualize(srcArray, wallMask, 50, false, dest);
+			finfos = fidFind.findFids(fidbinfos);
 			
 //			cct.calibrateHelp(srcArray, dest);
 //			cct.debugHelp(srcArray, dest);
-			cct.maskHelp(srcArray, blockMask, dest);
+//			cct.maskHelp(srcArray, blockMask, dest);
 			gui.setVisionImage(dest.toArray(), width, height);
 		} else {
 			binfos = cct.getBlockInfosForFrame(srcArray, blockMask, 50, true);

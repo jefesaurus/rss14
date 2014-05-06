@@ -23,7 +23,7 @@ import collectBlocks.BlockCollector;
 
 public class Main implements NodeMain, Runnable {
 
-	private BlockCollector camProc;
+	private BlockCollector blockCol;
 	private DrivingMaster driveMaster;
 	private KinectData kinecter;
 	public GatesController gates;
@@ -37,7 +37,7 @@ public class Main implements NodeMain, Runnable {
 		driveMaster = new DrivingMaster();
 		gates = new GatesController();
 		kinecter = new KinectData(divideScale);
-		camProc = new BlockCollector(driveMaster, kinecter, gates, divideScale);
+		blockCol = new BlockCollector(driveMaster, kinecter, gates, divideScale);
 	}
 	
 	@Override
@@ -50,23 +50,19 @@ public class Main implements NodeMain, Runnable {
 				System.out.println("running out of time");
 				// prioritize shelter building
 			} else {
-				// go around and collect blocks
-				BlockInfo b = camProc.largestBlob();
-				// block of big enough size
-				if (b.size > 90) {
+				// block in the area
+				if (blockCol.blockImminent()) {
 					System.out.println("collecting");
 					// do block collection
-					navigator.freeze();
-					camProc.takeOverDriving(true);
+//					navigator.freeze();
+					blockCol.takeOverDriving(true);
 				} else {
 					System.out.println("navigating");
 					// do navigation
-					navigator.resume();
-					camProc.takeOverDriving(false);
+//					navigator.resume();
+					blockCol.takeOverDriving(false);
 				}
 			}
-			
-			
 			// only run this every second. It's not necessary to always be making these decisions
 			try {
 				Thread.sleep(1000);
@@ -103,19 +99,19 @@ public class Main implements NodeMain, Runnable {
 			e.printStackTrace();
 		}
 		this.node = node;
-		gui = new NavigationGUI(world);
-		Configuration start = world.getStart().configuration(0);
-		Configuration goal = world.getGoal().configuration(Math.PI);
-
-		gui.clear();
-		gui.draw();
-		gui.draw(world.getRobot(start), true, Color.BLUE);
-		gui.draw(world.getRobot(goal), true, Color.RED);
-		gui.draw(world.getViewCone(start), false, Color.BLUE);
-		gui.draw(world.getOccupancyGrid(), Color.RED);
-		gui.draw(world.getVisibilityGrid(), Color.GREEN);
-		
-		navigator = new Navigator(node, gui, world);
+//		gui = new NavigationGUI(world);
+//		Configuration start = world.getStart().configuration(0);
+//		Configuration goal = world.getGoal().configuration(Math.PI);
+//
+//		gui.clear();
+//		gui.draw();
+//		gui.draw(world.getRobot(start), true, Color.BLUE);
+//		gui.draw(world.getRobot(goal), true, Color.RED);
+//		gui.draw(world.getViewCone(start), false, Color.BLUE);
+//		gui.draw(world.getOccupancyGrid(), Color.RED);
+//		gui.draw(world.getVisibilityGrid(), Color.GREEN);
+//		
+//		navigator = new Navigator(node, gui, world);
 		
 		System.out.println("Creating the rest");
 		// set up driving module
@@ -123,16 +119,16 @@ public class Main implements NodeMain, Runnable {
 		// set up kinect
 		kinecter.onStart(node);
 		// set up camera processing
-		camProc.onStart(node);
-		camProc.setProcessing(true);
-		camProc.takeOverDriving(false);
+		blockCol.onStart(node);
+		blockCol.setProcessing(true);
+		blockCol.takeOverDriving(false);
 		// set up gates controller
 		gates.onStart(node);
 		
-		for (Block block : world.getBlocks()) {
-			navigator.newGoal(block.position);
-		}
-		navigator.newGoal(goal);
+//		for (Block block : world.getBlocks()) {
+//			navigator.newGoal(block.position);
+//		}
+//		navigator.newGoal(goal);
 		
 		Thread runThis = new Thread(this);
 		runThis.start();
