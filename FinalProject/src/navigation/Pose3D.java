@@ -1,4 +1,4 @@
-package KinectTest;
+package navigation;
 
 public class Pose3D {
   public Point3D point;

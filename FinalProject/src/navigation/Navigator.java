@@ -40,8 +40,8 @@ public class Navigator implements Runnable {
 	// KANENNNCT
 	public Pose3D kinectPose;
 	HashMap<IntTuple, double[]> occupancy;
-	public boolean KINECT_DATA = false;
-	public boolean VISION_GUI = true;
+	public boolean KINECT_DATA = true;
+	public boolean VISION_GUI = false;
 	public VisionGUI vgui;
 	
 	public Navigator(Node node, NavigationGUI gui, World world) {
@@ -62,6 +62,13 @@ public class Navigator implements Runnable {
 		this.path = new LinkedList<Waypoint>();
 		this.pathDrive = null;
 		accomplished = new LinkedList<Goal>();
+
+    //Kinect
+    this.occupancy = new HashMap<IntTuple, double[]>();
+    this.kinectPose = new Pose3D(new Point3D(0.0, 0.67, 0.0), Math.PI/2, -Math.PI/2. - .571, 0.);
+    if (VISION_GUI) {
+      this.vgui = new VisionGUI();
+    }
 		setup();
 	}
 	
@@ -441,7 +448,7 @@ int START_ROW = 140;
 int END_ROW = 480;
 
 
-	  float OCCUPANCY_RESOLUTION = .05f;
+	  float OCCUPANCY_RESOLUTION = .02f;
 	  int OCCUPANCY_THRESHOLD = 3;
 	  public void unpackPointCloudData(int width, int height, int pointStep, int rowStep, byte[] data) {
 	    int offset, x_i, y_i, z_i, r_i, g_i, b_i;
@@ -473,7 +480,7 @@ int END_ROW = 480;
 	        if (!Float.isNaN(x) && !Float.isNaN(y) && !Float.isNaN(z)) {
 	          point = kinectPose.fromFrame(new Point3D(x, y, z));
 	          if (point.z > 0.0) {
-	            IntTuple loc = new IntTuple((int)(point.x/OCCUPANCY_RESOLUTION), (int)(point.y/OCCUPANCY_RESOLUTION));
+	            IntTuple loc = new IntTuple((int)((point.x-.58)/OCCUPANCY_RESOLUTION), (int)(point.y/OCCUPANCY_RESOLUTION));
 	            double[] point_data = occupancy.get(loc);
 	            Color.RGBtoHSB(r,g,b,hsv);
 	            //System.out.println("r: " + r + " g: " +g + " b: " + b);
@@ -492,6 +499,9 @@ int END_ROW = 480;
 	    if (VISION_GUI) {
 	      vgui.setVisionImage(rep.toArray(), pic_width, pic_height);
 	    }
+      if (KINECT_DATA) {
+        draw();
+      }
 	    for (Map.Entry<IntTuple, double[]> cell : occupancy.entrySet()) {
 	      double[] point_data = cell.getValue();
 	      double num_points = point_data[0];

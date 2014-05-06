@@ -49,12 +49,12 @@ public class NavigationTest implements NodeMain {
 		//System.out.println(backward);
 		//gui.draw(world.getRobot(backward), true, Color.ORANGE);
 		
-		MotionPlanner planner = new MotionPlanner(world);
-		gui.draw(planner.findPath(start, goal, Constants.PLANNING_ATTEMPTS.get(0)), Color.GREEN);
-		gui.draw(planner.tree1, Color.BLUE);
-		gui.draw(planner.tree2, Color.RED);
+		//MotionPlanner planner = new MotionPlanner(world);
+		//gui.draw(planner.findPath(start, goal, Constants.PLANNING_ATTEMPTS.get(0)), Color.GREEN);
+		//gui.draw(planner.tree1, Color.BLUE);
+		//gui.draw(planner.tree2, Color.RED);
 		
-		//navigator = new Navigator(node, gui, world);
+		navigator = new Navigator(node, gui, world);
 
 		//navigator.newGoal(goal);
 		//switchControlDemo(goal);

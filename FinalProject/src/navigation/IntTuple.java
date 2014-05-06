@@ -1,4 +1,4 @@
-package KinectTest;
+package navigation;
 
 public class IntTuple {
   public int x;
