@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap; 
+import java.util.List;
 import java.util.Map; 
 import java.util.Iterator;
 import java.awt.Point;
@@ -37,7 +38,8 @@ public class KinectData implements NodeMain {
 	public boolean firstUpdate;
 	private int[][][] rgb;
 	private boolean[][] wallMask;
-	private double[][] xyz;
+	private double[][][] xyz;
+	private List<Point3D> fidLocations;
 	public Pose3D kinectPose;
 	HashMap<IntTuple, double[]> occupancy;
 	public Image rep;
@@ -60,13 +62,22 @@ public class KinectData implements NodeMain {
 		this.world = world;
 		this.divideScale = divideScale;
 		rgb = new int[width/divideScale][height/divideScale][3];
-		xyz = new double[width/divideScale][height/divideScale];
+		xyz = new double[width/divideScale][height/divideScale][3];
 		wallMask = new boolean[width/divideScale][height/divideScale];
 		rep = new Image(width/divideScale, height/divideScale);
 
 		this.kinectPose = new Pose3D(new Point3D(0, 0.67, 0.), Math.PI/2., -Math.PI/2. - .495, 0.); //.495
+		this.fidLocations = new ArrayList<Point3D>();
 
 		this.occupancy = new HashMap<IntTuple, double[]>();
+	}
+	
+	public void pushFiducialsPixelLocations(List<Point3D> locs) {
+		this.fidLocations = locs;
+	}
+	
+	public List<Point3D> getFiducialLocations() {
+		return this.fidLocations;
 	}
 
 	public int getWidth() {
@@ -115,6 +126,10 @@ public class KinectData implements NodeMain {
 			return getRGBArray();
 		}
 		return null;
+	}
+	
+	public double[][][] getXYZArray() {
+		return xyz;
 	}
 
 	public boolean[][] getWallMask() {
@@ -229,7 +244,9 @@ public class KinectData implements NodeMain {
 						} else {
 							wallMask[(col-START_COL)/divideScale][(row-START_ROW)/divideScale] = false;
 						}
-						xyz[(col-START_COL)/divideScale][(row-START_ROW)/divideScale] = z;
+						xyz[(col-START_COL)/divideScale][(row-START_ROW)/divideScale][0] = point.x;
+						xyz[(col-START_COL)/divideScale][(row-START_ROW)/divideScale][0] = point.y;
+						xyz[(col-START_COL)/divideScale][(row-START_ROW)/divideScale][0] = point.z;
 
 					}
 				}

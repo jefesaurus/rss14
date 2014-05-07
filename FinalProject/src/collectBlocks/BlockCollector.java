@@ -1,6 +1,7 @@
 package collectBlocks;
 
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.nio.BufferOverflowException;
 import java.nio.LongBuffer;
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import kinect.KinectData;
+import navigation.Point3D;
 
 import master.DrivingMaster;
 import master.GatesController;
@@ -67,19 +69,7 @@ public class BlockCollector implements NodeMain, Runnable {
 	}
 	
 	public boolean blockImminent() {
-		long[] eatingArray = eatingMilli.array();
-		long total = 0;
-		long current = eatingArray[0];
-		for (long m : eatingArray) {
-			total += m - current;
-			current = m;
-		}
-		long avg = total/eatingArray.length;
-		if (avg < 10000) {
-			System.out.println("Too much eating. I should probably stop. Avg: " + avg);
-//			return false;
-		}
-		return largestBlob().size > 90 || state.equals("eating");
+		return largestBlob().size > 90 || state.equals("Eating");
 	}
 	
 	public void setProcessing (boolean toggle) {
@@ -106,7 +96,7 @@ public class BlockCollector implements NodeMain, Runnable {
 	
 	public BlockInfo largestBlob() {
 		if (binfos == null || binfos.isEmpty()) 
-			return new BlockInfo(new Point(0,0), 0, "red");
+			return new BlockInfo(new Point(0,0), new Point3D(0.,0.,0.), 0, "red");
 		return binfos.get(0);
 	}
 	
@@ -117,16 +107,16 @@ public class BlockCollector implements NodeMain, Runnable {
 		srcArray = kinecter.getNewRGBArray();
 		if (srcArray == null)
 			return;
-		srcArray = kinecter.getRGBArray();
+		double[][][] xyzArray = kinecter.getXYZArray();
 		boolean[][] wallMask = kinecter.getWallMask();
 		boolean[][] blockMask = kinecter.getBlockMask();
 //		process here
 		if (guiOn){
 			Image dest = kinecter.getImage();
 			//blocks
-			binfos = cct.visualize(srcArray, blockMask, 50, true, dest);
+			binfos = cct.visualize(srcArray, xyzArray, blockMask, 50, true, dest);
 			//fiducials
-			List<BlockInfo> fidbinfos = cct.visualize(srcArray, wallMask, 50, false, dest);
+			List<BlockInfo> fidbinfos = cct.visualize(srcArray, xyzArray, wallMask, 50, false, dest);
 			finfos = fidFind.findFids(fidbinfos);
 			
 //			cct.calibrateHelp(srcArray, dest);
@@ -134,12 +124,18 @@ public class BlockCollector implements NodeMain, Runnable {
 //			cct.maskHelp(srcArray, wallMask, dest);
 			gui.setVisionImage(dest.toArray(), width, height);
 		} else {
-			binfos = cct.getBlockInfosForFrame(srcArray, blockMask, 50, true);
+			binfos = cct.getBlockInfosForFrame(srcArray, xyzArray, blockMask, 50, true);
 			// fiducials
-			finfos = fidFind.findFids(srcArray, wallMask, 50);
+			finfos = fidFind.findFids(srcArray, xyzArray, wallMask, 50);
 		}
 		
-//		System.out.println("Kinect data processed: " + System.nanoTime()/1000000);
+		// post any fiducial info to KinectData class
+		List<Point3D> fidList = new ArrayList<Point3D>();
+		for (FidPattern f : finfos) {
+			Point3D p = f.bottomLocation3D;
+			fidList.add(p);
+		}
+		kinecter.pushFiducialsPixelLocations(fidList);
 	}
 	
 	
@@ -166,9 +162,9 @@ public class BlockCollector implements NodeMain, Runnable {
         	if (b != null) {
                 // Very basic proportional controller
 //            	System.out.println("size : " + b.size + " | cx : " + b.centroid.x + " | cy : " + b.centroid.y);
-                double rangeError = desiredRange - b.centroid.y; // negative because y pixels increase downward
+                double rangeError = desiredRange - b.centroid.getY(); // negative because y pixels increase downward
 //                double bearingError = desiredBearing - b.centroid.x;
-                double bearingError = ((double)(width/2 - b.centroid.x))/width;
+                double bearingError = ((double)(width/2 - b.centroid.getX()))/width;
                 tv = .2;
                 rv = bearingError*BEARING_GAIN;
             }
@@ -182,7 +178,7 @@ public class BlockCollector implements NodeMain, Runnable {
         // next state decisions
         if (state.equals("Looking")) {
         	//next state is "Found" if block is within 2nd tenth from the bottom
-            if (b != null && b.centroid.y > .9*height) {
+            if (b != null && b.centroid.getY() > .9*height) {
             	state = "Eating";
             	timer = milli;
             	System.out.println("Changing state to Eating");

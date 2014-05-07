@@ -1,5 +1,7 @@
 package kinect;
 
+import navigation.Point3D;
+
 public class Pose3D {
   public Point3D point;
   public double yaw, pitch, roll;

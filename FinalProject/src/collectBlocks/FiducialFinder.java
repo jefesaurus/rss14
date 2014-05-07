@@ -1,8 +1,11 @@
 package collectBlocks;
 
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
+
+import navigation.Point3D;
 
 public class FiducialFinder {
 
@@ -10,14 +13,18 @@ public class FiducialFinder {
 	
 	public class FidPattern {
 		public String topColor;
-		public Point topCentroid;
+		public Point2D topCentroid;
+		public Point3D topLocation3D;
 		public String bottomColor;
-		public Point bottomCentroid;
-		public FidPattern(String topColor, Point topCentroid, String bottomColor, Point bottomCentroid) {
+		public Point2D bottomCentroid;
+		public Point3D bottomLocation3D;
+		public FidPattern(String topColor, Point2D topCentroid, Point3D topLocation3D, String bottomColor, Point2D bottomCentroid, Point3D bottomLocation3D) {
 			this.topColor = topColor;
 			this.topCentroid = topCentroid;
+			this.topLocation3D = topLocation3D;
 			this.bottomColor = bottomColor;
 			this.bottomCentroid = bottomCentroid;
+			this.bottomLocation3D = bottomLocation3D;
 		}
 	}
 	
@@ -36,7 +43,7 @@ public class FiducialFinder {
 			for (int j = i+1; j < binfos.size(); j++) {
 				BlockInfo top, bottom;
 				// find out which one is on top (remember y pixels increase downwards
-				if (binfos.get(i).centroid.y < binfos.get(j).centroid.y){
+				if (binfos.get(i).centroid.getY() < binfos.get(j).centroid.getY()){
 					top = binfos.get(i);
 					bottom = binfos.get(j);
 				} else {
@@ -51,13 +58,13 @@ public class FiducialFinder {
 				//check if radii are similar enough
 //				if (topRadius/bottomRadius > RADIUS_RATIO_THRESHOLD) continue;
 				// check if x values close enough
-				if (Math.abs(top.centroid.x - bottom.centroid.x) > Math.max(topRadius, bottomRadius)) 
+				if (Math.abs(top.centroid.getX() - bottom.centroid.getX()) > Math.max(topRadius, bottomRadius)) 
 					continue;
 				// check if y values close enough
-				if (Math.abs(top.centroid.y - bottom.centroid.y) < Math.max(topRadius, bottomRadius) || 
-						Math.abs(top.centroid.y - bottom.centroid.y) > Math.max(topRadius, bottomRadius)*3) continue;
+				if (Math.abs(top.centroid.getY() - bottom.centroid.getY()) < Math.max(topRadius, bottomRadius) || 
+						Math.abs(top.centroid.getY() - bottom.centroid.getY()) > Math.max(topRadius, bottomRadius)*3) continue;
 				// if everything passed this must be a fiducial
-				FidPattern fid = new FidPattern(top.color, top.centroid, bottom.color, bottom.centroid);
+				FidPattern fid = new FidPattern(top.color, top.centroid, top.location3D, bottom.color, bottom.centroid, bottom.location3D);
 				answer.add(fid);
 				System.out.println("Fiducial top : " + top.color + " bottom : " + bottom.color);
 			}
@@ -65,8 +72,8 @@ public class FiducialFinder {
 		return answer;
 	}
 	
-	public List<FidPattern> findFids(int[][][] src, boolean[][] mask, int minPixelsPerGroup) {
-		List<BlockInfo> binfos = cct.getBlockInfosForFrame(src, mask, minPixelsPerGroup, false);
+	public List<FidPattern> findFids(int[][][] src, double[][][] xyz, boolean[][] mask, int minPixelsPerGroup) {
+		List<BlockInfo> binfos = cct.getBlockInfosForFrame(src, xyz, mask, minPixelsPerGroup, false);
 		return findFids(binfos);
 	}
 	

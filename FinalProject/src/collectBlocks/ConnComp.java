@@ -2,9 +2,12 @@ package collectBlocks;
 
 import java.awt.Color;
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import navigation.Point3D;
 
 public class ConnComp {
 	
@@ -172,12 +175,12 @@ public class ConnComp {
 	 * @param groups
 	 * @return
 	 */
-	public List<BlockInfo> makeBlockInfos(int[][][] src, List<ArrayList<Point>> groups, HSBRanges[] hsbRanges, String[] hsbMapping) {
+	public List<BlockInfo> makeBlockInfos(int[][][] src, double[][][] xyz, List<ArrayList<Point>> groups, HSBRanges[] hsbRanges, String[] hsbMapping) {
 		List<BlockInfo> answer = new ArrayList<BlockInfo>();
 //		System.out.println("Number of groupings: " + groups.size());
 		for (ArrayList<Point> g : groups) {
 			if (g.size() <1) {
-				answer.add(new BlockInfo(new Point(0,0), 1, "invalid"));
+				answer.add(new BlockInfo(new Point(0,0), new Point3D(0.,0.,0.), 1, "invalid"));
 				continue;
 			}
 			int allX = 0;
@@ -186,6 +189,10 @@ public class ConnComp {
 			int miny = 10000;
 			int maxx = -50;
 			int maxy = -50;
+			double xyPlaneX = 0.;
+			double xyPlaneY = 0.;
+			double xyPlaneZ = 0.;
+			int xyPlaneCount = 0;
 			for (Point p : g) {
 				allX += p.x;
 				allY += p.y;
@@ -193,7 +200,17 @@ public class ConnComp {
 				if (p.y < miny) miny = p.y;
 				if (p.x > maxx) maxx = p.x;
 				if (p.y > maxy) maxy = p.y;
+				if (xyz[p.x][p.y][0] == 0. || xyz[p.x][p.y][1] == 0. | xyz[p.x][p.y][2] == 0.) {
+					xyPlaneX += xyz[p.x][p.y][0];
+					xyPlaneY += xyz[p.x][p.y][1];
+					xyPlaneZ += xyz[p.x][p.y][2];
+					xyPlaneCount += 1;
+				}
+				
 			}
+			double avgPlaneX = xyPlaneX/xyPlaneCount;
+			double avgPlaneY = xyPlaneY/xyPlaneCount;
+			double avgPlaneZ = xyPlaneZ/xyPlaneCount;
 			int avgX = allX / g.size();
 			int avgY = allY / g.size();
 			// estimate size based on min and max values for x and y
@@ -207,7 +224,7 @@ public class ConnComp {
 			}
 			color = colors[g.get(0).x][g.get(0).y];
 			String colorName = (color >=0)?hsbMapping[color]:"background";
-			BlockInfo bi = new BlockInfo(new Point(avgX, avgY), size, colorName);
+			BlockInfo bi = new BlockInfo(new Point(avgX, avgY), new Point3D(avgPlaneX, avgPlaneY, avgPlaneZ), size, colorName);
 			answer.add(bi);
 //			System.out.println("x : " + bi.centroid.x + "| y : " + bi.centroid.y + " | color : " + bi.color);
 		}
@@ -220,7 +237,7 @@ public class ConnComp {
 	 * @param src the source RGB
 	 * @param dest the destination RGB
 	 */
-	public List<BlockInfo> visualize(int[][][] src, boolean[][] mask, int minPixelsPerGroup, boolean blocksBool, Image dest) {
+	public List<BlockInfo> visualize(int[][][] src, double[][][] xyz, boolean[][] mask, int minPixelsPerGroup, boolean blocksBool, Image dest) {
 		Color[] groupColorings = {Color.white, Color.blue, Color.pink, Color.magenta, Color.yellow, Color.green};
 		HSBRanges[] hsbRanges;
 		String[] hsbMapping;
@@ -232,7 +249,7 @@ public class ConnComp {
 			hsbMapping = this.FidHSBMapping;
 		}
 		List<ArrayList<Point>> groups = filterGroupsBySize(findColorPointGroups(src, mask, hsbRanges), minPixelsPerGroup);
-		List<BlockInfo> blockInfos = makeBlockInfos(src, groups, hsbRanges, hsbMapping);
+		List<BlockInfo> blockInfos = makeBlockInfos(src, xyz, groups, hsbRanges, hsbMapping);
 //		System.out.println("Number of groupings: " + groups.size());
 		for (int i = 0; i < groups.size(); i++) {
 			ArrayList<Point> g = groups.get(i);
@@ -241,14 +258,14 @@ public class ConnComp {
 				dest.setPixel(p.x, p.y, (byte)c.getRed(), (byte)c.getGreen(), (byte)c.getBlue());				
 			}
 			BlockInfo bi = blockInfos.get(i);
-			Point centroid = bi.centroid;
+			Point2D centroid = bi.centroid;
 //			System.out.println("x : " + centroid.x + "| y : " + centroid.y + " | color : " + bi.color);
-			for(int x =  centroid.x- 4; x <= centroid.x + 4; x++)
-				if(x >= 0 && x < dest.getWidth() && centroid.y >= 0 && centroid.y < dest.getHeight())
-					dest.setPixel(x, centroid.y, (byte)0, (byte)0, (byte)0);				
-			for(int y =  centroid.y- 4; y <= centroid.y + 4; y++)
-				if(y >= 0 && y < dest.getHeight() && centroid.x >= 0 && centroid.x < dest.getWidth())				
-					dest.setPixel(centroid.x, y, (byte)0, (byte)0, (byte)0);	
+			for(int x = (int)(centroid.getX()- 4); x <= centroid.getX() + 4; x++)
+				if(x >= 0 && x < dest.getWidth() && centroid.getY() >= 0 && centroid.getY() < dest.getHeight())
+					dest.setPixel(x, (int)centroid.getY(), (byte)0, (byte)0, (byte)0);				
+			for(int y =  (int)centroid.getY()- 4; y <= centroid.getY() + 4; y++)
+				if(y >= 0 && y < dest.getHeight() && centroid.getX() >= 0 && centroid.getX() < dest.getWidth())				
+					dest.setPixel((int)centroid.getX(), y, (byte)0, (byte)0, (byte)0);	
 		}
 		return blockInfos;
 	}
@@ -258,7 +275,7 @@ public class ConnComp {
 	 * @param src
 	 * @return
 	 */
-	public List<BlockInfo> getBlockInfosForFrame(int[][][] src, boolean[][] mask, int minPixelsPerGroup, boolean blocksBool) {
+	public List<BlockInfo> getBlockInfosForFrame(int[][][] src, double[][][]xyz, boolean[][] mask, int minPixelsPerGroup, boolean blocksBool) {
 		HSBRanges[] hsbRanges;
 		String[] hsbMapping;
 		if (blocksBool) {
@@ -269,7 +286,7 @@ public class ConnComp {
 			hsbMapping = this.FidHSBMapping;
 		}
 		List<ArrayList<Point>> groups = filterGroupsBySize(findColorPointGroups(src, mask, hsbRanges), minPixelsPerGroup);
-		return makeBlockInfos(src, groups, hsbRanges, hsbMapping);
+		return makeBlockInfos(src, xyz, groups, hsbRanges, hsbMapping);
 	}
 	
 	/**
