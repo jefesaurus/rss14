@@ -171,7 +171,7 @@ public class KinectData implements NodeMain {
 				return;
 			}
 		}
-		//	System.out.println("Kinect message received: " + System.nanoTime()/1000000);
+//			System.out.println("Kinect message received: " + System.nanoTime()/1000000);
 		int offset, x_i, y_i, z_i, r_i, g_i, b_i;
 		float x, y, z;
 		int r, g, b;
@@ -234,7 +234,7 @@ public class KinectData implements NodeMain {
 					}
 				}
 			}
-			world.updateOccupancy(occupancy);
+//			world.updateOccupancy(occupancy);
 			newData = true;
 		}
 	}

@@ -174,7 +174,7 @@ public class ConnComp {
 	 */
 	public List<BlockInfo> makeBlockInfos(int[][][] src, List<ArrayList<Point>> groups, HSBRanges[] hsbRanges, String[] hsbMapping) {
 		List<BlockInfo> answer = new ArrayList<BlockInfo>();
-		System.out.println("Number of groupings: " + groups.size());
+//		System.out.println("Number of groupings: " + groups.size());
 		for (ArrayList<Point> g : groups) {
 			if (g.size() <1) {
 				answer.add(new BlockInfo(new Point(0,0), 1, "invalid"));
@@ -233,7 +233,7 @@ public class ConnComp {
 		}
 		List<ArrayList<Point>> groups = filterGroupsBySize(findColorPointGroups(src, mask, hsbRanges), minPixelsPerGroup);
 		List<BlockInfo> blockInfos = makeBlockInfos(src, groups, hsbRanges, hsbMapping);
-		System.out.println("Number of groupings: " + groups.size());
+//		System.out.println("Number of groupings: " + groups.size());
 		for (int i = 0; i < groups.size(); i++) {
 			ArrayList<Point> g = groups.get(i);
 			for (Point p : g) {

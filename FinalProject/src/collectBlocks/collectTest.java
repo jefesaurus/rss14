@@ -1,13 +1,18 @@
 package collectBlocks;
 
+import java.io.IOException;
+import java.text.ParseException;
+
 import kinect.KinectData;
 import master.DrivingMaster;
 import master.GatesController;
 import navigation.Block;
+import navigation.World;
 
 import org.ros.namespace.GraphName;
 import org.ros.node.Node;
 import org.ros.node.NodeMain;
+import org.ros.node.parameter.ParameterTree;
 
 public class collectTest implements NodeMain, Runnable {
 
@@ -17,11 +22,7 @@ public class collectTest implements NodeMain, Runnable {
 	public GatesController gates;
 	
 	public collectTest() {
-		int divideScale = 4;
-		driveMaster = new DrivingMaster();
-		gates = new GatesController();
-		kinecter = new KinectData(divideScale);
-		camProc = new BlockCollector(driveMaster, kinecter, gates, divideScale);
+		
 	}
 	
 	public void run() {
@@ -35,16 +36,32 @@ public class collectTest implements NodeMain, Runnable {
 	}
 	
 	public void onStart(Node node) {
+		
+		
+		
 		// set up driving module
+		driveMaster = new DrivingMaster();
 		driveMaster.onStart(node);
 		// set up kinect
+		ParameterTree paramTree = node.newParameterTree();
+		String mapFileName = paramTree.getString(node
+				.resolveName("~/mapFileName"));
+		int divideScale = 4;
+		try {
+			kinecter = new KinectData(new World(mapFileName), 4);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		kinecter.onStart(node);
+		// set up gates controller
+				gates = new GatesController();
+				gates.onStart(node);
 		// set up camera processing
+		camProc = new BlockCollector(driveMaster, kinecter, gates, divideScale);
 		camProc.onStart(node);
 		camProc.setProcessing(true);
 		camProc.takeOverDriving(false);
-		// set up gates controller
-		gates.onStart(node);
+		
 		
 		Thread runThis = new Thread(this);
 		runThis.start();

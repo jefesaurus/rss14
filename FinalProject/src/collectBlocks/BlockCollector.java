@@ -136,7 +136,7 @@ public class BlockCollector implements NodeMain, Runnable {
 	 * to the closest object.
 	 */
 	private void collect() {
-		System.out.println("state : " + state);
+//		System.out.println("state : " + state);
 		// publish velocity messages to move the robot towards the target
         double tv = 0.0;
         double rv = 0.0;
@@ -156,7 +156,7 @@ public class BlockCollector implements NodeMain, Runnable {
                 rv = bearingError*BEARING_GAIN;
             }
         } else if (state.equals("Eating")) {
-        	tv = .2;
+        	tv = .3;
         } else {
         	System.out.println("Unknown state " + state);
         }
@@ -165,10 +165,10 @@ public class BlockCollector implements NodeMain, Runnable {
         // next state decisions
         if (state.equals("Looking")) {
         	//next state is "Found" if block is within 2nd tenth from the bottom
-            if (b != null && b.centroid.y > .8*height) {
-            	state = "Found";
+            if (b != null && b.centroid.y > .9*height) {
+            	state = "Eating";
             	timer = milli;
-            	System.out.println("Changing state to Found");
+            	System.out.println("Changing state to Eating");
             }
         } else if (state.equals("Found")) {
         	if (b != null && b.centroid.y < .8*height) {
@@ -178,7 +178,7 @@ public class BlockCollector implements NodeMain, Runnable {
         	}
         } else if (state.equals("Eating")) {
         	//2 seconds to make sure it's actually eaten the block.
-        	if ((milli - timer) > 2000) {
+        	if (Math.abs(milli - timer) > 5000) {
         		state = "Looking";
         		timer = milli;
         		System.out.println("Changing state to Looking");
