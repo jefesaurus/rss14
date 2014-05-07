@@ -49,9 +49,9 @@ public class NavigationGUI extends ChallengeGUI implements NodeMain {
 	}
 
 	public void draw(Grid grid, Color color) {
-		for (Point point : grid.getColliding()) {
-			draw(point, Constants.GRID_RESOLUTION/2., color);
-		}
+//		for (Point point : grid.getColliding()) {
+//			draw(point, Constants.GRID_RESOLUTION/2., color);
+//		}
 	}
 
 	public void draw() { //TODO Draw order

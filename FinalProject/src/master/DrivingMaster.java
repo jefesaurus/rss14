@@ -113,7 +113,7 @@ public class DrivingMaster implements NodeMain, Runnable {
 			try {
 //				System.out.println("Motion published");
 //				System.out.println("tv : " +tv+" |rv : "+rv);
-				Thread.sleep(100);
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -121,7 +121,7 @@ public class DrivingMaster implements NodeMain, Runnable {
 				if (!active) {
 					continue;
 				} else {
-//					System.out.println("active is true");
+					System.out.println("active is true");
 				}
 					
 				double tv, rv;

@@ -33,11 +33,8 @@ public class Main implements NodeMain, Runnable {
 	private Navigator navigator;
 	
 	public Main() {
-		int divideScale = 4;
 		driveMaster = new DrivingMaster();
 		gates = new GatesController();
-		kinecter = new KinectData(divideScale);
-		blockCol = new BlockCollector(driveMaster, kinecter, gates, divideScale);
 	}
 	
 	@Override
@@ -88,6 +85,7 @@ public class Main implements NodeMain, Runnable {
 
 	@Override
 	public void onStart(Node node) {
+		int divideScale = 4;
 		// create navigator
 		System.out.println("creating navigator");
 		ParameterTree paramTree = node.newParameterTree();
@@ -99,6 +97,12 @@ public class Main implements NodeMain, Runnable {
 			e.printStackTrace();
 		}
 		this.node = node;
+		
+		// set up kinect
+		kinecter = new KinectData(world, divideScale);
+		kinecter.onStart(node);
+		
+		
 		gui = new NavigationGUI(world);
 		Configuration start = world.getStart().configuration(0);
 		Configuration goal = world.getGoal().configuration(Math.PI);
@@ -114,11 +118,12 @@ public class Main implements NodeMain, Runnable {
 		navigator = new Navigator(node, gui, world);
 		
 		System.out.println("Creating the rest");
+		
 		// set up driving module
 		driveMaster.onStart(node);
-		// set up kinect
-		kinecter.onStart(node);
+		
 		// set up camera processing
+		blockCol = new BlockCollector(driveMaster, kinecter, gates, divideScale);
 		blockCol.onStart(node);
 		blockCol.setProcessing(true);
 		blockCol.takeOverDriving(false);

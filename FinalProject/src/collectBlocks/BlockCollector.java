@@ -76,7 +76,7 @@ public class BlockCollector implements NodeMain, Runnable {
 		}
 		long avg = total/eatingArray.length;
 		if (avg < 10000) {
-			System.out.println("Too much eating. I should probably stop. Avg: " + avg);
+//			System.out.println("Too much eating. I should probably stop. Avg: " + avg);
 //			return false;
 		}
 		return largestBlob().size > 90 || state.equals("eating");
