@@ -200,7 +200,7 @@ public class ConnComp {
 				if (p.y < miny) miny = p.y;
 				if (p.x > maxx) maxx = p.x;
 				if (p.y > maxy) maxy = p.y;
-				if (xyz[p.x][p.y][0] == 0. || xyz[p.x][p.y][1] == 0. | xyz[p.x][p.y][2] == 0.) {
+				if (xyz[p.x][p.y][0] != 0. || xyz[p.x][p.y][1] != 0. | xyz[p.x][p.y][2] != 0.) {
 					xyPlaneX += xyz[p.x][p.y][0];
 					xyPlaneY += xyz[p.x][p.y][1];
 					xyPlaneZ += xyz[p.x][p.y][2];
