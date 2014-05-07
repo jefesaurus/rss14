@@ -64,7 +64,7 @@ public class KinectData implements NodeMain {
 		wallMask = new boolean[width/divideScale][height/divideScale];
 		rep = new Image(width/divideScale, height/divideScale);
 
-		this.kinectPose = new Pose3D(new Point3D(0, 0.67, 0.), Math.PI/2., -Math.PI/2. - .495, 0.);;
+		this.kinectPose = new Pose3D(new Point3D(0, 0.67, 0.), Math.PI/2., -Math.PI/2. - .495, 0.); //.495
 
 		this.occupancy = new HashMap<IntTuple, double[]>();
 	}
@@ -209,12 +209,12 @@ public class KinectData implements NodeMain {
 							boolean isWall = false;
 							if (point.z > .08) {
 								isWall = true;
-							} else {
+							} /*else {
 								Color.RGBtoHSB(r, g, b, hsv);
 								if (hsv[1] < .4) {
 									isWall = true;
 								}
-							}
+							}*/
 							if (isWall) {
 								if (point_data == null) {
 									occupancy.put(loc, new double[] {1,point.z,0,0,0});
@@ -234,7 +234,10 @@ public class KinectData implements NodeMain {
 					}
 				}
 			}
-//			world.updateOccupancy(occupancy);
+			if (world != null) {
+				world.updateOccupancy(occupancy);
+			}
+			navigation.Util.pause(1);
 			newData = true;
 		}
 	}

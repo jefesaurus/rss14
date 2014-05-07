@@ -51,15 +51,16 @@ public class Constants {
 		return new Shape(polygons).translate(-ORIGIN_X, -ORIGIN_Y).rotate(-Math.PI/2, new Point(0., 0.));
 	}
 	
-	public static final double VIEW_CONE_WIDTH = 1.;
+	public static final double VIEW_CONE_NEAR_WIDTH = .6;
+	public static final double VIEW_CONE_FAR_WIDTH = 1.;
 	public static final double VIEW_CONE_HEIGHT = 2.;
 	
 	public static Polygon createViewCone() {
 		List<Point> points = new LinkedList<Point>();
-		points.add(new Point(.2, 0.1)); // Origin
-		points.add(new Point(VIEW_CONE_WIDTH/2, VIEW_CONE_HEIGHT)); // Front Right
-		points.add(new Point(-VIEW_CONE_WIDTH/2, VIEW_CONE_HEIGHT)); // Front Left
-		points.add(new Point(-.2, 0.1)); // Origin
+		points.add(new Point(VIEW_CONE_NEAR_WIDTH/2, 0.1)); // Origin
+		points.add(new Point(VIEW_CONE_FAR_WIDTH/2, VIEW_CONE_HEIGHT)); // Front Right
+		points.add(new Point(-VIEW_CONE_FAR_WIDTH/2, VIEW_CONE_HEIGHT)); // Front Left
+		points.add(new Point(-VIEW_CONE_NEAR_WIDTH/2, 0.1)); // Origin
 		return new Polygon(points).translate(0, ORIGIN_Y/2).rotate(-Math.PI/2, new Point(0., 0.));
 	}
 	
@@ -100,9 +101,10 @@ public class Constants {
 	));*/
 	
 	public static final List<PlanningParameters> PLANNING_ATTEMPTS = new ArrayList<PlanningParameters>(Arrays.asList(
-			new LinearGrowthParameters(DriveSystem.FORWARD, CollisionCheck.MAPONLY, .05/1, .05),
-			new LinearGrowthParameters(DriveSystem.FORWARDINITIALREVERSE, CollisionCheck.MAPONLY, .05/1, .05),
-			new LinearGrowthParameters(DriveSystem.FOB, CollisionCheck.MAPONLY, .03/1, .01)
+			new LinearGrowthParameters(DriveSystem.FORWARD, CollisionCheck.GRIDONLY, .0, .0)
+			//new LinearGrowthParameters(DriveSystem.FORWARD, CollisionCheck.MAPONLY, .05/1, .05),
+			//new LinearGrowthParameters(DriveSystem.FORWARDINITIALREVERSE, CollisionCheck.MAPONLY, .05/1, .05),
+			//new LinearGrowthParameters(DriveSystem.FOB, CollisionCheck.MAPONLY, .03/1, .01)
 			
 		));
 	

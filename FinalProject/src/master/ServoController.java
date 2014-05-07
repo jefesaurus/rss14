@@ -14,8 +14,8 @@ public class ServoController {
 	public static final int BLUE_GATE_INDEX = 0;
 	public static final int FRONT_GATE_INDEX = 1;
 	
-	private ServoInfo blueGate = new ServoInfo(1871, 1387);
-	private ServoInfo frontGate = new ServoInfo(1400, 580);
+	private ServoInfo blueGate = new ServoInfo(1500, 934);
+	private ServoInfo frontGate = new ServoInfo(1500, 620);
 	
 	private static final double MAX_PWM_CHANGE = 50;
 	private final long closePWM, openPWM;

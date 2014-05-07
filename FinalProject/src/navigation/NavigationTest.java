@@ -65,11 +65,22 @@ public class NavigationTest implements NodeMain {
 		}*/
 		
 		navigator = new Navigator(node, gui, world);
+
+		int divideScale = 4;
+		kinecter = new KinectData(world, divideScale);
+		kinecter.onStart(node);
+		
+		Util.pause(5000);
+		
 		//navigator.newGoal(goal);
 
-		//int divideScale = 4;
-		//kinecter = new KinectData(world, divideScale);
-		//kinecter.onStart(node);
+		
+		while(true) {
+			gui.clear();
+			gui.draw(navigator.getConfiguration());
+			Util.pause(1000);
+			System.out.println("Update");
+		}
 		
 		
 		//switchControlDemo(goal);

@@ -10,8 +10,9 @@ public class Grid {
 	public final int width;
 	public final int height;
 	public final HashSet<GridCell> occupied;
-
-	//TODO - average observations over time
+	
+	public static final int MAX_COLLISIONS = 5;
+	public static final long REFRESH_TIME = 10*1000;
 	
 	public Grid(BoundingBox box) { //TODO cache the boxes
 		this.box = box;
@@ -60,13 +61,24 @@ public class Grid {
 	public List<Point> getColliding() {
 		List<Point> points = new LinkedList<Point>();
 		
-		for (GridCell cell : occupied) {
-			if (System.currentTimeMillis() - cell.lastUpdate > 5*1000) {
-				points.add(cell.point);
-			} else {
-				
+		//for (GridCell cell : occupied) {
+		//	points.add(cell.point);
+		//
+		//	/*if (System.currentTimeMillis() - cell.lastUpdate > 5*1000) {
+		//		points.add(cell.point);
+		//	} else {
+		//		
+		//	}*/
+		//}
+		
+		for (int x = 0; x < width; x++) {
+			for (int y = 0; y < height; y++) {
+				if (occupied(cell(x, y))) {
+					points.add(cell(x, y).point);
+				}
 			}
 		}
+				
 		
 		return points;
 	}
@@ -76,7 +88,7 @@ public class Grid {
 		if (cell != null) {
 			cell.value += 1;
 			cell.lastUpdate = System.currentTimeMillis();
-			occupied.add(cell);
+			//occupied.add(cell);
 		}
 	}
 
@@ -86,7 +98,7 @@ public class Grid {
 				if (valid(x, y) && poly.contains(cell(x, y).point)) {
 					cell(x, y).value += 1;
 					cell(x, y).lastUpdate = System.currentTimeMillis();
-					occupied.add(cell(x, y));
+					//occupied.add(cell(x, y));
 				}
 			}
 		}
@@ -98,11 +110,26 @@ public class Grid {
 		}
 	}
 	
-	public boolean collides(Polygon poly) {
+	public boolean occupied(GridCell cell) {
+		if (cell.value > 0.0) {
+			if (System.currentTimeMillis() - cell.lastUpdate < REFRESH_TIME) {
+				return true;
+			} else {
+				cell.value = 0.0;
+			}
+		} 
+		return false;
+	}
+	
+	public boolean collides(Polygon poly) {	
+		int collisions = 0;
 		for (int x = getX(poly.boundingBox.min); x <= getX(poly.boundingBox.max); x++) {
 			for (int y = getY(poly.boundingBox.min); y <= getY(poly.boundingBox.max); y++) {
-				if (!valid(x, y) || (cell(x, y).value > 0.0 && poly.contains(cell(x, y).point))) {
-					return true;
+				if (!valid(x, y) || (occupied(cell(x, y)) && poly.contains(cell(x, y).point))) {
+					collisions ++;
+					if (collisions > MAX_COLLISIONS) {
+						return true;
+					}
 				}
 			}
 		}
@@ -110,10 +137,14 @@ public class Grid {
 	}
 	
 	public boolean collides(Shape shape) {
+		int collisions = 0;
 		for (int x = getX(shape.boundingBox.min); x <= getX(shape.boundingBox.max); x++) {
 			for (int y = getY(shape.boundingBox.min); y <= getY(shape.boundingBox.max); y++) {
-				if (!valid(x, y) || (cell(x, y).value > 0.0 && shape.contains(cell(x, y).point))) {
-					return true;
+				if (!valid(x, y) || (occupied(cell(x, y)) && shape.contains(cell(x, y).point))) {
+					collisions ++;
+					if (collisions > MAX_COLLISIONS) {
+						return true;
+					}
 				}
 			}
 		}

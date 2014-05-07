@@ -68,7 +68,7 @@ public class NavigationGUI extends ChallengeGUI implements NodeMain {
 		draw(world.getStart(), Color.BLUE);
 		draw(world.getGoal(), Color.YELLOW);
 		
-		draw(world.getOccupancyGrid(), Color.RED);
+		//draw(world.getOccupancyGrid(), Color.RED);
 	}
 	
 	public void draw(Configuration robot) { //TODO Draw order

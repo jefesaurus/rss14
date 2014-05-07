@@ -105,9 +105,7 @@ public class Navigator implements Runnable {
 							Waypoint waypoint = planner.safeForward(start);
 							goals.add(0, waypoint.config);
 							setPath(new LinkedList<Waypoint>(Arrays.asList(waypoint)));
-							
-							
-							draw(); //TODO
+							draw(); 
 						}
 					}
 				});
@@ -128,7 +126,7 @@ public class Navigator implements Runnable {
 				//gui.setRobotPose(configuration.x, configuration.y, configuration.theta);
 				setConfiguration(configuration);
 				
-				draw();
+				//draw();
 			}
 		});
 		
