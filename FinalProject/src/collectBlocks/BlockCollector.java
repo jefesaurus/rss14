@@ -48,7 +48,7 @@ public class BlockCollector implements NodeMain, Runnable {
 	private boolean collectBool = true;
 	private String state; // Looking, Found, Eating
 	private VisionGUI gui;
-	private LongBuffer eatingMilli;
+	private int eatingCount;
 	
 	private List<BlockInfo> binfos;
 	private List<FidPattern> finfos;
@@ -65,10 +65,14 @@ public class BlockCollector implements NodeMain, Runnable {
 		state = "Looking";
 		binfos = new ArrayList<BlockInfo>();
 		finfos = new ArrayList<FidPattern>();
-		eatingMilli = LongBuffer.allocate(5);
 	}
 	
-	public boolean blockImminent() {
+	public boolean blockImminent(int timeCollecting, int timeNavigating) {
+		timeCollecting /= 30; // bins of 30 seconds
+		timeNavigating /= 30;
+		if (timeCollecting > timeNavigating + 2) {
+			return false;
+		}
 		return largestBlob().size > 90 || state.equals("Eating");
 	}
 	
@@ -182,12 +186,7 @@ public class BlockCollector implements NodeMain, Runnable {
             	state = "Eating";
             	timer = milli;
             	System.out.println("Changing state to Eating");
-            	try {
-            		eatingMilli.put(milli);
-            	} catch (BufferOverflowException e) {
-            		eatingMilli.get();
-            		eatingMilli.put(milli);
-            	}
+            	eatingCount += 1;
             }
         } else if (state.equals("Eating")) {
         	//2 seconds to make sure it's actually eaten the block.

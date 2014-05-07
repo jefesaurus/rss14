@@ -40,6 +40,8 @@ public class Main implements NodeMain, Runnable {
 	@Override
 	public void run() {
 		long startTime = System.currentTimeMillis();
+		int timeNavigatingSec = 0;
+		int timeCollectingSec = 0;
 		while (true) {
 			// make decisions about which modules should be activated based on information they have
 			// if less than 30 seconds left
@@ -49,24 +51,19 @@ public class Main implements NodeMain, Runnable {
 				navigator.resume();
 				blockCol.takeOverDriving(false);
 				gates.openBlueGate();
-			}
-			boolean runningOutOfTime = false;
-			if (runningOutOfTime) {
-				System.out.println("running out of time");
-				// prioritize shelter building
+			} else if (blockCol.blockImminent(timeCollectingSec, timeNavigatingSec)) {
+				System.out.println("collecting");
+				// do block collection
+				navigator.freeze();
+				blockCol.takeOverDriving(true);
+				timeCollectingSec += 1;
 			} else {
-				// block in the area
-				if (blockCol.blockImminent()) {
-					System.out.println("collecting");
-					// do block collection
-					navigator.freeze();
-					blockCol.takeOverDriving(true);
-				} else {
-					System.out.println("navigating");
-					// do navigation
-					navigator.resume();
-					blockCol.takeOverDriving(false);
-				}
+				System.out.println("navigating");
+				// do navigation
+				navigator.resume();
+				blockCol.takeOverDriving(false);
+				timeNavigatingSec += 1;
+			}
 			}
 			// only run this every second. It's not necessary to always be making these decisions
 			try {
