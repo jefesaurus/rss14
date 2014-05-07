@@ -5,10 +5,8 @@ import gui.*;
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.ros.message.MessageListener;
 import org.ros.message.rss_msgs.MotionMsg;
@@ -38,6 +36,7 @@ public class Navigator implements Runnable {
 		this.node = node;
 		this.gui = gui;
 		this.world = world;
+		this.world.navigator = this;
 		this.planner = new MotionPlanner(world);
 		
 		this.firstUpdate = true;

@@ -6,8 +6,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import navigation.Constants.CollisionCheck;
 
@@ -21,6 +23,8 @@ public class World {
 	protected Polygon viewCone;
 	protected Grid occupancyGrid;
 	protected Grid visibilityGrid;
+	
+	public Navigator navigator;
 
 	public World(File mapFile) throws IOException, ParseException {
 		if (mapFile != null) {
@@ -36,14 +40,14 @@ public class World {
 		parseFile(file);
 		
 		occupancyGrid = new Grid(region);
-		visibilityGrid = new Grid(region);
 		
-		for (Polygon obst : obstacles) {
-			occupancyGrid.markColliding(obst);
-		}
+		//for (Polygon obst : obstacles) {
+		//	occupancyGrid.markColliding(obst);
+		//}
 		
-		viewCone = Constants.createViewCone();
-		visibilityGrid.markColliding(getViewCone(start.configuration(0)));
+		//visibilityGrid = new Grid(region);
+		//viewCone = Constants.createViewCone();
+		//visibilityGrid.markColliding(getViewCone(start.configuration(0)));
 	}
 	
 	
@@ -210,7 +214,7 @@ public class World {
     	List<Point> points = new LinkedList<Point>();
     	for (int i=0;i<numPoints;i++){
     		parseInt(br);//Don't need to store the index.
-    		points.add(parsePoint(br));
+    		points.add(0, parsePoint(br));
     	}
     	parseToken(br,SECTION_END);    	
     	return new Polygon(points);
@@ -360,7 +364,7 @@ public class World {
 	
 	public boolean robotGridOnlyCollision(Configuration c, double grow) {
 		Shape placedRobot = getRobot(c, grow); //TODO lazily place robot
-		return occupancyGrid.collides(placedRobot, .1); //TODO adjust threshold
+		return occupancyGrid.collides(placedRobot); //TODO adjust threshold
 	}
 	
 	public boolean robotMapAndGridCollision(Configuration c, double grow) {
@@ -370,7 +374,7 @@ public class World {
 				return true;
 			}
 		}		
-		return !region.contains(placedRobot) || occupancyGrid.collides(placedRobot, .1); //TODO adjust threshold
+		return !region.contains(placedRobot) || occupancyGrid.collides(placedRobot); //TODO adjust threshold
 	}
 	
 	public boolean robotCollision(Configuration c, double grow, CollisionCheck check) {
@@ -381,4 +385,19 @@ public class World {
 		default: return true;
 		}
 	}
+	
+	float OCCUPANCY_RESOLUTION = .02f;
+	int OCCUPANCY_THRESHOLD = 3;
+	public void updateOccupancy(HashMap<IntTuple, double[]> occpancyMap) {
+		Configuration current = navigator.getConfiguration();
+		for (Map.Entry<IntTuple, double[]> cell : occpancyMap.entrySet()) {
+			double[] pointData = cell.getValue();
+			double numPoints = pointData[0];
+			if (numPoints > OCCUPANCY_THRESHOLD) {
+				IntTuple loc = cell.getKey();
+				Point point = new Point(loc.x*OCCUPANCY_RESOLUTION, loc.y*OCCUPANCY_RESOLUTION).forwardTransform(current);
+				occupancyGrid.markColliding(point);
+			}
+		}
+	}	
 }

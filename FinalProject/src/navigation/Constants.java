@@ -42,10 +42,10 @@ public class Constants {
 		
 		//Left wheel
 		points = new LinkedList<Point>();
-		points.add(new Point(0. - 2*grow, AXLE_DEPTH + WHEEL_RADIUS + grow)); // Front Right
-		points.add(new Point(0. + WHEEL_WIDTH, AXLE_DEPTH + WHEEL_RADIUS + grow)); // Front Left
-		points.add(new Point(0. + WHEEL_WIDTH, AXLE_DEPTH - WHEEL_RADIUS - grow)); // Back Left
-		points.add(new Point(0. - 2*grow, AXLE_DEPTH - WHEEL_RADIUS - grow)); // Back Right
+		points.add(new Point(0. + WHEEL_WIDTH, AXLE_DEPTH + WHEEL_RADIUS + grow)); // Front Right
+		points.add(new Point(0. - 2*grow, AXLE_DEPTH + WHEEL_RADIUS + grow)); // Front Left
+		points.add(new Point(0. - 2*grow, AXLE_DEPTH - WHEEL_RADIUS - grow)); // Back Left
+		points.add(new Point(0. + WHEEL_WIDTH, AXLE_DEPTH - WHEEL_RADIUS - grow)); // Back Right
 		polygons.add(new Polygon(points));
 				
 		return new Shape(polygons).translate(-ORIGIN_X, -ORIGIN_Y).rotate(-Math.PI/2, new Point(0., 0.));
@@ -111,12 +111,12 @@ public class Constants {
 	
 	// Motor Controllers
 	public static final double TRANSLATION_THRESHOLD = .05; 	//TODO - play with velocities more using interpolation
-	public static final double K_TRANSLATE = .5;
+	public static final double K_TRANSLATE = 1.0/1.0;
 	public static final double MAX_TV = 1.0;
-	public static final double MIN_TV = .3;
+	public static final double MIN_TV = .5;
 	
 	public static final double ROTATION_THRESHOLD = .2;
-	public static final double K_ROTATE = .3;
+	public static final double K_ROTATE = .5/(Math.PI/2);
 	public static final double MAX_RV = .5;
 	public static final double MIN_RV = .2;
 }

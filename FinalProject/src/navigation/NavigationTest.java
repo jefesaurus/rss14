@@ -5,12 +5,14 @@ import java.awt.Color;
 import java.util.LinkedList;
 import java.util.List;
 
+import navigation.Constants.CollisionCheck;
+import navigation.Constants.DriveSystem;
+
 import org.ros.message.lab6_msgs.GUIRectMsg;
 import org.ros.namespace.GraphName;
 import org.ros.node.Node;
 import org.ros.node.NodeMain;
 import org.ros.node.parameter.ParameterTree;
-import org.ros.node.topic.Subscriber;
 
 public class NavigationTest implements NodeMain {
 
@@ -41,26 +43,29 @@ public class NavigationTest implements NodeMain {
 		gui.draw();
 		gui.draw(world.getRobot(start), true, Color.BLUE);
 		gui.draw(world.getRobot(goal), true, Color.YELLOW);
-		//gui.draw(world.getViewCone(start), false, Color.BLUE);
 		//gui.draw(world.getOccupancyGrid(), Color.RED);
+
+		//gui.draw(world.getViewCone(start), false, Color.BLUE);
 		//gui.draw(world.getVisibilityGrid(), Color.GREEN);
 		
-		/*start = new Configuration(0, .2, Math.PI/2);
-		MotionPlanner planner = new MotionPlanner(world);
-		List<Waypoint> newPath = planner.plan(start, goal, Constants.PLANNING_ATTEMPTS.get(1));
+		/*MotionPlanner planner = new MotionPlanner(world);
+		List<Waypoint> newPath = planner.plan(start, goal, new LinearGrowthParameters(DriveSystem.FORWARD, CollisionCheck.GRIDONLY, .0, .0));
 		gui.draw(newPath, Color.GREEN);
 		gui.draw(planner.tree1, Color.BLUE);
 		gui.draw(planner.tree2, Color.RED);
-		System.out.println("Found path of length " + newPath.size() + " from " + start + " to " + goal + "\nTook " + planner.attempts + " attempts, " +
+		if (newPath != null) {
+			System.out.println("Found path of length " + newPath.size() + " from " + start + " to " + goal + "\nTook " + planner.attempts + " attempts, " +
 				planner.iterations + " iterations, " + planner.time/1000.0 + " seconds");
-		*/
+		} else {
+			System.out.println("Could not find path from " + start + " to " + goal);
+		}*/
 		
-		navigator = new Navigator(node, gui, world);
+		//navigator = new Navigator(node, gui, world);
 
 		//navigator.newGoal(goal);
 		//switchControlDemo(goal);
 		//blocksDemo(goal);
-		blocksDemoAddAll(goal);
+		//blocksDemoAddAll(goal);
 	}
 	
 	private void switchControlDemo(Configuration goal) {

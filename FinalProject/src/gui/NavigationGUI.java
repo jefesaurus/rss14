@@ -16,6 +16,10 @@ public class NavigationGUI extends ChallengeGUI implements NodeMain {
 		double radius = .025;
 		addEllipse(point.x, point.y, 2*radius, 2*radius, true, color);
 	}
+	
+	public void draw(Point point, double radius, Color color) {
+		addEllipse(point.x, point.y, 2*radius, 2*radius, true, color);
+	}
 
 	public void draw(BoundingBox box, boolean filled, Color color) {
 		addRect(box.min.x, box.min.y, box.max.x - box.min.x, box.max.y - box.min.y, filled, color);
@@ -45,8 +49,8 @@ public class NavigationGUI extends ChallengeGUI implements NodeMain {
 	}
 
 	public void draw(Grid grid, Color color) {
-		for (BoundingBox box : grid.getAboveThreshold(0.0)) {
-			draw(box, false, color);
+		for (Point point : grid.getColliding()) {
+			draw(point, Constants.GRID_RESOLUTION/2., color);
 		}
 	}
 
@@ -63,6 +67,7 @@ public class NavigationGUI extends ChallengeGUI implements NodeMain {
 		}
 		draw(world.getStart(), Color.BLUE);
 		draw(world.getGoal(), Color.YELLOW);
+		draw(world.getOccupancyGrid(), Color.RED);
 	}
 
 	public void draw(List<Waypoint> path, Color color) {
