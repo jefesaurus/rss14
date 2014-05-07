@@ -39,11 +39,12 @@ public class NavigationTest implements NodeMain {
 		}
 		this.node = node;
 		gui = new NavigationGUI(world);
-		Configuration start = world.getStart().configuration(0.);
+		//Configuration start = world.getStart().configuration(0.);
+		Configuration start = world.getStart().configuration(Math.PI);
 		Configuration goal = world.getGoal().configuration(Math.PI);
 
 		gui.clear();
-		gui.draw();
+		gui.draw(start);
 		gui.draw(world.getRobot(start), true, Color.BLUE);
 		gui.draw(world.getRobot(goal), true, Color.YELLOW);
 		//gui.draw(world.getOccupancyGrid(), Color.RED);
@@ -66,9 +67,9 @@ public class NavigationTest implements NodeMain {
 		navigator = new Navigator(node, gui, world);
 		//navigator.newGoal(goal);
 
-		int divideScale = 4;
-		kinecter = new KinectData(world, divideScale);
-		kinecter.onStart(node);
+		//int divideScale = 4;
+		//kinecter = new KinectData(world, divideScale);
+		//kinecter.onStart(node);
 		
 		
 		//switchControlDemo(goal);

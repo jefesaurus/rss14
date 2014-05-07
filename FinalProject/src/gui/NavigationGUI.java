@@ -67,8 +67,30 @@ public class NavigationGUI extends ChallengeGUI implements NodeMain {
 		}
 		draw(world.getStart(), Color.BLUE);
 		draw(world.getGoal(), Color.YELLOW);
+		
 		draw(world.getOccupancyGrid(), Color.RED);
 	}
+	
+	public void draw(Configuration robot) { //TODO Draw order
+		draw(world.getRegion(), false, Color.BLACK);
+		for (Fiducial fid : world.getFiducials()) {
+			draw(fid);
+		}
+		for (Block block : world.getBlocks()) {
+			draw(block);
+		}
+		for (Polygon obstacle : world.getObstacles()) {
+			draw(obstacle, true, Color.BLACK);
+		}
+		draw(world.getStart(), Color.BLUE);
+		draw(world.getGoal(), Color.YELLOW);
+		
+		draw(world.getOccupancyGrid(), Color.RED);
+		
+		draw(world.getRobot(robot), false, Color.GREEN);
+		draw(world.getViewCone(robot), false, Color.GREEN);
+	}
+	
 
 	public void draw(List<Waypoint> path, Color color) {
 		if (path == null || path.size() < 1) return;

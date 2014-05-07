@@ -52,14 +52,14 @@ public class Constants {
 	}
 	
 	public static final double VIEW_CONE_WIDTH = 1.;
-	public static final double VIEW_CONE_HEIGHT = 1.;
+	public static final double VIEW_CONE_HEIGHT = 2.;
 	
 	public static Polygon createViewCone() {
 		List<Point> points = new LinkedList<Point>();
-		points.add(new Point(.05, 0.)); // Origin
+		points.add(new Point(.2, 0.1)); // Origin
 		points.add(new Point(VIEW_CONE_WIDTH/2, VIEW_CONE_HEIGHT)); // Front Right
 		points.add(new Point(-VIEW_CONE_WIDTH/2, VIEW_CONE_HEIGHT)); // Front Left
-		points.add(new Point(-.05, 0.)); // Origin
+		points.add(new Point(-.2, 0.1)); // Origin
 		return new Polygon(points).translate(0, ORIGIN_Y/2).rotate(-Math.PI/2, new Point(0., 0.));
 	}
 	

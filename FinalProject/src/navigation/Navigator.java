@@ -8,6 +8,9 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import navigation.Constants.CollisionCheck;
+import navigation.Constants.DriveSystem;
+
 import org.ros.message.MessageListener;
 import org.ros.message.rss_msgs.MotionMsg;
 import org.ros.node.Node;
@@ -122,8 +125,9 @@ public class Navigator implements Runnable {
 					reference = new Configuration(message.x, message.y, message.theta);
 				}							
 				Configuration configuration = new Configuration(message.x, message.y, message.theta).inverseTransform(reference).forwardTransform(initial);	
-				gui.setRobotPose(configuration.x, configuration.y, configuration.theta);
+				//gui.setRobotPose(configuration.x, configuration.y, configuration.theta);
 				setConfiguration(configuration);
+				
 				draw();
 			}
 		});
@@ -228,6 +232,7 @@ public class Navigator implements Runnable {
 	
 	public void draw() {
 		gui.clear();
+		gui.draw(getConfiguration());
 		gui.draw();
 		if (goals.size() != 0) {
 			if (goals.get(0) instanceof Configuration) { //TODO - make less hacky
@@ -278,6 +283,16 @@ public class Navigator implements Runnable {
 		}
 	}
 	
+	
+	public boolean safePath(Configuration start, Configuration end, DriveSystem drive, CollisionCheck check) {
+		for (Configuration config : start.interpolatePath(end, drive)) {
+			if (world.robotCollision(config, 0.0, check)) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	//TODO - remove unused launch components
 	//TODO - remove netbook window of robot spaz
 	//TODO - automatically replan every couple seconds
@@ -286,9 +301,9 @@ public class Navigator implements Runnable {
 	//TODO - trianglulation using two fiducials and an angle differntial. Reset reference and initial
 	
 	public MotionMsg computeForwardVelocities(Configuration start, Configuration end) {
-		//if (!planner.safePath(start, end, DriveSystem.FORWARD, 0., CollisionCheck.MAPONLY)) {
+		//if (!safePath(start, end, DriveSystem.FORWARD, CollisionCheck.MAPONLY)) {
 		//	replan();
-		//	return null; //TODO collision checks to make sure if off path that it doesn't collide, else replan
+		//	return null; //TODO collision checks to make sure if off path that it doesn't collide
 		//}
 		
 		double translateAngle =  Util.vectorAngle(end.x - start.x ,end.y - start.y);
@@ -318,7 +333,7 @@ public class Navigator implements Runnable {
 	}
 	
 	public MotionMsg computeBackwardVelocities(Configuration start, Configuration end) {
-		//if (!planner.safePath(start, end, DriveSystem.BACKWARD, 0., CollisionCheck.MAPONLY)) {
+		//if (!safePath(start, end, DriveSystem.BACKWARD, CollisionCheck.MAPONLY)) {
 		//	replan();
 		//	return null; //TODO collision checks to make sure if off path that it doesn't collide
 		//}

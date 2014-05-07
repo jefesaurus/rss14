@@ -39,7 +39,7 @@ public class World {
 	private void loadWorld(File file) throws IOException, ParseException{
 		parseFile(file);
 		
-		start = new Point(2.7 , 4.38); //TODO 
+		start = new Point(2.6 , 4.38); //TODO 
 		
 		occupancyGrid = new Grid(region);
 		
@@ -48,7 +48,7 @@ public class World {
 		//}
 		
 		//visibilityGrid = new Grid(region);
-		//viewCone = Constants.createViewCone();
+		viewCone = Constants.createViewCone();
 		//visibilityGrid.markColliding(getViewCone(start.configuration(0)));
 	}
 	
@@ -392,13 +392,17 @@ public class World {
 	int OCCUPANCY_THRESHOLD = 3;
 	public void updateOccupancy(HashMap<IntTuple, double[]> occpancyMap) {		
 		Configuration current = navigator.getConfiguration();
+		Polygon placedCone = getViewCone(current);
+		
 		for (Map.Entry<IntTuple, double[]> cell : occpancyMap.entrySet()) {
 			double[] pointData = cell.getValue();
 			double numPoints = pointData[0];
 			if (numPoints > OCCUPANCY_THRESHOLD) {
 				IntTuple loc = cell.getKey();
 				Point point = new Point(loc.x*OCCUPANCY_RESOLUTION, loc.y*OCCUPANCY_RESOLUTION).forwardTransform(current);
-				occupancyGrid.markColliding(point);
+				if (placedCone.contains(point)) {
+					occupancyGrid.markColliding(point);
+				}
 			}
 		}
 	}	

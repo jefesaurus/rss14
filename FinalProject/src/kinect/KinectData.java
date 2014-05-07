@@ -38,7 +38,6 @@ public class KinectData implements NodeMain {
 	private int[][][] rgb;
 	private boolean[][] wallMask;
 	private double[][] xyz;
-	public Pose pose;
 	public Pose3D kinectPose;
 	HashMap<IntTuple, double[]> occupancy;
 	public Image rep;
