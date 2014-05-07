@@ -39,6 +39,8 @@ public class World {
 	private void loadWorld(File file) throws IOException, ParseException{
 		parseFile(file);
 		
+		start = new Point(2.7 , 4.38); //TODO 
+		
 		occupancyGrid = new Grid(region);
 		
 		//for (Polygon obst : obstacles) {
@@ -388,7 +390,7 @@ public class World {
 	
 	float OCCUPANCY_RESOLUTION = .02f;
 	int OCCUPANCY_THRESHOLD = 3;
-	public void updateOccupancy(HashMap<IntTuple, double[]> occpancyMap) {
+	public void updateOccupancy(HashMap<IntTuple, double[]> occpancyMap) {		
 		Configuration current = navigator.getConfiguration();
 		for (Map.Entry<IntTuple, double[]> cell : occpancyMap.entrySet()) {
 			double[] pointData = cell.getValue();

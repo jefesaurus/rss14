@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.util.LinkedList;
 import java.util.List;
 
+import kinect.KinectData;
+
 import navigation.Constants.CollisionCheck;
 import navigation.Constants.DriveSystem;
 
@@ -20,6 +22,7 @@ public class NavigationTest implements NodeMain {
 	public World world;
 	private NavigationGUI gui;
 	private Navigator navigator;
+	private KinectData kinecter;
 
 	public NavigationTest() {		
 	}
@@ -60,9 +63,14 @@ public class NavigationTest implements NodeMain {
 			System.out.println("Could not find path from " + start + " to " + goal);
 		}*/
 		
-		//navigator = new Navigator(node, gui, world);
-
+		navigator = new Navigator(node, gui, world);
 		//navigator.newGoal(goal);
+
+		int divideScale = 4;
+		kinecter = new KinectData(world, divideScale);
+		kinecter.onStart(node);
+		
+		
 		//switchControlDemo(goal);
 		//blocksDemo(goal);
 		//blocksDemoAddAll(goal);

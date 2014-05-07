@@ -6,6 +6,7 @@ public class GridCell {
 	public final int index;
 	public final Point point;
 	public double value;
+	public long lastUpdate = -1;
 	
 	public GridCell(int x, int y, int index, Point point) {
 		this.x = x;

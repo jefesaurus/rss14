@@ -245,7 +245,7 @@ public class MotionPlanner {
 				//path = extractPath(path);
 				path = extractPath(smoothPath(path));
 				
-				path = lengthenPath(path);
+				//path = lengthenPath(path);
 				
 				path.remove(0);
 				

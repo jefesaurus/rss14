@@ -44,7 +44,9 @@ public class Navigator implements Runnable {
 		this.pathReset = false;
 		this.immediateLock = false;
 		this.reference = null;
-		this.initial = world.getStart().configuration(0.); //Alec said that we can assume the robot starts facing east (angle 0)
+		//this.initial = world.getStart().configuration(0.); //Alec said that we can assume the robot starts facing east (angle 0) //TODO
+		this.initial = world.getStart().configuration(Math.PI); //Alec said that we can assume the robot starts facing east (angle 0)
+
 		this.current = null;
 		
 		this.goals = Collections.synchronizedList(new LinkedList<Goal>());		
@@ -100,7 +102,9 @@ public class Navigator implements Runnable {
 							Waypoint waypoint = planner.safeForward(start);
 							goals.add(0, waypoint.config);
 							setPath(new LinkedList<Waypoint>(Arrays.asList(waypoint)));
-							draw();
+							
+							
+							draw(); //TODO
 						}
 					}
 				});
@@ -120,6 +124,7 @@ public class Navigator implements Runnable {
 				Configuration configuration = new Configuration(message.x, message.y, message.theta).inverseTransform(reference).forwardTransform(initial);	
 				gui.setRobotPose(configuration.x, configuration.y, configuration.theta);
 				setConfiguration(configuration);
+				draw();
 			}
 		});
 		

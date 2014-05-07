@@ -61,7 +61,11 @@ public class Grid {
 		List<Point> points = new LinkedList<Point>();
 		
 		for (GridCell cell : occupied) {
-			points.add(cell.point);
+			if (System.currentTimeMillis() - cell.lastUpdate > 5*1000) {
+				points.add(cell.point);
+			} else {
+				
+			}
 		}
 		
 		return points;
@@ -71,6 +75,7 @@ public class Grid {
 		GridCell cell = cell(point);
 		if (cell != null) {
 			cell.value += 1;
+			cell.lastUpdate = System.currentTimeMillis();
 			occupied.add(cell);
 		}
 	}
@@ -80,6 +85,7 @@ public class Grid {
 			for (int y = getY(poly.boundingBox.min); y <= getY(poly.boundingBox.max); y++) {
 				if (valid(x, y) && poly.contains(cell(x, y).point)) {
 					cell(x, y).value += 1;
+					cell(x, y).lastUpdate = System.currentTimeMillis();
 					occupied.add(cell(x, y));
 				}
 			}
