@@ -40,25 +40,25 @@ public class KinectTest implements NodeMain, Runnable {
   public Pose pose;
   public Pose3D kinectPose;
   HashMap<IntTuple, double[]> occupancy;
+  HashMap<IntTuple, int[]> fid_occupancy;
 
   public boolean POINT_GUI = false;
-  public boolean VISION_GUI = true;
+  public boolean FID_GUI = true;
+  public boolean VISION_GUI = false;
 
 	public KinectTest() {
 		System.out.println("Constructed GUI");
 
-    if (POINT_GUI) {
+    if (POINT_GUI || FID_GUI) {
 		  gui = new KinectGUI();
 	    gui.setRobotPose(0., 0., 0.);
     }
     if (VISION_GUI) {
 		  vgui = new VisionGUI();
     }
-    kinectPose = new Pose3D(new Point3D(0.0, 0.67, 0.0), Math.PI/2., -Math.PI/2. - .571, 0.);
-    //kinectPose = new Pose3D(new Point3D(0.0, 0.67, 0.0), Math.PI/2., -Math.PI/2. - .34, 0.);
-
+    kinectPose = new Pose3D(new Point3D(0, 0.67, 0.), Math.PI/2., -Math.PI/2. - .495, 0.);
     occupancy = new HashMap<IntTuple, double[]>();
-
+    fid_occupancy = new HashMap<IntTuple, int[]>();
 	}
 
 	@Override
@@ -93,7 +93,7 @@ public class KinectTest implements NodeMain, Runnable {
   //B = 1
   int START_COL = 100;
   int END_COL = 540;
-  int START_ROW = 140;
+  int START_ROW = 0;
   int END_ROW = 480;
   /*
   int START_COL = 200;
@@ -103,8 +103,9 @@ public class KinectTest implements NodeMain, Runnable {
   */
 
 
-  float OCCUPANCY_RESOLUTION = .05f;
+  float OCCUPANCY_RESOLUTION = .02f;
   int OCCUPANCY_THRESHOLD = 3;
+  int FID_OCCUPANCY = 5;
   public void unpackPointCloudData(int width, int height, int pointStep, int rowStep, byte[] data) {
     int offset, x_i, y_i, z_i, r_i, g_i, b_i;
     float x, y, z;
@@ -136,17 +137,48 @@ public class KinectTest implements NodeMain, Runnable {
           point = kinectPose.fromFrame(new Point3D(x, y, z));
           if (point.z > 0.0) {
             IntTuple loc = new IntTuple((int)(point.x/OCCUPANCY_RESOLUTION), (int)(point.y/OCCUPANCY_RESOLUTION));
-            double[] point_data = occupancy.get(loc);
             Color.RGBtoHSB(r,g,b,hsv);
-            //System.out.println("r: " + r + " g: " +g + " b: " + b);
-            //System.out.println("h: " + hsv[0] + " s: " + hsv[1] + " v: " + hsv[2]);
-            rep.setPixel(col - START_COL, row - START_ROW, data[r_i], data[g_i], data[b_i]);
+
+            double[] point_data = occupancy.get(loc);
+            int[] fid_data = fid_occupancy.get(loc);
+
+            // Check fiducials
+            if (point.z > .15) {
+              if (fid_data == null) {
+                if (checkRedFid(hsv[0], hsv[1], hsv[2])) {
+                  fid_occupancy.put(loc, new int[] {1,0,0,0,0});
+                } else if (checkOrangeFid(hsv[0], hsv[1], hsv[2])) {
+                  fid_occupancy.put(loc, new int[] {0,1,0,0,0});
+                } else if (checkYellowFid(hsv[0], hsv[1], hsv[2])) {
+                  fid_occupancy.put(loc, new int[] {0,0,1,0,0});
+                } else if (checkGreenFid(hsv[0], hsv[1], hsv[2])) {
+                  fid_occupancy.put(loc, new int[] {0,0,0,1,0});
+                } else if (checkBlueFid(hsv[0], hsv[1], hsv[2])) {
+                  fid_occupancy.put(loc, new int[] {0,0,0,0,1});
+                }
+              } else {
+                if (checkRedFid(hsv[0], hsv[1], hsv[2])) {
+                  fid_data[0] ++;
+                } else if (checkOrangeFid(hsv[0], hsv[1], hsv[2])) {
+                  fid_data[1] ++;
+                } else if (checkYellowFid(hsv[0], hsv[1], hsv[2])) {
+                  fid_data[2] ++;
+                } else if (checkGreenFid(hsv[0], hsv[1], hsv[2])) {
+                  fid_data[3] ++;
+                } else if (checkBlueFid(hsv[0], hsv[1], hsv[2])) {
+                  fid_data[4] ++;
+                }
+              }
+            }
+
             if (point_data == null) {
-              if (checkRed(hsv[0], hsv[1], hsv[2])) {
+              if (checkNotColor(hsv[0], hsv[1], hsv[2])) {
+                occupancy.put(loc, new double[] {1,point.z,0,0,0});
+              } else if (checkRedBlock(hsv[0], hsv[1], hsv[2])) {
                 occupancy.put(loc, new double[] {1,point.z,0, 1,0});
-              } else if (checkGreen(hsv[0], hsv[1], hsv[2])) {
+              } else if (checkGreenBlock(hsv[0], hsv[1], hsv[2])) {
                 occupancy.put(loc, new double[] {1,point.z,0,0, 1});
-              } else if (checkYellow(hsv[0], hsv[1], hsv[2])) {
+              } else if (checkYellowBlock(hsv[0], hsv[1], hsv[2])) {
                 occupancy.put(loc, new double[] {1,point.z, 1,0,0});
               } else {
                 occupancy.put(loc, new double[] {1,point.z,0,0,0});
@@ -154,12 +186,14 @@ public class KinectTest implements NodeMain, Runnable {
             } else {
               point_data[0] ++;
               point_data[1] += point.z;
-              if (checkRed(hsv[0], hsv[1], hsv[2])) {
-                point_data[3] ++;
-              } else if (checkGreen(hsv[0], hsv[1], hsv[2])) {
-                point_data[4] ++;
-              } else if (checkYellow(hsv[0], hsv[1], hsv[2])) {
-                point_data[2] ++;
+              if (!checkNotColor(hsv[0], hsv[1], hsv[2])) {
+                if (checkRedBlock(hsv[0], hsv[1], hsv[2])) {
+                  point_data[3] ++;
+                } else if (checkGreenBlock(hsv[0], hsv[1], hsv[2])) {
+                  point_data[4] ++;
+                } else if (checkYellowBlock(hsv[0], hsv[1], hsv[2])) {
+                  point_data[2] ++;
+                }
               }
             }
           }
@@ -169,9 +203,29 @@ public class KinectTest implements NodeMain, Runnable {
     if (VISION_GUI) {
       vgui.setVisionImage(rep.toArray(), pic_width, pic_height);
     }
-    if (POINT_GUI) {
+    if (POINT_GUI || FID_GUI) {
       gui.erasePoints();
     }
+
+    if (FID_GUI) {
+      for (Map.Entry<IntTuple, int[]> cell : fid_occupancy.entrySet()) {
+        IntTuple loc = cell.getKey();
+        int[] point_data = cell.getValue();
+        if (point_data[0] > FID_OCCUPANCY) {
+          gui.addPoint(loc.x*OCCUPANCY_RESOLUTION, loc.y*OCCUPANCY_RESOLUTION, 1, Color.RED);
+        }
+        if (point_data[1] > FID_OCCUPANCY) {
+          gui.addPoint(loc.x*OCCUPANCY_RESOLUTION+1, loc.y*OCCUPANCY_RESOLUTION, 1, Color.ORANGE);
+        }
+        if (point_data[2] > FID_OCCUPANCY) {
+          gui.addPoint(loc.x*OCCUPANCY_RESOLUTION+2, loc.y*OCCUPANCY_RESOLUTION, 1, Color.YELLOW);
+        }
+        if (point_data[4] > FID_OCCUPANCY) {
+          gui.addPoint(loc.x*OCCUPANCY_RESOLUTION+4, loc.y*OCCUPANCY_RESOLUTION, 1, Color.BLUE);
+        }
+      }
+    }
+
     for (Map.Entry<IntTuple, double[]> cell : occupancy.entrySet()) {
       double[] point_data = cell.getValue();
       double num_points = point_data[0];
@@ -203,52 +257,69 @@ public class KinectTest implements NodeMain, Runnable {
       }
     }
     occupancy.clear();
+    fid_occupancy.clear();
   }
 
-  //greenRange = new HSBRanges(.35f, .45f, .6f, 1.f, .3f, 1.f);
-  public boolean checkGreen(float hue, float sat, float bright) {
-    //if (sat < .6f) return false;
-    //if (bright < .3f || bright > 1.f) return false;
-    return (hue > .2f && hue < .45f);
+  // Block
+  public boolean checkNotColor(float hue, float sat, float bright) {
+    return (sat < .5f);
   }
 
-  //yellowRange = new HSBRanges(.1f, .2f, .4f, 1.f, .4f, 1.f);
-  public boolean checkYellow(float hue, float sat, float bright) {
-    //if (sat < .5f) return false;
-    //if (bright < .4f) return false;
-    return (hue > .13f && hue < .19f);
+  public boolean checkRedBlock(float hue, float sat, float bright) {
+    return  (sat > .5f) &&
+            (bright > .5f) &&
+            (hue > .90f || hue < .1f);
   }
 
-  //redRange = new HSBRanges(.0f, .05f, .5f, 1.f, .5f, 1.f);
-  //349
-  public boolean checkRed(float hue, float sat, float bright) {
-    //if (sat < .5f) return false;
-    //if (bright < .5f) return false;
-    return (hue > .90f || hue < .1f);
+  public boolean checkYellowBlock(float hue, float sat, float bright) {
+    return  (sat < .6f) &&
+            (bright < .5f) &&
+            (hue > .1f && hue < .2f);
   }
 
-  //orangeRange = new HSBRanges(.05f, .08f, .5f, 1.f, .4f, 1.f);
-  public boolean checkOrange(float hue, float sat, float bright) {
-    float hueMin = .05f; float hueMax = .08f;
-    float satMin = .5f;float satMax = 1.f;
-    float brightMin = .4f;float brightMax = 1.f;
-    if (hue < hueMin || hue > hueMax) return false;
-    if (sat < satMin || sat > satMax) return false;
-    if (bright < brightMin || bright > brightMax) return false;
-    return true;
+  public boolean checkGreenBlock(float hue, float sat, float bright) {
+    return  (sat > .5f) &&
+            (bright > .4f) &&
+            (hue > .25f && hue < .32f);
   }
 
-
-  //blueRange = new HSBRanges(.5f, .7f, .4f, 1.f, .2f, .4f);
-  public boolean checkBlue(float hue, float sat, float bright) {
-    float hueMin = .5f; float hueMax = .7f;
-    float satMin = .4f; float satMax = 1.f;
-    float brightMin = .2f; float brightMax = .4f;
-    if (hue < hueMin || hue > hueMax) return false;
-    if (sat < satMin || sat > satMax) return false;
-    if (bright < brightMin || bright > brightMax) return false;
-    return true;
+  public boolean checkBlueBlock(float hue, float sat, float bright) {
+    return  (sat > .5f) &&
+            (bright > .2f) &&
+            (hue > .6f && hue < .73f);
   }
+
+  // FIDS
+  public boolean checkRedFid(float hue, float sat, float bright) {
+    return (sat > .5f) &&
+            (bright > .3f) &&
+            (hue > .85f || hue < .01f);
+  }
+
+  public boolean checkOrangeFid(float hue, float sat, float bright) {
+    return (sat > .7f) &&
+            (bright > .5f) &&
+            (hue > .01f && hue < .09f);
+  }
+
+  public boolean checkYellowFid(float hue, float sat, float bright) {
+    return (sat > .5f) &&
+            (bright > .5f) &&
+            (hue > .09f && hue < .17f);
+  }
+
+  public boolean checkGreenFid(float hue, float sat, float bright) {
+    return (sat > .4f) &&
+            (bright > .3f) &&
+            (hue > .33f && hue < .43f);
+  }
+
+  public boolean checkBlueFid(float hue, float sat, float bright) {
+    return (sat > .4f) &&
+            (bright > .2f) &&
+            (hue > .54f && hue < .62f);
+  }
+
 
 	public void onShutdown(Node node) {
 		if (node != null) {

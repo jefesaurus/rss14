@@ -54,12 +54,12 @@ public class Main implements NodeMain, Runnable {
 				if (blockCol.blockImminent()) {
 					System.out.println("collecting");
 					// do block collection
-//					navigator.freeze();
+					navigator.freeze();
 					blockCol.takeOverDriving(true);
 				} else {
 					System.out.println("navigating");
 					// do navigation
-//					navigator.resume();
+					navigator.resume();
 					blockCol.takeOverDriving(false);
 				}
 			}
@@ -99,19 +99,19 @@ public class Main implements NodeMain, Runnable {
 			e.printStackTrace();
 		}
 		this.node = node;
-//		gui = new NavigationGUI(world);
-//		Configuration start = world.getStart().configuration(0);
-//		Configuration goal = world.getGoal().configuration(Math.PI);
-//
-//		gui.clear();
-//		gui.draw();
-//		gui.draw(world.getRobot(start), true, Color.BLUE);
-//		gui.draw(world.getRobot(goal), true, Color.RED);
-//		gui.draw(world.getViewCone(start), false, Color.BLUE);
-//		gui.draw(world.getOccupancyGrid(), Color.RED);
-//		gui.draw(world.getVisibilityGrid(), Color.GREEN);
-//		
-//		navigator = new Navigator(node, gui, world);
+		gui = new NavigationGUI(world);
+		Configuration start = world.getStart().configuration(0);
+		Configuration goal = world.getGoal().configuration(Math.PI);
+
+		gui.clear();
+		gui.draw();
+		gui.draw(world.getRobot(start), true, Color.BLUE);
+		gui.draw(world.getRobot(goal), true, Color.RED);
+		gui.draw(world.getViewCone(start), false, Color.BLUE);
+		gui.draw(world.getOccupancyGrid(), Color.RED);
+		gui.draw(world.getVisibilityGrid(), Color.GREEN);
+		
+		navigator = new Navigator(node, gui, world);
 		
 		System.out.println("Creating the rest");
 		// set up driving module
@@ -125,10 +125,10 @@ public class Main implements NodeMain, Runnable {
 		// set up gates controller
 		gates.onStart(node);
 		
-//		for (Block block : world.getBlocks()) {
-//			navigator.newGoal(block.position);
-//		}
-//		navigator.newGoal(goal);
+		for (Block block : world.getBlocks()) {
+			navigator.newGoal(block.position);
+		}
+		navigator.newGoal(goal);
 		
 		Thread runThis = new Thread(this);
 		runThis.start();
@@ -139,7 +139,4 @@ public class Main implements NodeMain, Runnable {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	
-
 }

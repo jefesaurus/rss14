@@ -35,7 +35,8 @@ public class KinectData implements NodeMain {
 	public Subscriber<org.ros.message.sensor_msgs.PointCloud2> kinSub;
 	public boolean firstUpdate;
 	private int[][][] rgb;
-	private double[][] zCoord;
+	private boolean[][] wallMask;
+	private double[][] xyz;
 	public Pose pose;
 	public Pose3D kinectPose;
 	HashMap<IntTuple, double[]> occupancy;
@@ -56,10 +57,11 @@ public class KinectData implements NodeMain {
 		System.out.println("Kinect node constructed");
 		this.divideScale = divideScale;
 		rgb = new int[width/divideScale][height/divideScale][3];
-		zCoord = new double[width/divideScale][height/divideScale];
+		xyz = new double[width/divideScale][height/divideScale];
+		wallMask = new boolean[width/divideScale][height/divideScale];
 		rep = new Image(width/divideScale, height/divideScale);
 
-		this.kinectPose = new Pose3D(new Point3D(0.0, 0.67, 0.0), Math.PI/2, -Math.PI/2. - .571, 0.);
+		this.kinectPose = new Pose3D(new Point3D(0, 0.67, 0.), Math.PI/2., -Math.PI/2. - .495, 0.);;
 	
 	    this.occupancy = new HashMap<IntTuple, double[]>();
 	}
@@ -113,19 +115,7 @@ public class KinectData implements NodeMain {
 	}
 	
 	public boolean[][] getWallMask() {
-		boolean[][] mask = new boolean[this.getWidth()][this.getHeight()];
-		for (int x = 0; x < this.getWidth(); x++) {
-			for (int y = 0; y < this.getHeight(); y++) {
-				//TODO: Decide what is a wall and what is not
-				if (zCoord[x][y] < .1){
-					mask[x][y] = true;
-				} else {
-					mask[x][y] = false;
-				}
-					
-			}
-		}
-		return mask;
+		return wallMask;
 	}
 	
 	public boolean[][] getBlockMask() {
@@ -184,7 +174,6 @@ public class KinectData implements NodeMain {
     int r, g, b;
     Point3D point;
     
-    
     synchronized (rgb) {
     	 int stepSize = this.divideScale;
     	    for (int row = START_ROW; row < END_ROW; row += stepSize) {
@@ -202,6 +191,11 @@ public class KinectData implements NodeMain {
 			        r = (data[r_i] & 0xff);
 			        g = (data[g_i] & 0xff);
 			        b = (data[b_i] & 0xff);
+			        
+			     // fill in rgb
+  		        	rgb[(col-START_COL)/divideScale][(row-START_ROW)/divideScale][2] = r;
+  		        	rgb[(col-START_COL)/divideScale][(row-START_ROW)/divideScale][1] = g;
+  		        	rgb[(col-START_COL)/divideScale][(row-START_ROW)/divideScale][0] = b;
 
 	    	        if (!Float.isNaN(x) && !Float.isNaN(y) && !Float.isNaN(z)) {
 	    	        	point = kinectPose.fromFrame(new Point3D(x, y, z));
@@ -216,11 +210,13 @@ public class KinectData implements NodeMain {
 	    		              point_data[1] += point.z;
 	    		            }
 	    		          }
-	    		        zCoord[(col-START_COL)/divideScale][(row-START_ROW)/divideScale] = point.z;
-	    		       // fill in rgb
-	  		        	rgb[(col-START_COL)/divideScale][(row-START_ROW)/divideScale][2] = r;
-	  		        	rgb[(col-START_COL)/divideScale][(row-START_ROW)/divideScale][1] = g;
-	  		        	rgb[(col-START_COL)/divideScale][(row-START_ROW)/divideScale][0] = b;
+	    		        if (point.z > 0.15) {
+	    		        	wallMask[(col-START_COL)/divideScale][(row-START_ROW)/divideScale] = true;
+	    		        } else {
+	    		        	wallMask[(col-START_COL)/divideScale][(row-START_ROW)/divideScale] = false;
+	    		        }
+	    		        xyz[(col-START_COL)/divideScale][(row-START_ROW)/divideScale] = z;
+	    		       
 	    	      }
     	    }
     	  }

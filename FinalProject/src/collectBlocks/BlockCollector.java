@@ -42,6 +42,7 @@ public class BlockCollector implements NodeMain, Runnable {
 	public boolean guiOn = true;
 	private boolean processBool = true;
 	private boolean collectBool = true;
+	private String state; // Looking, Found, Eating
 	private VisionGUI gui;
 	
 	private List<BlockInfo> binfos;
@@ -56,6 +57,7 @@ public class BlockCollector implements NodeMain, Runnable {
 		this.driveMaster = driveMaster;
 		this.kinecter = kinecter;
 		this.gates = gates;
+		state = "Looking";
 		binfos = new ArrayList<BlockInfo>();
 		finfos = new ArrayList<FidPattern>();
 	}
@@ -102,10 +104,6 @@ public class BlockCollector implements NodeMain, Runnable {
 		srcArray = kinecter.getRGBArray();
 		boolean[][] wallMask = kinecter.getWallMask();
 		boolean[][] blockMask = kinecter.getBlockMask();
-		
-		
-
-		
 //		process here
 		if (guiOn){
 			Image dest = kinecter.getImage();
@@ -117,16 +115,13 @@ public class BlockCollector implements NodeMain, Runnable {
 			
 //			cct.calibrateHelp(srcArray, dest);
 //			cct.debugHelp(srcArray, dest);
-//			cct.maskHelp(srcArray, blockMask, dest);
+//			cct.maskHelp(srcArray, wallMask, dest);
 			gui.setVisionImage(dest.toArray(), width, height);
 		} else {
 			binfos = cct.getBlockInfosForFrame(srcArray, blockMask, 50, true);
 			// fiducials
 			finfos = fidFind.findFids(srcArray, wallMask, 50);
 		}
-		
-		
-		
 //		System.out.println("Kinect data processed: " + System.nanoTime()/1000000);
 	}
 	
@@ -135,26 +130,62 @@ public class BlockCollector implements NodeMain, Runnable {
     public double BEARING_GAIN = 1.;
     public double desiredRange = 441/4; // desired centroid.y in pixels
     public double desiredBearing = 391/4; //desired centroid.x in pixels
+    private long timer;
 	/**
 	 * Should be called in the run command if you want the robot to servo
 	 * to the closest object.
 	 */
 	private void collect() {
+		System.out.println("state : " + state);
 		// publish velocity messages to move the robot towards the target
         double tv = 0.0;
         double rv = 0.0;
-        // always go forward and adjust rv to collect
+        // driving stuff
+        BlockInfo b = null;
         if (!binfos.isEmpty()) {
-        	BlockInfo b = binfos.get(0);
-            // Very basic proportional controller
-//        	System.out.println("size : " + b.size + " | cx : " + b.centroid.x + " | cy : " + b.centroid.y);
-            double rangeError = desiredRange - b.centroid.y; // negative because y pixels increase downward
-//            double bearingError = desiredBearing - b.centroid.x;
-            double bearingError = ((double)(width/2 - b.centroid.x))/width;
-            tv = .2;
-            rv = bearingError*BEARING_GAIN;
+        	b = binfos.get(0);
+        }
+        if (state.equals("Looking") || state.equals("Found")) {
+        	if (b != null) {
+                // Very basic proportional controller
+//            	System.out.println("size : " + b.size + " | cx : " + b.centroid.x + " | cy : " + b.centroid.y);
+                double rangeError = desiredRange - b.centroid.y; // negative because y pixels increase downward
+//                double bearingError = desiredBearing - b.centroid.x;
+                double bearingError = ((double)(width/2 - b.centroid.x))/width;
+                tv = .2;
+                rv = bearingError*BEARING_GAIN;
+            }
+        } else if (state.equals("Eating")) {
+        	tv = .2;
+        } else {
+        	System.out.println("Unknown state " + state);
         }
         
+        long milli = System.nanoTime()/1000000;
+        // next state decisions
+        if (state.equals("Looking")) {
+        	//next state is "Found" if block is within 2nd tenth from the bottom
+            if (b != null && b.centroid.y > .8*height) {
+            	state = "Found";
+            	timer = milli;
+            	System.out.println("Changing state to Found");
+            }
+        } else if (state.equals("Found")) {
+        	if (b != null && b.centroid.y < .8*height) {
+        		state = "Eating";
+        		timer = milli;
+        		System.out.println("Changing state to Eating");
+        	}
+        } else if (state.equals("Eating")) {
+        	//2 seconds to make sure it's actually eaten the block.
+        	if ((milli - timer) > 2000) {
+        		state = "Looking";
+        		timer = milli;
+        		System.out.println("Changing state to Looking");
+        	}
+        } else {
+        	System.out.println("Unknown state again");
+        }
 //        System.out.println("tv : " +tv+" |rv : "+rv);
 
         driveMaster.setVelocity(tv, rv);
