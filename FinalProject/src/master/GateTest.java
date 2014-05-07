@@ -24,14 +24,17 @@ public class GateTest implements NodeMain, Runnable {
 			// open front gate
 			System.out.println("opening front gate");
 			gates.openFrontGate();
+			gates.closeBlueGate();
 			Thread.sleep(3000);
 			// close front gate
 			System.out.println("Closing front gate");
 			gates.closeFrontGate();
+			gates.openBlueGate();
 			Thread.sleep(3000);
 			// open front gate
 			System.out.println("Opening front gate again");
 			gates.openFrontGate();
+			gates.closeBlueGate();
 			Thread.sleep(3000);
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();

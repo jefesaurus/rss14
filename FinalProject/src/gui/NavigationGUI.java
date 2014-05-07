@@ -55,7 +55,6 @@ public class NavigationGUI extends ChallengeGUI implements NodeMain {
 			draw(iter.next().point, Constants.GRID_RESOLUTION/2., color);
 		}
 		
-		
 		//for (Point point : grid.getColliding()) {
 		//	draw(point, Constants.GRID_RESOLUTION/2., color);
 		//}
