@@ -1,6 +1,8 @@
 package collectBlocks;
 
 import java.awt.Point;
+import java.nio.BufferOverflowException;
+import java.nio.LongBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -44,6 +46,7 @@ public class BlockCollector implements NodeMain, Runnable {
 	private boolean collectBool = true;
 	private String state; // Looking, Found, Eating
 	private VisionGUI gui;
+	private LongBuffer eatingMilli;
 	
 	private List<BlockInfo> binfos;
 	private List<FidPattern> finfos;
@@ -60,10 +63,23 @@ public class BlockCollector implements NodeMain, Runnable {
 		state = "Looking";
 		binfos = new ArrayList<BlockInfo>();
 		finfos = new ArrayList<FidPattern>();
+		eatingMilli = LongBuffer.allocate(5);
 	}
 	
 	public boolean blockImminent() {
-		return largestBlob().size > 90;
+		long[] eatingArray = eatingMilli.array();
+		long total = 0;
+		long current = eatingArray[0];
+		for (long m : eatingArray) {
+			total += m - current;
+			current = m;
+		}
+		long avg = total/eatingArray.length;
+		if (avg < 10000) {
+			System.out.println("Too much eating. I should probably stop. Avg: " + avg);
+//			return false;
+		}
+		return largestBlob().size > 90 || state.equals("eating");
 	}
 	
 	public void setProcessing (boolean toggle) {
@@ -122,6 +138,7 @@ public class BlockCollector implements NodeMain, Runnable {
 			// fiducials
 			finfos = fidFind.findFids(srcArray, wallMask, 50);
 		}
+		
 //		System.out.println("Kinect data processed: " + System.nanoTime()/1000000);
 	}
 	
@@ -145,7 +162,7 @@ public class BlockCollector implements NodeMain, Runnable {
         if (!binfos.isEmpty()) {
         	b = binfos.get(0);
         }
-        if (state.equals("Looking") || state.equals("Found")) {
+        if (state.equals("Looking")) {
         	if (b != null) {
                 // Very basic proportional controller
 //            	System.out.println("size : " + b.size + " | cx : " + b.centroid.x + " | cy : " + b.centroid.y);
@@ -169,13 +186,13 @@ public class BlockCollector implements NodeMain, Runnable {
             	state = "Eating";
             	timer = milli;
             	System.out.println("Changing state to Eating");
+            	try {
+            		eatingMilli.put(milli);
+            	} catch (BufferOverflowException e) {
+            		eatingMilli.get();
+            		eatingMilli.put(milli);
+            	}
             }
-        } else if (state.equals("Found")) {
-        	if (b != null && b.centroid.y < .8*height) {
-        		state = "Eating";
-        		timer = milli;
-        		System.out.println("Changing state to Eating");
-        	}
         } else if (state.equals("Eating")) {
         	//2 seconds to make sure it's actually eaten the block.
         	if (Math.abs(milli - timer) > 5000) {
@@ -196,8 +213,7 @@ public class BlockCollector implements NodeMain, Runnable {
 		while (true) {
 			if (this.processBool)
 				processData();
-			if (this.collectBool)
-				collect();
+			collect();
 		}
 	}
 
