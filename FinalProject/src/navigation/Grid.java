@@ -3,13 +3,14 @@ package navigation;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class Grid {
 	public final BoundingBox box;
 	public final GridCell[][] matrix;
 	public final int width;
 	public final int height;
-	public final HashSet<GridCell> occupied;
+	public final ConcurrentSkipListSet<GridCell> occupied;
 	
 	public static final int MAX_COLLISIONS = 5;
 	public static final long REFRESH_TIME = 10*1000;
@@ -26,11 +27,12 @@ public class Grid {
 				Point point = new Point(((box.min.x + x*Constants.GRID_RESOLUTION) + (Math.min(box.max.x, box.min.x + (x+1)*Constants.GRID_RESOLUTION)))/2., 
 						((box.min.y + y*Constants.GRID_RESOLUTION) + (Math.min(box.max.y, box.min.y + (y+1)*Constants.GRID_RESOLUTION)))/2.);
 				matrix[height - 1 - y][x] = new GridCell(x, y, index, point);
-				cell(x, y).value = 0.0;
 			}
 		}
 		
-		this.occupied = new HashSet<GridCell>();
+		//this.occupied = new HashSet<GridCell>();
+		this.occupied = new ConcurrentSkipListSet<GridCell>();
+		//this.occupied = new ConcurrentHashSet<GridCell>();
 	}
 	
 	public GridCell cell(int x, int y) {
@@ -58,17 +60,17 @@ public class Grid {
 		return x >= 0 && x < width && y >= 0 && y < height;
 	}
 	
-	public List<Point> getColliding() {
+	/*public List<Point> getColliding() {
 		List<Point> points = new LinkedList<Point>();
 		
 		//for (GridCell cell : occupied) {
 		//	points.add(cell.point);
 		//
-		//	/*if (System.currentTimeMillis() - cell.lastUpdate > 5*1000) {
+		//	if (System.currentTimeMillis() - cell.lastUpdate > 5*1000) {
 		//		points.add(cell.point);
 		//	} else {
 		//		
-		//	}*/
+		//	}
 		//}
 		
 		for (int x = 0; x < width; x++) {
@@ -81,14 +83,13 @@ public class Grid {
 				
 		
 		return points;
-	}
+	}*/	
 	
 	public void markColliding(Point point) {
 		GridCell cell = cell(point);
 		if (cell != null) {
-			cell.value += 1;
-			cell.lastUpdate = System.currentTimeMillis();
-			//occupied.add(cell);
+			cell.incrementValue();
+			occupied.add(cell);
 		}
 	}
 
@@ -96,9 +97,8 @@ public class Grid {
 		for (int x = getX(poly.boundingBox.min); x <= getX(poly.boundingBox.max); x++) {
 			for (int y = getY(poly.boundingBox.min); y <= getY(poly.boundingBox.max); y++) {
 				if (valid(x, y) && poly.contains(cell(x, y).point)) {
-					cell(x, y).value += 1;
-					cell(x, y).lastUpdate = System.currentTimeMillis();
-					//occupied.add(cell(x, y));
+					cell(x, y).incrementValue();
+					occupied.add(cell(x, y));
 				}
 			}
 		}
@@ -111,11 +111,12 @@ public class Grid {
 	}
 	
 	public boolean occupied(GridCell cell) {
-		if (cell.value > 0.0) {
-			if (System.currentTimeMillis() - cell.lastUpdate < REFRESH_TIME) {
+		if (cell.getValue() > 0.0) {
+			if (System.currentTimeMillis() - cell.getLastUpdate() < REFRESH_TIME) {
 				return true;
 			} else {
-				cell.value = 0.0;
+				cell.resetValue();
+				occupied.remove(cell);
 			}
 		} 
 		return false;

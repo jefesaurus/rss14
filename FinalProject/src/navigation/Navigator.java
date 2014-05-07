@@ -17,7 +17,7 @@ import org.ros.node.Node;
 import org.ros.node.topic.Publisher;
 import org.ros.node.topic.Subscriber;
 
-public class Navigator implements Runnable {
+public class Navigator {
 	public Node node;
 	public Subscriber<org.ros.message.rss_msgs.BumpMsg> bumperSub;
 	public Subscriber<org.ros.message.rss_msgs.BumpMsg> backBumperSub;
@@ -28,7 +28,7 @@ public class Navigator implements Runnable {
 	public NavigationGUI gui;
 	public World world;
 	public MotionPlanner planner;
-	protected boolean firstUpdate, frozen, pathReset, immediateLock;
+	protected boolean firstUpdate, frozen, pathReset, immediateLock, replanNeeded;
 	protected Configuration reference, initial, current;
 	
 	protected List<Goal> goals;
@@ -46,10 +46,11 @@ public class Navigator implements Runnable {
 		this.frozen = false;
 		this.pathReset = false;
 		this.immediateLock = false;
+		this.replanNeeded = false;
+		
 		this.reference = null;
 		//this.initial = world.getStart().configuration(0.); //Alec said that we can assume the robot starts facing east (angle 0) //TODO
 		this.initial = world.getStart().configuration(Math.PI); //Alec said that we can assume the robot starts facing east (angle 0)
-
 		this.current = null;
 		
 		this.goals = Collections.synchronizedList(new LinkedList<Goal>());		
@@ -139,10 +140,18 @@ public class Navigator implements Runnable {
 				System.out.println("Waiting for First Odometry Message");
 			}
 		}
+				
+		(new Thread() {
+			  public void run() {
+				  replanner();
+			  }
+			 }).start();
 		
-		//TODO - pause to make sure the Kinect settles
-		
-		new Thread(this).start();
+		(new Thread() {
+			  public void run() {
+				  motorController();
+			  }
+			 }).start();
 	}
 	
 	public void resetOdometry(Configuration correct) {
@@ -205,7 +214,7 @@ public class Navigator implements Runnable {
 		current = c;
 	}
 	
-	public boolean replan() {
+	public synchronized boolean replan() {
 		if (goals.size() == 0) {
 			return false;
 		}
@@ -226,6 +235,17 @@ public class Navigator implements Runnable {
 		
 		System.out.println("Could not find path from " + start + " to " + goal);
 		return false;
+	}
+	
+	public void replanner() {
+		while (true) {
+			Util.pause(10);
+			
+			if (replanNeeded) {
+				replan();
+				replanNeeded = false;
+			}
+		}
 	}
 	
 	public void draw() {
@@ -293,16 +313,15 @@ public class Navigator implements Runnable {
 	
 	//TODO - remove unused launch components
 	//TODO - remove netbook window of robot spaz
-	//TODO - automatically replan every couple seconds
 	//TODO - Alec says that the given map is complete wrt obstacles (ie it includes each perfectly), but the block positions may change
-	//If replanning frequently, it will automatically try forward after moving backward out of tough space
+	//TODO - If replanning frequently, it will automatically try forward after moving backward out of tough space
 	//TODO - trianglulation using two fiducials and an angle differntial. Reset reference and initial
 	
 	public MotionMsg computeForwardVelocities(Configuration start, Configuration end) {
-		//if (!safePath(start, end, DriveSystem.FORWARD, CollisionCheck.MAPONLY)) {
-		//	replan();
-		//	return null; //TODO collision checks to make sure if off path that it doesn't collide
-		//}
+		if (!safePath(start, end, DriveSystem.FORWARD, CollisionCheck.MAPONLY)) {
+			replanNeeded = true;
+			return createMotionMsg(0., 0.);
+		}
 		
 		double translateAngle =  Util.vectorAngle(end.x - start.x ,end.y - start.y);
 		double directionError = Util.angleDistance(start.theta, translateAngle);
@@ -331,10 +350,10 @@ public class Navigator implements Runnable {
 	}
 	
 	public MotionMsg computeBackwardVelocities(Configuration start, Configuration end) {
-		//if (!safePath(start, end, DriveSystem.BACKWARD, CollisionCheck.MAPONLY)) {
-		//	replan();
-		//	return null; //TODO collision checks to make sure if off path that it doesn't collide
-		//}
+		if (!safePath(start, end, DriveSystem.BACKWARD, CollisionCheck.MAPONLY)) {
+			replanNeeded = true;
+			return createMotionMsg(0., 0.);
+		}
 		
 		double translateAngle = Util.cleanAngle(Util.vectorAngle(end.x - start.x ,end.y - start.y) + Math.PI);
 		double directionError = Util.angleDistance(start.theta, translateAngle);
@@ -380,8 +399,7 @@ public class Navigator implements Runnable {
 		}		
 	}
 	
-	@Override
-	public void run() { 		
+	public void motorController() { 		
 		System.out.println("Started Navigator Loop");
 		long startTime = System.currentTimeMillis();
 		while (true) {
