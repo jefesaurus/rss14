@@ -39,9 +39,17 @@ public class Main implements NodeMain, Runnable {
 	
 	@Override
 	public void run() {
+		long startTime = System.currentTimeMillis();
 		while (true) {
 			// make decisions about which modules should be activated based on information they have
 			// if less than 30 seconds left
+			long currentTime= System.currentTimeMillis();
+			if (currentTime - startTime > 480*1000) { // 8 minutes
+				System.out.println("Depositing");
+				navigator.resume();
+				blockCol.takeOverDriving(false);
+				gates.openBlueGate();
+			}
 			boolean runningOutOfTime = false;
 			if (runningOutOfTime) {
 				System.out.println("running out of time");
