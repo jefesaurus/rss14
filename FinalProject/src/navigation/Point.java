@@ -10,6 +10,18 @@ public class Point implements Goal {
 		this.x = x;
 		this.y = y;
 	}
+	
+	public Point forwardTransform(Configuration other) {
+		double length = Util.vectorLength(x, y);
+		double angle = Util.vectorAngle(x, y) + other.theta;
+		return new Point(length*Math.cos(angle) + other.x, length*Math.sin(angle) + other.y);	
+	}
+	
+	public Point inverseTransform(Configuration other) {
+		double length = Util.vectorLength(x - other.x, y - other.y);
+		double angle = Util.vectorAngle(x - other.x, y - other.y) - other.theta;
+		return new Point(length*Math.cos(angle), length*Math.sin(angle));	
+	}
 
 	public double distance(Point other) {
 		return Math.sqrt((other.x - x) * (other.x - x) + (other.y - y)* (other.y - y));

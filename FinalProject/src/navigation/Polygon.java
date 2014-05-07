@@ -94,7 +94,7 @@ public class Polygon {
 		if (!boundingBox.contains(point)) {
 			return false;
 		}
-
+		
 		Point previous = points.get(0);
 		for (int i = 1; i < points.size(); i++) {
 			Point current = points.get(i);
@@ -103,7 +103,7 @@ public class Polygon {
 			}
 			previous = current;
 		}
-		return true;
+		return !Util.rightTurn(previous, points.get(0), point);
 	}
 	
 	public boolean contains(Polygon other) {

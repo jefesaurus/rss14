@@ -204,6 +204,22 @@ public class MotionPlanner {
 		return path;
 	}
 	
+	private List<Waypoint> lengthenPath(List<Waypoint> waypoints) { //it underestimates the distance heavily
+		double compenstation = .2;
+		List<Waypoint> longPath = new LinkedList<Waypoint>();
+		longPath.add(waypoints.get(0));
+		for (int i = 1; i < waypoints.size(); i ++ ) {
+			Waypoint pastWaypoint = waypoints.get(i-1);
+			Waypoint currentWaypoint = waypoints.get(i);
+			double translateAngle =  Util.vectorAngle(currentWaypoint.config.x - pastWaypoint.config.x, currentWaypoint.config.y - pastWaypoint.config.y);
+			Configuration newConfig = new Configuration(currentWaypoint.config.x + compenstation*Math.cos(translateAngle), 
+					currentWaypoint.config.y + compenstation*Math.sin(translateAngle), currentWaypoint.config.theta);
+			
+			longPath.add(new Waypoint(newConfig, currentWaypoint.drive, currentWaypoint.distance, currentWaypoint.grow));
+		}
+		return longPath;
+	}
+	
 	private List<Waypoint> findPath(Configuration rrtInitial, Goal rrtGoal, PlanningParameters rrtParam) {
 		long startTime = System.currentTimeMillis();
 		attempts = 0;
@@ -228,6 +244,9 @@ public class MotionPlanner {
 				//path = smoothPath(path);
 				//path = extractPath(path);
 				path = extractPath(smoothPath(path));
+				
+				path = lengthenPath(path);
+				
 				path.remove(0);
 				
 				attempts = i + 1;
@@ -259,7 +278,7 @@ public class MotionPlanner {
 	
 	public Waypoint safeBackward(Configuration start) {
 		double minDistance = .1; //Make it move to get out of an object
-		double maxDistance = minDistance + 2*Constants.ROBOT_RADIUS;
+		double maxDistance = minDistance + Constants.ROBOT_RADIUS;
 		double distance;
 		for (distance = minDistance; distance < 2*maxDistance; distance += Constants.TRANSLATION_STEP_DISTANCE) {
 			Configuration config = new Configuration(start.x - distance*Math.cos(start.theta), start.y - distance*Math.sin(start.theta), start.theta);			

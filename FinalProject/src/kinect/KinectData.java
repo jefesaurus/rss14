@@ -39,8 +39,7 @@ public class KinectData implements NodeMain {
 	public Pose pose;
 	public Pose3D kinectPose;
 	HashMap<IntTuple, double[]> occupancy;
-	Image rep;
-	
+
 	int START_COL = 0;
 	int END_COL = 640;
 	int START_ROW = 0;
@@ -57,25 +56,24 @@ public class KinectData implements NodeMain {
 		this.divideScale = divideScale;
 		rgb = new int[width/divideScale][height/divideScale][3];
 		zCoord = new double[width/divideScale][height/divideScale];
-		rep = new Image(width/divideScale, height/divideScale);
 
 		this.kinectPose = new Pose3D(new Point3D(0.0, 0.67, 0.0), Math.PI/2, -Math.PI/2. - .571, 0.);
-	
-	    this.occupancy = new HashMap<IntTuple, double[]>();
+
+		this.occupancy = new HashMap<IntTuple, double[]>();
 	}
-	
+
 	public int getWidth() {
 		return rawWidth/divideScale;
 	}
-	
+
 	public int getHeight() {
 		return rawHeight/divideScale;
 	}
-	
+
 	public int[] getColorPixel(int x, int y) {
 		return rgb[x][y];
 	}
-	
+
 	public Image getImage() {
 		Image answer = new Image(this.getWidth(), this.getHeight());
 		for (int x = 0; x < this.getWidth(); x++) {
@@ -85,7 +83,7 @@ public class KinectData implements NodeMain {
 		}
 		return answer;
 	}
-	
+
 	/**
 	 * Return null if this method has been called already without the rgb array changing
 	 * @return
@@ -97,13 +95,13 @@ public class KinectData implements NodeMain {
 		}
 		return null;
 	}
-	
+
 	public int[][][] getRGBArray() {
 		synchronized (rgb) {
 			return rgb;
 		}
 	}
-	
+
 	public int[][][] getNewRGBArray() {
 		if (newData) {
 			newData = false;
@@ -111,7 +109,7 @@ public class KinectData implements NodeMain {
 		}
 		return null;
 	}
-	
+
 	public boolean[][] getWallMask() {
 		boolean[][] mask = new boolean[this.getWidth()][this.getHeight()];
 		for (int x = 0; x < this.getWidth(); x++) {
@@ -122,12 +120,12 @@ public class KinectData implements NodeMain {
 				} else {
 					mask[x][y] = false;
 				}
-					
+
 			}
 		}
 		return mask;
 	}
-	
+
 	public boolean[][] getBlockMask() {
 		boolean[][] mask = new boolean[this.getWidth()][this.getHeight()];
 		for (int x = 0; x < this.getWidth(); x++) {
@@ -138,12 +136,12 @@ public class KinectData implements NodeMain {
 				} else {
 					mask[x][y] = false;
 				}
-					
+
 			}
 		}
 		return mask;
 	}
-	
+
 	@Override
 	public void onStart(Node node) {
 		System.out.println("KINECT NODE STARTED");
@@ -156,77 +154,87 @@ public class KinectData implements NodeMain {
 		});
 	}
 
-  int X_OFFSET = 0;
-  int Y_OFFSET = 4;
-  int Z_OFFSET = 8;
-  int R_OFFSET = 16;
-  int G_OFFSET = 17;
-  int B_OFFSET = 18;
-  float OCCUPANCY_RESOLUTION = .02f;
-  int OCCUPANCY_THRESHOLD = 3;
-  private long lastTimeProcessed = -1;
-  private int fps = 10;
-  
-  public void unpackPointCloudData(int width, int height, int pointStep, int rowStep, byte[] data) {
-	if (lastTimeProcessed < 0)
-		lastTimeProcessed = System.nanoTime();
-	else {
-		long elapsedMilli = (System.nanoTime() - lastTimeProcessed)/1000000;
-		if (elapsedMilli > 1000/fps) {
-			lastTimeProcessed = System.nanoTime();
-		} else {
-			return;
-		}
-	}
-//	System.out.println("Kinect message received: " + System.nanoTime()/1000000);
-	int offset, x_i, y_i, z_i, r_i, g_i, b_i;
-    float x, y, z;
-    int r, g, b;
-    Point3D point;
-    
-    
-    synchronized (rgb) {
-    	 int stepSize = this.divideScale;
-    	    for (int row = START_ROW; row < END_ROW; row += stepSize) {
-    	      for (int col = START_COL; col < END_COL; col += stepSize) {
-    	    	  offset = rowStep*row + pointStep*col;
-			        x_i = offset+X_OFFSET;
-			        y_i = offset+Y_OFFSET;
-			        z_i = offset+Z_OFFSET;
-			        r_i = offset+R_OFFSET;
-			        g_i = offset+G_OFFSET;
-			        b_i = offset+B_OFFSET;
-			        x = Float.intBitsToFloat((data[x_i+3] & 0xff) << 24 | (data[x_i+2] & 0xff) << 16 | (data[x_i+1] & 0xff) << 8 | (data[x_i] & 0xff)); 
-			        y = Float.intBitsToFloat((data[y_i+3] & 0xff) << 24 | (data[y_i+2] & 0xff) << 16 | (data[y_i+1] & 0xff) << 8 | (data[y_i] & 0xff)); 
-			        z = Float.intBitsToFloat((data[z_i+3] & 0xff) << 24 | (data[z_i+2] & 0xff) << 16 | (data[z_i+1] & 0xff) << 8 | (data[z_i] & 0xff)); 
-			        r = (data[r_i] & 0xff);
-			        g = (data[g_i] & 0xff);
-			        b = (data[b_i] & 0xff);
+	int X_OFFSET = 0;
+	int Y_OFFSET = 4;
+	int Z_OFFSET = 8;
+	int R_OFFSET = 16;
+	int G_OFFSET = 17;
+	int B_OFFSET = 18;
+	float OCCUPANCY_RESOLUTION = .02f;
+	int OCCUPANCY_THRESHOLD = 3;
+	private long lastTimeProcessed = -1;
+	private int fps = 10;
 
-	    	        if (!Float.isNaN(x) && !Float.isNaN(y) && !Float.isNaN(z)) {
-	    	        	point = kinectPose.fromFrame(new Point3D(x, y, z));
-	    		          if (point.z > 0.0) {
-	    		            IntTuple loc = new IntTuple((int)((point.x-.58)/OCCUPANCY_RESOLUTION), (int)(point.y/OCCUPANCY_RESOLUTION));
-	    		            double[] point_data = occupancy.get(loc);
-	    		            rep.setPixel((col-START_COL)/divideScale, (row-START_ROW)/divideScale, data[r_i], data[g_i], data[b_i]);
-	    		            if (point_data == null) {
-	    		              occupancy.put(loc, new double[] {1,point.z,0,0,0});
-	    		            } else {
-	    		              point_data[0] ++;
-	    		              point_data[1] += point.z;
-	    		            }
-	    		          }
-	    		        zCoord[(col-START_COL)/divideScale][(row-START_ROW)/divideScale] = point.z;
-	    		       // fill in rgb
-	  		        	rgb[(col-START_COL)/divideScale][(row-START_ROW)/divideScale][2] = r;
-	  		        	rgb[(col-START_COL)/divideScale][(row-START_ROW)/divideScale][1] = g;
-	  		        	rgb[(col-START_COL)/divideScale][(row-START_ROW)/divideScale][0] = b;
-	    	      }
-    	    }
-    	  }
-    	  newData = true;
-    }
-  }
+	public void unpackPointCloudData(int width, int height, int pointStep, int rowStep, byte[] data) {
+		if (lastTimeProcessed < 0)
+			lastTimeProcessed = System.nanoTime();
+		else {
+			long elapsedMilli = (System.nanoTime() - lastTimeProcessed)/1000000;
+			if (elapsedMilli > 1000/fps) {
+				lastTimeProcessed = System.nanoTime();
+			} else {
+				return;
+			}
+		}
+		//	System.out.println("Kinect message received: " + System.nanoTime()/1000000);
+		int offset, x_i, y_i, z_i, r_i, g_i, b_i;
+		float x, y, z;
+		int r, g, b;
+		Point3D point;
+
+
+		int stepSize = this.divideScale;
+		for (int row = START_ROW; row < END_ROW; row += stepSize) {
+			for (int col = START_COL; col < END_COL; col += stepSize) {
+				offset = rowStep*row + pointStep*col;
+				x_i = offset+X_OFFSET;
+				y_i = offset+Y_OFFSET;
+				z_i = offset+Z_OFFSET;
+				r_i = offset+R_OFFSET;
+				g_i = offset+G_OFFSET;
+				b_i = offset+B_OFFSET;
+				x = Float.intBitsToFloat((data[x_i+3] & 0xff) << 24 | (data[x_i+2] & 0xff) << 16 | (data[x_i+1] & 0xff) << 8 | (data[x_i] & 0xff)); 
+				y = Float.intBitsToFloat((data[y_i+3] & 0xff) << 24 | (data[y_i+2] & 0xff) << 16 | (data[y_i+1] & 0xff) << 8 | (data[y_i] & 0xff)); 
+				z = Float.intBitsToFloat((data[z_i+3] & 0xff) << 24 | (data[z_i+2] & 0xff) << 16 | (data[z_i+1] & 0xff) << 8 | (data[z_i] & 0xff)); 
+				r = (data[r_i] & 0xff);
+				g = (data[g_i] & 0xff);
+				b = (data[b_i] & 0xff);
+				float[] hsv = new float[3];
+
+				if (!Float.isNaN(x) && !Float.isNaN(y) && !Float.isNaN(z)) {
+					point = kinectPose.fromFrame(new Point3D(x, y, z));
+					if (point.z > 0.0) {
+						IntTuple loc = new IntTuple((int)((point.x-.58)/OCCUPANCY_RESOLUTION), (int)(point.y/OCCUPANCY_RESOLUTION));
+						double[] point_data = occupancy.get(loc);
+						boolean isWall = false;
+						if (point.z > .08) {
+							isWall = true;
+						} else {
+							Color.RGBtoHSB(r, g, b, hsv);
+							if (hsv[1] < .4) {
+								isWall = true;
+							}
+						}
+						if (isWall) {
+							if (point_data == null) {
+								occupancy.put(loc, new double[] {1,point.z,0,0,0});
+							} else {
+								point_data[0] ++;
+								point_data[1] += point.z;
+							}
+						}
+					}
+					
+					zCoord[(col-START_COL)/divideScale][(row-START_ROW)/divideScale] = point.z;
+					// fill in rgb
+					rgb[(col-START_COL)/divideScale][(row-START_ROW)/divideScale][2] = r;
+					rgb[(col-START_COL)/divideScale][(row-START_ROW)/divideScale][1] = g;
+					rgb[(col-START_COL)/divideScale][(row-START_ROW)/divideScale][0] = b;
+				}
+			}
+		}
+		newData = true;
+	}
 
 
 
